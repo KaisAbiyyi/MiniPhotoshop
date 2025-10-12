@@ -3,40 +3,69 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Mini Photoshop"
         Height="600"
-        Width="800">
-    <Grid>
+        Width="900"
+        MinHeight="450"
+        MinWidth="700">
+    <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
-        <!-- Header with file selection button -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" HorizontalAlignment="Center">
-            <Button Name="SelectImageButton" 
-                    Content="Pilih Gambar" 
-                    Padding="15,5" 
+
+    <StackPanel Grid.Row="0"
+            Orientation="Horizontal"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Left"
+            Margin="0,0,0,12">
+            <Button Name="SelectImageButton"
+                    Content="Buka Gambar..."
+                    Padding="16,6"
                     FontSize="14"
-                    Click="SelectImageButton_Click"/>
-            <TextBlock Name="FileNameText" 
-                       VerticalAlignment="Center" 
-                       Margin="15,0,0,0" 
-                       FontStyle="Italic" 
-                       Foreground="Gray"
-                       Text="Belum ada gambar dipilih"/>
+            Click="SelectImageButton_Click"
+            Margin="0,0,12,0"/>
+            <Button Name="SavePixelsButton"
+                    Content="Simpan Pixel"
+                    Padding="16,6"
+                    FontSize="14"
+                    Click="SavePixelsButton_Click"
+                    IsEnabled="False"/>
         </StackPanel>
-        
-        <!-- Image display area -->
-        <Border Grid.Row="1" 
-                Margin="10" 
-                BorderBrush="LightGray" 
-                BorderThickness="2" 
-                CornerRadius="5">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" 
-                          VerticalScrollBarVisibility="Auto">
-                <Image Name="DisplayImage" 
-                       Stretch="Uniform" 
-                       HorizontalAlignment="Center" 
-                       VerticalAlignment="Center"/>
+
+        <Border Grid.Row="1"
+                Padding="12"
+                BorderBrush="#FFDFE2E5"
+                BorderThickness="1"
+                CornerRadius="6"
+                Background="#FFF8FAFC">
+        <StackPanel Orientation="Vertical">
+                <TextBlock Name="FileNameText"
+                           Text="Belum ada gambar dipilih"
+                           FontSize="14"
+                           FontStyle="Italic"
+                           Foreground="Gray"/>
+                <TextBlock Name="ImageInfoText"
+                           Text="Pilih gambar untuk melihat detail dan menyimpan data pixel."
+               FontSize="12"
+               Foreground="#FF51606A"
+               Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2"
+                Margin="0,16,0,0"
+                BorderBrush="#FFDFE2E5"
+                BorderThickness="1"
+                CornerRadius="8"
+                Background="White">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto"
+                          Focusable="False">
+                <Image Name="DisplayImage"
+                       Stretch="Uniform"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Margin="12"/>
             </ScrollViewer>
         </Border>
     </Grid>
