@@ -169,23 +169,32 @@ namespace MiniPhotoshop
                 int height = _cachedHeight;
 
                 using StreamWriter writer = new StreamWriter(saveFileDialog.FileName);
-                writer.WriteLine($"# Data pixel untuk {FileNameText.Text} ({width} x {height})");
-                writer.WriteLine("# Format baris: x,y | R,G,B | Gray");
+                writer.WriteLine($"# Data pixel untuk {FileNameText.Text}");
+                writer.WriteLine($"# Dimensi: [{width}][{height}][4]");
+                writer.WriteLine($"# Format: [x][y][channel] dimana channel: 0=Red, 1=Green, 2=Blue, 3=Grayscale");
+                writer.WriteLine();
 
-                // Tulis data pixel dari cache ke file
-                for (int y = 0; y < height; y++)
+                // Tulis data dalam format array 3 dimensi native
+                writer.WriteLine("[");
+                for (int x = 0; x < width; x++)
                 {
-                    for (int x = 0; x < width; x++)
+                    writer.WriteLine("  [");
+                    for (int y = 0; y < height; y++)
                     {
-                        // Ambil nilai dari cache [x, y, index]
+                        // Ambil nilai dari cache [x, y, channel]
                         byte r = _pixelCache[x, y, 0];
                         byte g = _pixelCache[x, y, 1];
                         byte b = _pixelCache[x, y, 2];
                         byte gray = _pixelCache[x, y, 3];
 
-                        writer.WriteLine($"{x},{y} | {r},{g},{b} | {gray}");
+                        // Format: [R, G, B, Gray]
+                        string comma = (y < height - 1) ? "," : "";
+                        writer.WriteLine($"    [{r}, {g}, {b}, {gray}]{comma}");
                     }
+                    string arrayComma = (x < width - 1) ? "," : "";
+                    writer.WriteLine($"  ]{arrayComma}");
                 }
+                writer.WriteLine("]");
 
                 writer.Flush();
 
