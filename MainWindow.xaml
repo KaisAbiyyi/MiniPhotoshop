@@ -13,24 +13,32 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-    <StackPanel Grid.Row="0"
-            Orientation="Horizontal"
-            VerticalAlignment="Center"
-            HorizontalAlignment="Left"
-            Margin="0,0,0,12">
-            <Button Name="SelectImageButton"
-                    Content="Buka Gambar..."
-                    Padding="16,6"
-                    FontSize="14"
-            Click="SelectImageButton_Click"
-            Margin="0,0,12,0"/>
-            <Button Name="SavePixelsButton"
-                    Content="Simpan Pixel"
-                    Padding="16,6"
-                    FontSize="14"
-                    Click="SavePixelsButton_Click"
-                    IsEnabled="False"/>
-        </StackPanel>
+        <DockPanel Grid.Row="0"
+                   Margin="0,0,0,12"
+                   LastChildFill="False">
+            <Border Background="#FFF8FAFC"
+                    BorderBrush="#FFDFE2E5"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="2"
+                    HorizontalAlignment="Left">
+                <Menu Background="Transparent"
+                      BorderThickness="0"
+                      Margin="0"
+                      VerticalAlignment="Center"
+                      FontSize="14">
+                    <MenuItem Header="_File"
+                              Padding="16,6">
+                        <MenuItem Header="Buka Gambar..."
+                                  Click="SelectImageButton_Click"/>
+                        <MenuItem x:Name="SavePixelsMenuItem"
+                                  Header="Simpan Pixel"
+                                  Click="SavePixelsButton_Click"
+                                  IsEnabled="False"/>
+                    </MenuItem>
+                </Menu>
+            </Border>
+        </DockPanel>
 
         <Border Grid.Row="1"
                 Padding="12"
@@ -52,21 +60,107 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="2"
-                Margin="0,16,0,0"
-                BorderBrush="#FFDFE2E5"
-                BorderThickness="1"
-                CornerRadius="8"
-                Background="White">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Auto"
-                          Focusable="False">
-                <Image Name="DisplayImage"
-                       Stretch="Uniform"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       Margin="12"/>
-            </ScrollViewer>
-        </Border>
+        <Grid Grid.Row="2"
+              Margin="0,16,0,0">
+            <Border BorderBrush="#FFDFE2E5"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Background="White"
+                    Padding="12"
+                    SnapsToDevicePixels="True">
+                <ScrollViewer x:Name="WorkspaceScrollViewer"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
+                              PanningMode="Both"
+                              Focusable="True"
+                              PreviewMouseWheel="WorkspaceScrollViewer_PreviewMouseWheel">
+                    <Grid Background="Transparent">
+                        <Image Name="DisplayImage"
+                               Stretch="None"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               IsManipulationEnabled="True"
+                               ManipulationStarting="DisplayImage_ManipulationStarting"
+                               ManipulationDelta="DisplayImage_ManipulationDelta">
+                            <Image.LayoutTransform>
+                                <ScaleTransform x:Name="ImageScaleTransform"
+                                                ScaleX="1"
+                                                ScaleY="1"/>
+                            </Image.LayoutTransform>
+                        </Image>
+                    </Grid>
+                </ScrollViewer>
+            </Border>
+
+            <Border HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    Margin="0,0,0,12"
+                    Padding="12,10"
+                    Background="#F9FBFD"
+                    BorderBrush="#FFD0D7DF"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Panel.ZIndex="10">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12"
+                                      ShadowDepth="0"
+                                      Color="#1A000000"
+                                      Opacity="0.8"/>
+                </Border.Effect>
+                <ItemsControl x:Name="FilterPreviewList">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border CornerRadius="8"
+                                    BorderThickness="2"
+                                    Padding="2"
+                                    Margin="4,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="BorderBrush"
+                                                Value="Transparent"/>
+                                        <Setter Property="Background"
+                                                Value="White"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsActive}"
+                                                         Value="True">
+                                                <Setter Property="BorderBrush"
+                                                        Value="#FF4C8BF5"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Button Click="FilterPreview_Click"
+                                        CommandParameter="{Binding Mode}"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="8,6"
+                                        Cursor="Hand">
+                                    <StackPanel Width="110">
+                                        <Image Source="{Binding PreviewSource}"
+                                               Width="110"
+                                               Height="72"
+                                               Stretch="UniformToFill"
+                                               SnapsToDevicePixels="True"
+                                               Margin="0,0,0,6"/>
+                                        <TextBlock Text="{Binding Title}"
+                                                   FontSize="12"
+                                                   Foreground="#FF35424E"
+                                                   HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </Grid>
     </Grid>
 </Window>
