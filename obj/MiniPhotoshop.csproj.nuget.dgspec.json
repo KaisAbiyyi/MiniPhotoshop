@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\projects\\MiniPhotoshop\\MiniPhotoshop\\MiniPhotoshop.csproj": {}
+    "C:\\projects\\MiniPhotoshop\\MiniPhotoshop.csproj": {}
   },
   "projects": {
-    "C:\\projects\\MiniPhotoshop\\MiniPhotoshop\\MiniPhotoshop.csproj": {
+    "C:\\projects\\MiniPhotoshop\\MiniPhotoshop.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\projects\\MiniPhotoshop\\MiniPhotoshop\\MiniPhotoshop.csproj",
+        "projectUniqueName": "C:\\projects\\MiniPhotoshop\\MiniPhotoshop.csproj",
         "projectName": "MiniPhotoshop",
-        "projectPath": "C:\\projects\\MiniPhotoshop\\MiniPhotoshop\\MiniPhotoshop.csproj",
+        "projectPath": "C:\\projects\\MiniPhotoshop\\MiniPhotoshop.csproj",
         "packagesPath": "C:\\Users\\kaisa\\.nuget\\packages\\",
-        "outputPath": "C:\\projects\\MiniPhotoshop\\MiniPhotoshop\\obj\\",
+        "outputPath": "C:\\projects\\MiniPhotoshop\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -65,7 +65,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.317/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.318/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
