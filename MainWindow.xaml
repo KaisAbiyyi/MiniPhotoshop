@@ -62,7 +62,13 @@
 
         <Grid Grid.Row="2"
               Margin="0,16,0,0">
-            <Border BorderBrush="#FFDFE2E5"
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="SidebarColumn" Width="0"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    BorderBrush="#FFDFE2E5"
                     BorderThickness="1"
                     CornerRadius="8"
                     Background="White"
@@ -160,6 +166,62 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+            </Border>
+
+            <!-- Sidebar Kanan - Histogram -->
+            <Border x:Name="SidebarPanel"
+                    Grid.Column="1"
+                    BorderBrush="#FFDFE2E5"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Background="White"
+                    Margin="12,0,0,0"
+                    Padding="16"
+                    Visibility="Collapsed">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="Histogram"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,20"/>
+                        
+                        <!-- Red -->
+                        <TextBlock Text="Red" FontSize="11" Foreground="#E74C3C" Margin="0,0,0,4"/>
+                        <Canvas x:Name="HistogramRed" 
+                                Height="80" 
+                                Background="#FFF5F5F5" 
+                                Margin="0,0,0,16"
+                                Cursor="Hand"
+                                MouseLeftButtonDown="HistogramRed_Click"/>
+                        
+                        <!-- Green -->
+                        <TextBlock Text="Green" FontSize="11" Foreground="#27AE60" Margin="0,0,0,4"/>
+                        <Canvas x:Name="HistogramGreen" 
+                                Height="80" 
+                                Background="#FFF5F5F5" 
+                                Margin="0,0,0,16"
+                                Cursor="Hand"
+                                MouseLeftButtonDown="HistogramGreen_Click"/>
+                        
+                        <!-- Blue -->
+                        <TextBlock Text="Blue" FontSize="11" Foreground="#3498DB" Margin="0,0,0,4"/>
+                        <Canvas x:Name="HistogramBlue" 
+                                Height="80" 
+                                Background="#FFF5F5F5" 
+                                Margin="0,0,0,16"
+                                Cursor="Hand"
+                                MouseLeftButtonDown="HistogramBlue_Click"/>
+                        
+                        <!-- Grayscale -->
+                        <TextBlock Text="Grayscale" FontSize="11" Foreground="#95A5A6" Margin="0,0,0,4"/>
+                        <Canvas x:Name="HistogramGray" 
+                                Height="80" 
+                                Background="#FFF5F5F5" 
+                                Margin="0,0,0,0"
+                                Cursor="Hand"
+                                MouseLeftButtonDown="HistogramGray_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
     </Grid>

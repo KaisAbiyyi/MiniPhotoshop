@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using IOPath = System.IO.Path;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Windows.Interop;
+using System.Windows.Shapes;
 using Microsoft.Win32;
 
 #nullable enable
@@ -36,6 +38,15 @@ namespace MiniPhotoshop
         private byte[,,]? _pixelCache;
         private int _cachedWidth;
         private int _cachedHeight;
+        
+        // Menyimpan path file untuk info sidebar
+        private string? _currentFilePath;
+        
+        // Menyimpan data histogram untuk popup
+        private int[]? _histogramRed;
+        private int[]? _histogramGreen;
+        private int[]? _histogramBlue;
+        private int[]? _histogramGray;
 
         public MainWindow()
         {
@@ -97,6 +108,9 @@ namespace MiniPhotoshop
                     _filterCache.Clear();
                     _filterCache[ImageFilterMode.Original] = bitmap;
 
+                    // Simpan path file
+                    _currentFilePath = openFileDialog.FileName;
+
                     // Ekstrak pixel dan simpan ke memory cache
                     ExtractPixelsToCache(bitmap);
 
@@ -105,10 +119,14 @@ namespace MiniPhotoshop
                     ApplyFilter(ImageFilterMode.Original, resetZoom: true);
 
                     // Update text untuk menampilkan nama file
-                    FileNameText.Text = Path.GetFileName(openFileDialog.FileName);
+                    FileNameText.Text = IOPath.GetFileName(openFileDialog.FileName);
                     FileNameText.Foreground = System.Windows.Media.Brushes.Black;
                     ImageInfoText.Text = $"Resolusi: {bitmap.PixelWidth} x {bitmap.PixelHeight} | Format: {bitmap.Format}";
                     SavePixelsMenuItem.IsEnabled = true;
+                    
+                    // Tampilkan sidebar dan update histogram
+                    ShowSidebar();
+                    UpdateHistograms();
                 }
                 catch (Exception ex)
                 {
@@ -193,7 +211,7 @@ namespace MiniPhotoshop
                 Title = "Simpan Data Pixel",
                 Filter = "Text Files|*.txt|All Files|*.*",
                 DefaultExt = "txt",
-                FileName = Path.ChangeExtension(FileNameText.Text, ".txt")
+                FileName = IOPath.ChangeExtension(FileNameText.Text, ".txt")
             };
 
             if (saveFileDialog.ShowDialog() != true)
@@ -576,6 +594,7 @@ namespace MiniPhotoshop
         {
             _loadedBitmap = null;
             _pixelCache = null;
+            _currentFilePath = null;
             _filterCache.Clear();
             _previewItems.Clear();
             DisplayImage.Source = null;
@@ -589,6 +608,156 @@ namespace MiniPhotoshop
             FileNameText.Text = "Belum ada gambar dipilih";
             FileNameText.Foreground = System.Windows.Media.Brushes.Gray;
             ImageInfoText.Text = "Pilih gambar untuk melihat detail dan menyimpan data pixel.";
+            
+            // Reset histogram data
+            _histogramRed = null;
+            _histogramGreen = null;
+            _histogramBlue = null;
+            _histogramGray = null;
+            
+            // Sembunyikan sidebar
+            HideSidebar();
+        }
+
+        // Fungsi untuk menampilkan sidebar
+        private void ShowSidebar()
+        {
+            SidebarColumn.Width = new GridLength(280);
+            SidebarPanel.Visibility = Visibility.Visible;
+        }
+
+        // Fungsi untuk menyembunyikan sidebar
+        private void HideSidebar()
+        {
+            SidebarColumn.Width = new GridLength(0);
+            SidebarPanel.Visibility = Visibility.Collapsed;
+        }
+
+        // Fungsi untuk update semua histogram
+        private void UpdateHistograms()
+        {
+            if (_pixelCache == null) return;
+
+            // Hitung dan simpan histogram untuk setiap channel (0=Red, 1=Green, 2=Blue, 3=Gray)
+            _histogramRed = CalculateHistogram(0);
+            _histogramGreen = CalculateHistogram(1);
+            _histogramBlue = CalculateHistogram(2);
+            _histogramGray = CalculateHistogram(3);
+            
+            // Gambar histogram di sidebar
+            DrawHistogramOnCanvas(HistogramRed, _histogramRed, Colors.Red);
+            DrawHistogramOnCanvas(HistogramGreen, _histogramGreen, Colors.Green);
+            DrawHistogramOnCanvas(HistogramBlue, _histogramBlue, Colors.Blue);
+            DrawHistogramOnCanvas(HistogramGray, _histogramGray, Colors.Gray);
+        }
+
+        // Fungsi untuk menghitung histogram dari pixel cache
+        private int[] CalculateHistogram(int channel)
+        {
+            int[] histogram = new int[256];
+            
+            for (int x = 0; x < _cachedWidth; x++)
+            {
+                for (int y = 0; y < _cachedHeight; y++)
+                {
+                    byte value = _pixelCache![x, y, channel];
+                    // Byte otomatis 0-255, tapi pastikan tetap dalam range
+                    if (value <= 255)
+                    {
+                        histogram[value]++;
+                    }
+                }
+            }
+            
+            return histogram;
+        }
+
+        // Fungsi untuk menggambar histogram di canvas sidebar
+        private void DrawHistogramOnCanvas(Canvas canvas, int[] histogram, Color color)
+        {
+            canvas.Children.Clear();
+            
+            if (histogram == null || histogram.Length != 256) return;
+            
+            // Cari nilai maksimum untuk normalisasi (hanya dari 0-255)
+            int maxCount = 0;
+            for (int i = 0; i < 256; i++)
+            {
+                if (histogram[i] > maxCount)
+                    maxCount = histogram[i];
+            }
+            
+            if (maxCount == 0) return;
+            
+            // Gambar histogram - 255 di ujung kanan
+            double width = canvas.ActualWidth > 0 ? canvas.ActualWidth : 248;
+            double height = canvas.Height;
+            // Bagi dengan 255 agar bar 255 tepat di ujung (0 di awal, 255 di akhir)
+            double barWidth = width / 255.0;
+            
+            for (int i = 0; i < 256; i++)
+            {
+                if (histogram[i] > 0)
+                {
+                    double barHeight = (histogram[i] / (double)maxCount) * height;
+                    double xPosition = i * barWidth;
+                    
+                    Rectangle bar = new Rectangle
+                    {
+                        Width = barWidth,
+                        Height = barHeight,
+                        Fill = new SolidColorBrush(color)
+                    };
+                    
+                    Canvas.SetLeft(bar, xPosition);
+                    Canvas.SetBottom(bar, 0);
+                    canvas.Children.Add(bar);
+                }
+            }
+        }
+
+        // Event handler untuk klik histogram Red
+        private void HistogramRed_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (_histogramRed != null)
+            {
+                HistogramWindow window = new HistogramWindow("Red Channel", _histogramRed, Colors.Red);
+                window.Owner = this;
+                window.ShowDialog();
+            }
+        }
+
+        // Event handler untuk klik histogram Green
+        private void HistogramGreen_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (_histogramGreen != null)
+            {
+                HistogramWindow window = new HistogramWindow("Green Channel", _histogramGreen, Colors.Green);
+                window.Owner = this;
+                window.ShowDialog();
+            }
+        }
+
+        // Event handler untuk klik histogram Blue
+        private void HistogramBlue_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (_histogramBlue != null)
+            {
+                HistogramWindow window = new HistogramWindow("Blue Channel", _histogramBlue, Colors.Blue);
+                window.Owner = this;
+                window.ShowDialog();
+            }
+        }
+
+        // Event handler untuk klik histogram Grayscale
+        private void HistogramGray_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (_histogramGray != null)
+            {
+                HistogramWindow window = new HistogramWindow("Grayscale", _histogramGray, Colors.Gray);
+                window.Owner = this;
+                window.ShowDialog();
+            }
         }
 
         private enum ImageFilterMode
