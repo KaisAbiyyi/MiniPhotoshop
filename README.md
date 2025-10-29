@@ -5,12 +5,19 @@ A simple image editing application built with WPF and C#.
 ## Features
 
 - **File Operations**: Open and save images (JPG, PNG, BMP, GIF)
-- **Navigation**: Undo/Redo, Zoom in/out, fit-to-screen
-- **Transformations**: Crop, resize, rotate, flip
-- **Adjustments**: Brightness, contrast, saturation controls
-- **Drawing Tools**: Brush, eraser, fill, text, shapes (rectangle, circle, line)
-- **Color Tools**: Color picker and palette
-- **Selection**: Rectangle select, simple lasso tool
+- **Pixel Data Export**: Save pixel data in 3D array format
+- **Color Filters**: Red only, Green only, Blue only, Grayscale
+- **Histogram Visualization**: View RGB and Grayscale histograms
+
+### Advanced Image Processing (5 Tugas)
+
+1. **Negasi Citra** - Invert colors using formula: 255 - pixel_value
+2. **Brightness Adjustment** - Dynamic slider (-255 to +255) with lossless data handling
+3. **Grayscale Comparison** - Side-by-side comparison of Average vs Luminance methods
+4. **Interactive Color Selection** - Click to isolate specific colors
+5. **Binary Threshold + Negation** - Threshold at 128 then apply negation
+
+*Untuk detail implementasi, lihat [IMPLEMENTASI_5_TUGAS.md](IMPLEMENTASI_5_TUGAS.md)*
 
 ## Requirements
 

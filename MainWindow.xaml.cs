@@ -48,6 +48,18 @@ namespace MiniPhotoshop
         private int[]? _histogramBlue;
         private int[]? _histogramGray;
 
+        // Tugas 2: Brightness - array temporer untuk mencegah data loss
+        private int[,,]? _brightnessTemp;
+        private double _previousBrightness = 0;
+
+        // Tugas 1: Negasi - flag untuk toggle
+        private bool _isNegationActive = false;
+
+        // Tugas 4: Color Selection
+        private bool _colorSelectionMode = false;
+        private byte _targetR, _targetG, _targetB;
+        private BitmapSource? _originalBeforeColorSelection;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -123,6 +135,24 @@ namespace MiniPhotoshop
                     FileNameText.Foreground = System.Windows.Media.Brushes.Black;
                     ImageInfoText.Text = $"Resolusi: {bitmap.PixelWidth} x {bitmap.PixelHeight} | Format: {bitmap.Format}";
                     SavePixelsMenuItem.IsEnabled = true;
+                    
+                    // Enable negation toggle
+                    NegationToggle.IsEnabled = true;
+                    NegationToggle.IsChecked = false;
+                    _isNegationActive = false;
+                    
+                    // Tampilkan slider brightness dan color selection
+                    BrightnessPanel.Visibility = Visibility.Visible;
+                    ColorSelectionPanel.Visibility = Visibility.Visible;
+                    
+                    // Reset brightness slider
+                    BrightnessSlider.Value = 0;
+                    _previousBrightness = 0;
+                    _brightnessTemp = null;
+                    
+                    // Reset color selection
+                    ColorSelectionCheckBox.IsChecked = false;
+                    _colorSelectionMode = false;
                     
                     // Tampilkan sidebar dan update histogram
                     ShowSidebar();
@@ -282,9 +312,16 @@ namespace MiniPhotoshop
                 return;
             }
 
-            BitmapSource source = GetFilteredBitmap(mode);
-            DisplayImage.Source = source;
             _activeFilter = mode;
+            
+            // Reset brightness temp array ketika ganti filter
+            _brightnessTemp = null;
+            _previousBrightness = 0;
+            BrightnessSlider.Value = 0;
+            
+            // Tampilkan gambar dengan negasi (jika aktif) dan brightness
+            DisplayImage.Source = GetProcessedBitmap();
+            
             UpdatePreviewSelection();
 
             if (resetZoom)
@@ -320,6 +357,52 @@ namespace MiniPhotoshop
 
             _filterCache[mode] = result;
             return result;
+        }
+
+        // Method baru untuk mendapatkan bitmap dengan negasi (jika aktif) dan brightness
+        private BitmapSource GetProcessedBitmap()
+        {
+            // Mulai dari filter yang dipilih
+            BitmapSource source = GetFilteredBitmap(_activeFilter);
+            
+            // Apply negasi jika aktif
+            if (_isNegationActive)
+            {
+                source = ApplyNegationToBitmap(source);
+            }
+            
+            // Apply brightness jika ada perubahan
+            if (_brightnessTemp != null && _previousBrightness != 0)
+            {
+                source = CreateBrightnessDisplayBitmap();
+            }
+            
+            return source;
+        }
+
+        private BitmapSource ApplyNegationToBitmap(BitmapSource source)
+        {
+            BitmapSource normalized = EnsureBgra32(source);
+            int width = normalized.PixelWidth;
+            int height = normalized.PixelHeight;
+            int stride = width * 4;
+            byte[] buffer = new byte[stride * height];
+            
+            normalized.CopyPixels(buffer, stride, 0);
+            
+            // Apply negasi
+            for (int i = 0; i < buffer.Length; i += 4)
+            {
+                buffer[i] = (byte)(255 - buffer[i]);         // B
+                buffer[i + 1] = (byte)(255 - buffer[i + 1]); // G
+                buffer[i + 2] = (byte)(255 - buffer[i + 2]); // R
+                // Alpha tetap
+            }
+            
+            WriteableBitmap writable = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
+            writable.WritePixels(new Int32Rect(0, 0, width, height), buffer, stride, 0);
+            writable.Freeze();
+            return writable;
         }
 
         private BitmapSource CreateFilteredBitmap(Func<byte, byte, byte, byte, (byte R, byte G, byte B)> channelSelector)
@@ -615,6 +698,23 @@ namespace MiniPhotoshop
             _histogramBlue = null;
             _histogramGray = null;
             
+            // Reset negation toggle
+            NegationToggle.IsEnabled = false;
+            NegationToggle.IsChecked = false;
+            _isNegationActive = false;
+            
+            // Reset brightness
+            BrightnessPanel.Visibility = Visibility.Collapsed;
+            BrightnessSlider.Value = 0;
+            _previousBrightness = 0;
+            _brightnessTemp = null;
+            
+            // Reset color selection
+            ColorSelectionPanel.Visibility = Visibility.Collapsed;
+            ColorSelectionCheckBox.IsChecked = false;
+            _colorSelectionMode = false;
+            _originalBeforeColorSelection = null;
+            
             // Sembunyikan sidebar
             HideSidebar();
         }
@@ -758,6 +858,255 @@ namespace MiniPhotoshop
                 window.Owner = this;
                 window.ShowDialog();
             }
+        }
+
+        // ============================================
+        // TUGAS 1: NEGASI CITRA (Toggle)
+        // ============================================
+        private void NegationToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            _isNegationActive = true;
+            
+            // Reset brightness temp agar apply ke gambar dengan negasi
+            _brightnessTemp = null;
+            _previousBrightness = 0;
+            BrightnessSlider.Value = 0;
+            
+            DisplayImage.Source = GetProcessedBitmap();
+        }
+
+        private void NegationToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _isNegationActive = false;
+            
+            // Reset brightness temp agar apply ke gambar tanpa negasi
+            _brightnessTemp = null;
+            _previousBrightness = 0;
+            BrightnessSlider.Value = 0;
+            
+            DisplayImage.Source = GetProcessedBitmap();
+        }
+
+        // ============================================
+        // TUGAS 2: BRIGHTNESS SLIDER DINAMIS (-255 to +255)
+        // ============================================
+        private void BrightnessSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_pixelCache == null || _loadedBitmap == null) return;
+
+            try
+            {
+                // Inisialisasi array temporer jika belum ada
+                if (_brightnessTemp == null)
+                {
+                    InitializeBrightnessTemp();
+                }
+
+                double currentBrightness = BrightnessSlider.Value;
+                double delta = currentBrightness - _previousBrightness;
+
+                // Update array temporer dengan delta
+                int width = _cachedWidth;
+                int height = _cachedHeight;
+
+                for (int x = 0; x < width; x++)
+                {
+                    for (int y = 0; y < height; y++)
+                    {
+                        _brightnessTemp![x, y, 0] += (int)delta; // R
+                        _brightnessTemp[x, y, 1] += (int)delta;  // G
+                        _brightnessTemp[x, y, 2] += (int)delta;  // B
+                    }
+                }
+
+                _previousBrightness = currentBrightness;
+
+                // Tampilkan hasil dengan filter aktif + negasi (jika aktif) + brightness
+                DisplayImage.Source = GetProcessedBitmap();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Gagal menerapkan brightness: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void InitializeBrightnessTemp()
+        {
+            // Inisialisasi dari filter yang sedang aktif
+            BitmapSource currentFilter = GetFilteredBitmap(_activeFilter);
+            
+            // Apply negasi dulu jika aktif
+            if (_isNegationActive)
+            {
+                currentFilter = ApplyNegationToBitmap(currentFilter);
+            }
+            
+            BitmapSource normalized = EnsureBgra32(currentFilter);
+            int width = normalized.PixelWidth;
+            int height = normalized.PixelHeight;
+            int stride = width * 4;
+            byte[] buffer = new byte[stride * height];
+            
+            normalized.CopyPixels(buffer, stride, 0);
+            
+            _brightnessTemp = new int[width, height, 3];
+
+            // Salin nilai dari filter+negasi yang aktif ke array temporer
+            for (int y = 0; y < height; y++)
+            {
+                int rowOffset = y * stride;
+                for (int x = 0; x < width; x++)
+                {
+                    int offset = rowOffset + (x * 4);
+                    _brightnessTemp[x, y, 0] = buffer[offset + 2]; // R
+                    _brightnessTemp[x, y, 1] = buffer[offset + 1]; // G
+                    _brightnessTemp[x, y, 2] = buffer[offset];     // B
+                }
+            }
+        }
+
+        private BitmapSource CreateBrightnessDisplayBitmap()
+        {
+            int width = _cachedWidth;
+            int height = _cachedHeight;
+            int stride = width * 4;
+            byte[] buffer = new byte[stride * height];
+
+            // Clamp nilai ke 0-255 untuk tampilan
+            for (int y = 0; y < height; y++)
+            {
+                int rowOffset = y * stride;
+                for (int x = 0; x < width; x++)
+                {
+                    int offset = rowOffset + (x * 4);
+                    
+                    // Clamp: jika < 0 maka 0, jika > 255 maka 255
+                    int r = Math.Clamp(_brightnessTemp![x, y, 0], 0, 255);
+                    int g = Math.Clamp(_brightnessTemp[x, y, 1], 0, 255);
+                    int b = Math.Clamp(_brightnessTemp[x, y, 2], 0, 255);
+
+                    // Format BGRA
+                    buffer[offset] = (byte)b;
+                    buffer[offset + 1] = (byte)g;
+                    buffer[offset + 2] = (byte)r;
+                    buffer[offset + 3] = 255;
+                }
+            }
+
+            WriteableBitmap writable = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
+            writable.WritePixels(new Int32Rect(0, 0, width, height), buffer, stride, 0);
+            writable.Freeze();
+            return writable;
+        }
+
+        // ============================================
+        // TUGAS 4: SELEKSI WARNA INTERAKTIF
+        // ============================================
+        private void ColorSelection_Checked(object sender, RoutedEventArgs e)
+        {
+            _colorSelectionMode = true;
+            _originalBeforeColorSelection = DisplayImage.Source as BitmapSource;
+            DisplayImage.MouseLeftButtonDown += DisplayImage_ColorSelection_Click;
+            SelectedColorText.Text = "Klik pada gambar untuk memilih warna";
+            SelectedColorText.Foreground = System.Windows.Media.Brushes.Blue;
+        }
+
+        private void ColorSelection_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _colorSelectionMode = false;
+            DisplayImage.MouseLeftButtonDown -= DisplayImage_ColorSelection_Click;
+            
+            // Kembalikan gambar asli
+            if (_originalBeforeColorSelection != null)
+            {
+                DisplayImage.Source = _originalBeforeColorSelection;
+            }
+            
+            SelectedColorText.Text = "Klik pada gambar untuk memilih warna";
+            SelectedColorText.Foreground = System.Windows.Media.Brushes.Gray;
+        }
+
+        private void DisplayImage_ColorSelection_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (!_colorSelectionMode || _pixelCache == null) return;
+
+            try
+            {
+                // Dapatkan posisi klik relatif terhadap gambar
+                Point clickPoint = e.GetPosition(DisplayImage);
+                
+                // Convert ke koordinat piksel asli (perhatikan zoom/scale)
+                double scaleX = _cachedWidth / DisplayImage.ActualWidth;
+                double scaleY = _cachedHeight / DisplayImage.ActualHeight;
+                
+                int pixelX = (int)(clickPoint.X * scaleX);
+                int pixelY = (int)(clickPoint.Y * scaleY);
+                
+                // Validasi koordinat
+                if (pixelX < 0 || pixelX >= _cachedWidth || pixelY < 0 || pixelY >= _cachedHeight)
+                    return;
+
+                // Ambil warna target
+                _targetR = _pixelCache[pixelX, pixelY, 0];
+                _targetG = _pixelCache[pixelX, pixelY, 1];
+                _targetB = _pixelCache[pixelX, pixelY, 2];
+
+                // Update info text
+                SelectedColorText.Text = $"RGB({_targetR}, {_targetG}, {_targetB})";
+                SelectedColorText.Foreground = new SolidColorBrush(Color.FromRgb(_targetR, _targetG, _targetB));
+
+                // Terapkan filter seleksi warna
+                BitmapSource filteredImage = CreateColorSelectionBitmap();
+                DisplayImage.Source = filteredImage;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Gagal memilih warna: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private BitmapSource CreateColorSelectionBitmap()
+        {
+            int width = _cachedWidth;
+            int height = _cachedHeight;
+            int stride = width * 4;
+            byte[] buffer = new byte[stride * height];
+
+            // Algoritma: hanya tampilkan piksel yang sama persis dengan target, lainnya hitam
+            for (int y = 0; y < height; y++)
+            {
+                int rowOffset = y * stride;
+                for (int x = 0; x < width; x++)
+                {
+                    int offset = rowOffset + (x * 4);
+                    byte r = _pixelCache![x, y, 0];
+                    byte g = _pixelCache[x, y, 1];
+                    byte b = _pixelCache[x, y, 2];
+
+                    // Cek apakah warna sama persis dengan target
+                    if (r == _targetR && g == _targetG && b == _targetB)
+                    {
+                        // Tampilkan warna asli
+                        buffer[offset] = b;
+                        buffer[offset + 1] = g;
+                        buffer[offset + 2] = r;
+                        buffer[offset + 3] = 255;
+                    }
+                    else
+                    {
+                        // Set ke hitam
+                        buffer[offset] = 0;
+                        buffer[offset + 1] = 0;
+                        buffer[offset + 2] = 0;
+                        buffer[offset + 3] = 255;
+                    }
+                }
+            }
+
+            WriteableBitmap writable = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
+            writable.WritePixels(new Int32Rect(0, 0, width, height), buffer, stride, 0);
+            writable.Freeze();
+            return writable;
         }
 
         private enum ImageFilterMode

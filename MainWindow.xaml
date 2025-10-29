@@ -57,6 +57,56 @@
                FontSize="12"
                Foreground="#FF51606A"
                Margin="0,4,0,0"/>
+                
+                <!-- Brightness Slider (Tugas 2) - Bekerja di semua filter -->
+                <StackPanel x:Name="BrightnessPanel" Orientation="Vertical" Margin="0,12,0,0" Visibility="Collapsed">
+                    <TextBlock Text="Brightness Adjustment (-255 to +255)" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="BrightnessSlider" 
+                                Grid.Column="0"
+                                Minimum="-255" 
+                                Maximum="255" 
+                                Value="0" 
+                                TickFrequency="10"
+                                IsSnapToTickEnabled="True"
+                                ValueChanged="BrightnessSlider_ValueChanged"
+                                Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding ElementName=BrightnessSlider, Path=Value, StringFormat='{}{0:0}'}" 
+                                   FontSize="11" 
+                                   VerticalAlignment="Center"
+                                   MinWidth="40"
+                                   TextAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+                
+                <!-- Color Selection (Tugas 4) -->
+                <StackPanel x:Name="ColorSelectionPanel" Orientation="Vertical" Margin="0,8,0,0" Visibility="Collapsed">
+                    <TextBlock Text="Seleksi Warna Interaktif" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="ColorSelectionCheckBox" 
+                                  Grid.Column="0"
+                                  Content="Aktifkan" 
+                                  VerticalAlignment="Center"
+                                  Checked="ColorSelection_Checked"
+                                  Unchecked="ColorSelection_Unchecked"/>
+                        <TextBlock x:Name="SelectedColorText" 
+                                   Grid.Column="1"
+                                   Text="Klik pada gambar untuk memilih warna" 
+                                   FontSize="11" 
+                                   Foreground="Gray"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0,0,0"/>
+                    </Grid>
+                </StackPanel>
             </StackPanel>
         </Border>
 
@@ -102,7 +152,6 @@
             <Border HorizontalAlignment="Center"
                     VerticalAlignment="Bottom"
                     Margin="0,0,0,12"
-                    Padding="12,10"
                     Background="#F9FBFD"
                     BorderBrush="#FFD0D7DF"
                     BorderThickness="1"
@@ -114,58 +163,120 @@
                                       Color="#1A000000"
                                       Opacity="0.8"/>
                 </Border.Effect>
-                <ItemsControl x:Name="FilterPreviewList">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Center"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border CornerRadius="8"
-                                    BorderThickness="2"
-                                    Padding="2"
-                                    Margin="4,0">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="BorderBrush"
-                                                Value="Transparent"/>
-                                        <Setter Property="Background"
-                                                Value="White"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsActive}"
-                                                         Value="True">
-                                                <Setter Property="BorderBrush"
-                                                        Value="#FF4C8BF5"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <Button Click="FilterPreview_Click"
-                                        CommandParameter="{Binding Mode}"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Padding="8,6"
-                                        Cursor="Hand">
-                                    <StackPanel Width="110">
-                                        <Image Source="{Binding PreviewSource}"
-                                               Width="110"
-                                               Height="72"
-                                               Stretch="UniformToFill"
-                                               SnapsToDevicePixels="True"
-                                               Margin="0,0,0,6"/>
-                                        <TextBlock Text="{Binding Title}"
-                                                   FontSize="12"
-                                                   Foreground="#FF35424E"
-                                                   HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <StackPanel>
+                    <!-- Filter Previews -->
+                    <ItemsControl x:Name="FilterPreviewList" Padding="12,10,12,6">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="8"
+                                        BorderThickness="2"
+                                        Padding="2"
+                                        Margin="4,0">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderBrush"
+                                                    Value="Transparent"/>
+                                            <Setter Property="Background"
+                                                    Value="White"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}"
+                                                             Value="True">
+                                                    <Setter Property="BorderBrush"
+                                                            Value="#FF4C8BF5"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Button Click="FilterPreview_Click"
+                                            CommandParameter="{Binding Mode}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="8,6"
+                                            Cursor="Hand">
+                                        <StackPanel Width="110">
+                                            <Image Source="{Binding PreviewSource}"
+                                                   Width="110"
+                                                   Height="72"
+                                                   Stretch="UniformToFill"
+                                                   SnapsToDevicePixels="True"
+                                                   Margin="0,0,0,6"/>
+                                            <TextBlock Text="{Binding Title}"
+                                                       FontSize="12"
+                                                       Foreground="#FF35424E"
+                                                       HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    
+                    <!-- Negasi Toggle Button -->
+                    <Border BorderBrush="#FFDFE2E5" 
+                            BorderThickness="0,1,0,0" 
+                            Padding="12,8,12,10"
+                            Background="Transparent">
+                        <ToggleButton x:Name="NegationToggle"
+                                      Content="Negasi Citra"
+                                      Checked="NegationToggle_Checked"
+                                      Unchecked="NegationToggle_Unchecked"
+                                      IsEnabled="False"
+                                      Padding="16,8"
+                                      FontSize="12"
+                                      FontWeight="SemiBold"
+                                      Cursor="Hand">
+                            <ToggleButton.Style>
+                                <Style TargetType="ToggleButton">
+                                    <Setter Property="Background" Value="#FFF8FAFC"/>
+                                    <Setter Property="Foreground" Value="#FF35424E"/>
+                                    <Setter Property="BorderBrush" Value="#FFDFE2E5"/>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="6"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter Property="Background" Value="#FF4C8BF5"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="BorderBrush" Value="#FF4C8BF5"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#FFE8F0FE"/>
+                                        </Trigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                <Condition Property="IsChecked" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" Value="#FF3A7BE0"/>
+                                        </MultiTrigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Opacity" Value="0.5"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ToggleButton.Style>
+                        </ToggleButton>
+                    </Border>
+                </StackPanel>
             </Border>
 
             <!-- Sidebar Kanan - Histogram -->
