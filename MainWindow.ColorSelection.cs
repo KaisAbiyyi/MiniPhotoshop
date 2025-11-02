@@ -18,7 +18,7 @@ namespace MiniPhotoshop
 
             try
             {
-                DisplayImage.Source = _colorSelectionService.SetActive(true);
+                DisplayImage.Source = _colorSelectionService.SetColorSelectionActive(true);
                 DisplayImage.MouseLeftButtonDown += DisplayImage_ColorSelection_Click;
                 SelectedColorText.Text = "Klik pada gambar untuk memilih warna";
                 SelectedColorText.Foreground = Brushes.Blue;
@@ -35,7 +35,7 @@ namespace MiniPhotoshop
             DisplayImage.MouseLeftButtonDown -= DisplayImage_ColorSelection_Click;
             try
             {
-                DisplayImage.Source = _colorSelectionService.SetActive(false);
+                DisplayImage.Source = _colorSelectionService.SetColorSelectionActive(false);
             }
             catch (Exception ex)
             {

@@ -17,7 +17,7 @@ namespace MiniPhotoshop
             BinaryThresholdPanel.Visibility = Visibility.Visible;
             try
             {
-                DisplayImage.Source = _binaryThresholdService.SetActive(true);
+                DisplayImage.Source = _binaryThresholdService.SetBinaryThresholdActive(true);
             }
             catch (Exception ex)
             {
@@ -30,7 +30,7 @@ namespace MiniPhotoshop
             BinaryThresholdPanel.Visibility = Visibility.Collapsed;
             try
             {
-                DisplayImage.Source = _binaryThresholdService.SetActive(false);
+                DisplayImage.Source = _binaryThresholdService.SetBinaryThresholdActive(false);
             }
             catch (Exception ex)
             {
@@ -60,8 +60,12 @@ namespace MiniPhotoshop
 
         private void UpdateBinaryThresholdLabel(int value)
         {
+            if (BinaryThresholdValueText == null)
+            {
+                return;
+            }
+
             BinaryThresholdValueText.Text = $"Nilai Threshold: {value}";
         }
     }
 }
-

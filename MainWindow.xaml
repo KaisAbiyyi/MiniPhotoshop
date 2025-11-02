@@ -183,6 +183,11 @@
                                    MinWidth="40"
                                    TextAlignment="Right"/>
                     </Grid>
+                    <TextBlock x:Name="BinaryThresholdValueText"
+                               Text="Nilai Threshold: 128"
+                               FontSize="11"
+                               Foreground="#FF51606A"
+                               Margin="0,6,0,0"/>
                 </StackPanel>
                 
                 <!-- Color Selection (Tugas 4) -->
@@ -207,6 +212,59 @@
                                    VerticalAlignment="Center"
                                    Margin="8,0,0,0"/>
                     </Grid>
+                </StackPanel>
+
+                <!-- Image Arithmetic -->
+                <StackPanel x:Name="ArithmeticPanel" Orientation="Vertical" Margin="0,12,0,0" Visibility="Collapsed">
+                    <TextBlock Text="Aritmetika Citra (Tambah / Kurang)" FontSize="12" FontWeight="Bold" Margin="0,0,0,6"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="ArithmeticSelectButton"
+                                Content="Pilih Gambar B"
+                                Click="ArithmeticSelectButton_Click"
+                                Padding="10,4"
+                                MinWidth="130"/>
+                        <TextBlock x:Name="ArithmeticInfoText"
+                                   Text="Belum ada gambar B"
+                                   FontSize="11"
+                                   Foreground="Gray"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Offset X" FontSize="11" Margin="0,0,0,2"/>
+                            <TextBox x:Name="ArithmeticOffsetXTextBox"
+                                     Text="0"
+                                     MinWidth="80"
+                                     HorizontalAlignment="Left"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                            <TextBlock Text="Offset Y" FontSize="11" Margin="0,0,0,2"/>
+                            <TextBox x:Name="ArithmeticOffsetYTextBox"
+                                     Text="0"
+                                     MinWidth="80"
+                                     HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button x:Name="ArithmeticAddButton"
+                                Content="Tambah (A + B)"
+                                Click="ArithmeticAddButton_Click"
+                                IsEnabled="False"
+                                Padding="10,4"
+                                MinWidth="130"/>
+                        <Button x:Name="ArithmeticSubtractButton"
+                                Content="Kurangi (A - B)"
+                                Click="ArithmeticSubtractButton_Click"
+                                IsEnabled="False"
+                                Padding="10,4"
+                                Margin="8,0,0,0"
+                                MinWidth="130"/>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </Border>

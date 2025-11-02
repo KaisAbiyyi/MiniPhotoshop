@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media.Imaging;
 using MiniPhotoshop.Core.Models;
 using MiniPhotoshop.Services.Contracts;
 using MiniPhotoshop.Services.ImageEditor;
@@ -24,6 +25,9 @@ namespace MiniPhotoshop
         private readonly IGrayscaleComparisonService _grayscaleService;
         private readonly IProcessedImageProvider _imageProvider;
         private readonly IWorkspaceResetService _workspaceResetService;
+        private readonly IArithmeticService _arithmeticService;
+
+        private BitmapSource? _arithmeticOverlayBitmap;
 
         private HwndSource? _hwndSource;
         private double _currentZoom = 1.0;
@@ -50,6 +54,7 @@ namespace MiniPhotoshop
             _grayscaleService = _editor;
             _imageProvider = _editor;
             _workspaceResetService = _editor;
+            _arithmeticService = _editor;
 
             FilterPreviewList.ItemsSource = _state.PreviewItems;
             DisplayImage.RenderTransformOrigin = new Point(0.5, 0.5);

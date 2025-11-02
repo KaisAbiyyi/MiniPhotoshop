@@ -101,6 +101,18 @@ namespace MiniPhotoshop
             SelectedColorText.Foreground = System.Windows.Media.Brushes.Gray;
             DisplayImage.MouseLeftButtonDown -= DisplayImage_ColorSelection_Click;
 
+            ArithmeticPanel.Visibility = Visibility.Visible;
+            UpdateArithmeticButtonsState();
+            if (_arithmeticOverlayBitmap == null)
+            {
+                ArithmeticInfoText.Text = "Belum ada gambar B";
+                ArithmeticInfoText.Foreground = System.Windows.Media.Brushes.Gray;
+            }
+            else
+            {
+                ArithmeticInfoText.Foreground = System.Windows.Media.Brushes.Black;
+            }
+
             ShowSidebar();
             RenderHistograms();
 

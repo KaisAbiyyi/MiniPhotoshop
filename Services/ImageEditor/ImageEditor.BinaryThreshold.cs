@@ -5,7 +5,7 @@ namespace MiniPhotoshop.Services.ImageEditor
 {
     internal sealed partial class ImageEditor
     {
-        public BitmapSource SetActive(bool isActive)
+        public BitmapSource SetBinaryThresholdActive(bool isActive)
         {
             if (State.IsBinaryThresholdActive == isActive)
             {

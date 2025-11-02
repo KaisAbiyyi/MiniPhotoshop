@@ -7,7 +7,7 @@ namespace MiniPhotoshop.Services.ImageEditor
     /// Coordinates image editing operations over a shared <see cref="ImageWorkspaceState"/>.
     /// Each functional slice is implemented in a dedicated partial file to keep responsibilities isolated.
     /// </summary>
-    public sealed partial class ImageEditor :
+    internal sealed partial class ImageEditor :
         IImageLoaderService,
         IPixelExportService,
         IFilterService,
@@ -18,7 +18,8 @@ namespace MiniPhotoshop.Services.ImageEditor
         IHistogramService,
         IProcessedImageProvider,
         IWorkspaceResetService,
-        IGrayscaleComparisonService
+        IGrayscaleComparisonService,
+        IArithmeticService
     {
         private const int PreviewThumbnailSize = 160;
 

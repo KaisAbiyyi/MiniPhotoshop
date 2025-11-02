@@ -4,7 +4,7 @@ namespace MiniPhotoshop.Services.Contracts
 {
     public interface IBinaryThresholdService
     {
-        BitmapSource SetActive(bool isActive);
+        BitmapSource SetBinaryThresholdActive(bool isActive);
 
         BitmapSource UpdateThreshold(int thresholdValue);
     }

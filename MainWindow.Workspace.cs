@@ -42,6 +42,18 @@ namespace MiniPhotoshop
             SelectedColorText.Foreground = Brushes.Gray;
             DisplayImage.MouseLeftButtonDown -= DisplayImage_ColorSelection_Click;
 
+            ArithmeticPanel.Visibility = Visibility.Collapsed;
+            ArithmeticOffsetXTextBox.Text = "0";
+            ArithmeticOffsetYTextBox.Text = "0";
+            ArithmeticAddButton.IsEnabled = false;
+            ArithmeticSubtractButton.IsEnabled = false;
+            ArithmeticInfoText.Foreground = Brushes.Gray;
+            if (string.IsNullOrWhiteSpace(ArithmeticInfoText.Text))
+            {
+                ArithmeticInfoText.Text = "Belum ada gambar B";
+            }
+            UpdateArithmeticButtonsState();
+
             HideSidebar();
         }
 
