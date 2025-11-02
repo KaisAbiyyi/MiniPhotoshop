@@ -1,0 +1,32 @@
+using MiniPhotoshop.Core.Models;
+using MiniPhotoshop.Services.Contracts;
+
+namespace MiniPhotoshop.Services.ImageEditor
+{
+    /// <summary>
+    /// Coordinates image editing operations over a shared <see cref="ImageWorkspaceState"/>.
+    /// Each functional slice is implemented in a dedicated partial file to keep responsibilities isolated.
+    /// </summary>
+    public sealed partial class ImageEditor :
+        IImageLoaderService,
+        IPixelExportService,
+        IFilterService,
+        INegationService,
+        IBrightnessService,
+        IBinaryThresholdService,
+        IColorSelectionService,
+        IHistogramService,
+        IProcessedImageProvider,
+        IWorkspaceResetService,
+        IGrayscaleComparisonService
+    {
+        private const int PreviewThumbnailSize = 160;
+
+        public ImageEditor(ImageWorkspaceState state)
+        {
+            State = state;
+        }
+
+        public ImageWorkspaceState State { get; }
+    }
+}

@@ -22,21 +22,97 @@
                     CornerRadius="6"
                     Padding="2"
                     HorizontalAlignment="Left">
-                <Menu Background="Transparent"
-                      BorderThickness="0"
-                      Margin="0"
-                      VerticalAlignment="Center"
-                      FontSize="14">
-                    <MenuItem Header="_File"
-                              Padding="16,6">
-                        <MenuItem Header="Buka Gambar..."
-                                  Click="SelectImageButton_Click"/>
-                        <MenuItem x:Name="SavePixelsMenuItem"
-                                  Header="Simpan Pixel"
-                                  Click="SavePixelsButton_Click"
-                                  IsEnabled="False"/>
-                    </MenuItem>
-                </Menu>
+                <StackPanel Orientation="Horizontal">
+                    <Menu Background="Transparent"
+                          BorderThickness="0"
+                          Margin="0"
+                          VerticalAlignment="Center"
+                          FontSize="14">
+                        <MenuItem Header="_File"
+                                  Padding="16,6">
+                            <MenuItem Header="Buka Gambar..."
+                                      Click="SelectImageButton_Click"/>
+                            <MenuItem x:Name="SavePixelsMenuItem"
+                                      Header="Simpan Pixel"
+                                      Click="SavePixelsButton_Click"
+                                      IsEnabled="False"/>
+                        </MenuItem>
+                    </Menu>
+                    
+                    <!-- Button Grayscale Comparison -->
+                    <Button x:Name="GrayscaleCompareButton"
+                            Content="Grayscale Comparison"
+                            Click="ShowGrayscaleComparison_Click"
+                            IsEnabled="False"
+                            Padding="16,6"
+                            Margin="4,0,0,0"
+                            FontSize="14"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Foreground" Value="#FF35424E"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFE8F0FE"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Foreground" Value="#FFAAAAAA"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <!-- Toggle Binary Threshold -->
+                    <ToggleButton x:Name="BinaryThresholdToggle"
+                                  Content="Binary Threshold + Negasi"
+                                  Checked="BinaryThresholdToggle_Checked"
+                                  Unchecked="BinaryThresholdToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Padding="16,6"
+                                  Margin="4,0,0,0"
+                                  FontSize="14"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Cursor="Hand">
+                        <ToggleButton.Style>
+                            <Style TargetType="ToggleButton">
+                                <Setter Property="Foreground" Value="#FF35424E"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="6"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFE8F0FE"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Foreground" Value="#FFAAAAAA"/>
+                                    </Trigger>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter Property="Foreground" Value="#FF1A56B3"/>
+                                        <Setter Property="Background" Value="#FFD6E4FF"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ToggleButton.Style>
+                    </ToggleButton>
+                </StackPanel>
             </Border>
         </DockPanel>
 
@@ -78,6 +154,31 @@
                         <TextBlock Grid.Column="1" 
                                    Text="{Binding ElementName=BrightnessSlider, Path=Value, StringFormat='{}{0:0}'}" 
                                    FontSize="11" 
+                                   VerticalAlignment="Center"
+                                   MinWidth="40"
+                                   TextAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel x:Name="BinaryThresholdPanel" Orientation="Vertical" Margin="0,12,0,0" Visibility="Collapsed">
+                    <TextBlock Text="Binary Threshold (0 - 255)" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="BinaryThresholdSlider"
+                                Grid.Column="0"
+                                Minimum="0"
+                                Maximum="255"
+                                Value="128"
+                                TickFrequency="1"
+                                IsSnapToTickEnabled="True"
+                                ValueChanged="BinaryThresholdSlider_ValueChanged"
+                                Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding ElementName=BinaryThresholdSlider, Path=Value, StringFormat='{}{0:0}'}"
+                                   FontSize="11"
                                    VerticalAlignment="Center"
                                    MinWidth="40"
                                    TextAlignment="Right"/>
