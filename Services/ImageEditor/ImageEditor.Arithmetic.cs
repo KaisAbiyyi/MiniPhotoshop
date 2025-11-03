@@ -6,13 +6,18 @@ namespace MiniPhotoshop.Services.ImageEditor
 {
     internal sealed partial class ImageEditor
     {
+        private BitmapSource? _arithmeticOriginalBitmap;
+        private string? _arithmeticOriginalLabel;
+
         public BitmapSource AddImage(BitmapSource overlay, int offsetX, int offsetY)
         {
+            CaptureArithmeticSnapshot();
             return ApplyArithmeticOperation(overlay, offsetX, offsetY, ArithmeticMode.Add);
         }
 
         public BitmapSource SubtractImage(BitmapSource overlay, int offsetX, int offsetY)
         {
+            CaptureArithmeticSnapshot();
             return ApplyArithmeticOperation(overlay, offsetX, offsetY, ArithmeticMode.Subtract);
         }
 
@@ -28,7 +33,13 @@ namespace MiniPhotoshop.Services.ImageEditor
                 throw new InvalidOperationException("Tidak ada gambar utama untuk operasi aritmetika.");
             }
 
-            BitmapSource baseSource = EnsureBgra32(State.OriginalBitmap);
+            BitmapSource? baseBitmap = _arithmeticOriginalBitmap ?? State.OriginalBitmap;
+            if (baseBitmap == null)
+            {
+                throw new InvalidOperationException("Tidak ada gambar dasar untuk operasi aritmetika.");
+            }
+
+            BitmapSource baseSource = EnsureBgra32(baseBitmap);
             BitmapSource overlaySource = EnsureBgra32(overlay);
 
             int baseWidth = baseSource.PixelWidth;
@@ -150,6 +161,46 @@ namespace MiniPhotoshop.Services.ImageEditor
             Build();
 
             return GetProcessedBitmap();
+        }
+
+        public BitmapSource RestoreArithmeticBase()
+        {
+            if (_arithmeticOriginalBitmap == null)
+            {
+                throw new InvalidOperationException("Tidak ada gambar awal yang tersimpan untuk dipulihkan.");
+            }
+
+            BitmapSource original = _arithmeticOriginalBitmap;
+            string label = _arithmeticOriginalLabel ?? "Gambar.png";
+
+            BitmapSource result = ReplaceWorkspaceBitmap(original, label);
+            _arithmeticOriginalBitmap = null;
+            _arithmeticOriginalLabel = null;
+            return result;
+        }
+
+        public void ClearArithmeticSnapshot()
+        {
+            _arithmeticOriginalBitmap = null;
+            _arithmeticOriginalLabel = null;
+        }
+
+        private void CaptureArithmeticSnapshot()
+        {
+            if (_arithmeticOriginalBitmap != null)
+            {
+                return;
+            }
+
+            if (State.OriginalBitmap == null)
+            {
+                throw new InvalidOperationException("Tidak ada gambar utama untuk operasi aritmetika.");
+            }
+
+            BitmapSource snapshot = State.OriginalBitmap.Clone();
+            snapshot.Freeze();
+            _arithmeticOriginalBitmap = snapshot;
+            _arithmeticOriginalLabel = State.CurrentFilePath;
         }
 
         private enum ArithmeticMode

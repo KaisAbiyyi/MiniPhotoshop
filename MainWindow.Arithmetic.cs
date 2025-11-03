@@ -43,6 +43,11 @@ namespace MiniPhotoshop
                 ArithmeticInfoText.Text = $"{Path.GetFileName(dialog.FileName)} ({bitmap.PixelWidth} x {bitmap.PixelHeight})";
                 ArithmeticInfoText.Foreground = Brushes.Black;
                 UpdateArithmeticButtonsState();
+
+                if (_currentArithmeticMode != ArithmeticToggleMode.None)
+                {
+                    DeactivateArithmeticMode();
+                }
             }
             catch (Exception ex)
             {
@@ -54,38 +59,95 @@ namespace MiniPhotoshop
             }
         }
 
-        private void ArithmeticAddButton_Click(object sender, RoutedEventArgs e)
+        private void ArithmeticAddToggle_Checked(object sender, RoutedEventArgs e)
         {
-            ApplyArithmeticOperation(true);
+            HandleArithmeticToggleChecked(isAddition: true);
         }
 
-        private void ArithmeticSubtractButton_Click(object sender, RoutedEventArgs e)
+        private void ArithmeticAddToggle_Unchecked(object sender, RoutedEventArgs e)
         {
-            ApplyArithmeticOperation(false);
+            HandleArithmeticToggleUnchecked();
         }
 
-        private void ApplyArithmeticOperation(bool isAddition)
+        private void ArithmeticSubtractToggle_Checked(object sender, RoutedEventArgs e)
         {
-            if (_state.OriginalBitmap == null)
+            HandleArithmeticToggleChecked(isAddition: false);
+        }
+
+        private void ArithmeticSubtractToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            HandleArithmeticToggleUnchecked();
+        }
+
+        private void HandleArithmeticToggleChecked(bool isAddition)
+        {
+            if (_suppressArithmeticToggleHandlers)
             {
-                MessageBox.Show("Silakan muat gambar utama terlebih dahulu.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
+            if (!EnsureArithmeticReady())
+            {
+                SuppressAndUncheckToggle(isAddition);
+                return;
+            }
+
+            // Ensure only one toggle stays active at a time.
+            if (isAddition && ArithmeticSubtractToggle.IsChecked == true)
+            {
+                _suppressArithmeticToggleHandlers = true;
+                ArithmeticSubtractToggle.IsChecked = false;
+                _suppressArithmeticToggleHandlers = false;
+            }
+            else if (!isAddition && ArithmeticAddToggle.IsChecked == true)
+            {
+                _suppressArithmeticToggleHandlers = true;
+                ArithmeticAddToggle.IsChecked = false;
+                _suppressArithmeticToggleHandlers = false;
+            }
+
+            if (!ApplyArithmeticOperation(isAddition))
+            {
+                SuppressAndUncheckToggle(isAddition);
+            }
+        }
+
+        private void HandleArithmeticToggleUnchecked()
+        {
+            if (_suppressArithmeticToggleHandlers)
+            {
+                return;
+            }
+
+            if (ArithmeticAddToggle.IsChecked == true || ArithmeticSubtractToggle.IsChecked == true)
+            {
+                return;
+            }
+
+            if (_currentArithmeticMode == ArithmeticToggleMode.None)
+            {
+                return;
+            }
+
+            RestoreArithmeticBaseImage();
+        }
+
+        private bool ApplyArithmeticOperation(bool isAddition)
+        {
             if (_arithmeticOverlayBitmap == null)
             {
                 MessageBox.Show("Silakan pilih gambar B terlebih dahulu.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
+                return false;
             }
 
             if (!TryParseOffset(ArithmeticOffsetXTextBox.Text, "Offset X", out int offsetX))
             {
-                return;
+                return false;
             }
 
             if (!TryParseOffset(ArithmeticOffsetYTextBox.Text, "Offset Y", out int offsetY))
             {
-                return;
+                return false;
             }
 
             try
@@ -105,14 +167,70 @@ namespace MiniPhotoshop
                     result.Format.ToString()
                 );
 
+                _currentArithmeticMode = isAddition ? ArithmeticToggleMode.Addition : ArithmeticToggleMode.Subtraction;
+
+                _suppressArithmeticToggleHandlers = true;
                 ApplyLoadedImage(resultInfo);
+                _suppressArithmeticToggleHandlers = false;
                 UpdateArithmeticButtonsState();
+                return true;
             }
             catch (Exception ex)
             {
                 string action = isAddition ? "menjumlahkan" : "mengurangkan";
                 MessageBox.Show($"Gagal {action} gambar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _currentArithmeticMode = ArithmeticToggleMode.None;
+                _arithmeticService.ClearArithmeticSnapshot();
+                return false;
             }
+        }
+
+        private void RestoreArithmeticBaseImage()
+        {
+            try
+            {
+                BitmapSource restored = _arithmeticService.RestoreArithmeticBase();
+                _currentArithmeticMode = ArithmeticToggleMode.None;
+
+                string fileLabel = _state.CurrentFilePath ?? "Gambar.png";
+                var resultInfo = new ImageLoadResult(
+                    restored,
+                    fileLabel,
+                    restored.PixelWidth,
+                    restored.PixelHeight,
+                    restored.Format.ToString()
+                );
+
+                _suppressArithmeticToggleHandlers = true;
+                ApplyLoadedImage(resultInfo);
+                _suppressArithmeticToggleHandlers = false;
+                UpdateArithmeticButtonsState();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Gagal mengembalikan gambar awal: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _suppressArithmeticToggleHandlers = true;
+                ArithmeticAddToggle.IsChecked = false;
+                ArithmeticSubtractToggle.IsChecked = false;
+                _suppressArithmeticToggleHandlers = false;
+                _currentArithmeticMode = ArithmeticToggleMode.None;
+                UpdateArithmeticButtonsState();
+            }
+        }
+
+        private void DeactivateArithmeticMode()
+        {
+            if (_currentArithmeticMode == ArithmeticToggleMode.None)
+            {
+                return;
+            }
+
+            _suppressArithmeticToggleHandlers = true;
+            ArithmeticAddToggle.IsChecked = false;
+            ArithmeticSubtractToggle.IsChecked = false;
+            _suppressArithmeticToggleHandlers = false;
+
+            RestoreArithmeticBaseImage();
         }
 
         private bool TryParseOffset(string? input, string fieldLabel, out int value)
@@ -136,8 +254,40 @@ namespace MiniPhotoshop
         {
             bool hasBase = _state.OriginalBitmap != null;
             bool hasOverlay = _arithmeticOverlayBitmap != null;
-            ArithmeticAddButton.IsEnabled = hasBase && hasOverlay;
-            ArithmeticSubtractButton.IsEnabled = hasBase && hasOverlay;
+            bool isEnabled = hasBase && hasOverlay;
+            ArithmeticAddToggle.IsEnabled = isEnabled;
+            ArithmeticSubtractToggle.IsEnabled = isEnabled;
+        }
+
+        private bool EnsureArithmeticReady()
+        {
+            if (_state.OriginalBitmap == null)
+            {
+                MessageBox.Show("Silakan muat gambar utama terlebih dahulu.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return false;
+            }
+
+            if (_arithmeticOverlayBitmap == null)
+            {
+                MessageBox.Show("Silakan pilih gambar B terlebih dahulu.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return false;
+            }
+
+            return true;
+        }
+
+        private void SuppressAndUncheckToggle(bool isAddition)
+        {
+            _suppressArithmeticToggleHandlers = true;
+            if (isAddition)
+            {
+                ArithmeticAddToggle.IsChecked = false;
+            }
+            else
+            {
+                ArithmeticSubtractToggle.IsChecked = false;
+            }
+            _suppressArithmeticToggleHandlers = false;
         }
     }
 }

@@ -251,19 +251,21 @@
                         </StackPanel>
                     </Grid>
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <Button x:Name="ArithmeticAddButton"
-                                Content="Tambah (A + B)"
-                                Click="ArithmeticAddButton_Click"
-                                IsEnabled="False"
-                                Padding="10,4"
-                                MinWidth="130"/>
-                        <Button x:Name="ArithmeticSubtractButton"
-                                Content="Kurangi (A - B)"
-                                Click="ArithmeticSubtractButton_Click"
-                                IsEnabled="False"
-                                Padding="10,4"
-                                Margin="8,0,0,0"
-                                MinWidth="130"/>
+                        <ToggleButton x:Name="ArithmeticAddToggle"
+                                      Content="Tambah (A + B)"
+                                      Checked="ArithmeticAddToggle_Checked"
+                                      Unchecked="ArithmeticAddToggle_Unchecked"
+                                      IsEnabled="False"
+                                      Padding="10,4"
+                                      MinWidth="130"/>
+                        <ToggleButton x:Name="ArithmeticSubtractToggle"
+                                      Content="Kurangi (A - B)"
+                                      Checked="ArithmeticSubtractToggle_Checked"
+                                      Unchecked="ArithmeticSubtractToggle_Unchecked"
+                                      IsEnabled="False"
+                                      Padding="10,4"
+                                      Margin="8,0,0,0"
+                                      MinWidth="130"/>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>

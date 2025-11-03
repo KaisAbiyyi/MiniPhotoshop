@@ -15,6 +15,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                 throw new ArgumentException("File path must be provided.", nameof(filePath));
             }
 
+            ClearArithmeticSnapshot();
             State.Reset();
 
             var bitmap = new BitmapImage();

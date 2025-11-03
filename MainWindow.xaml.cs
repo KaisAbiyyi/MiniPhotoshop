@@ -28,6 +28,8 @@ namespace MiniPhotoshop
         private readonly IArithmeticService _arithmeticService;
 
         private BitmapSource? _arithmeticOverlayBitmap;
+        private bool _suppressArithmeticToggleHandlers;
+        private ArithmeticToggleMode _currentArithmeticMode = ArithmeticToggleMode.None;
 
         private HwndSource? _hwndSource;
         private double _currentZoom = 1.0;
@@ -80,6 +82,13 @@ namespace MiniPhotoshop
             }
 
             base.OnClosed(e);
+        }
+
+        private enum ArithmeticToggleMode
+        {
+            None,
+            Addition,
+            Subtraction
         }
     }
 }

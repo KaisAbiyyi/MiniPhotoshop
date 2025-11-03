@@ -9,11 +9,17 @@ namespace MiniPhotoshop
         private void ResetWorkspaceState()
         {
             _workspaceResetService.ResetWorkspace();
+            _arithmeticService.ClearArithmeticSnapshot();
             DisplayImage.Source = null;
             _state.PreviewItems.Clear();
             _currentZoom = 1.0;
             ImageScaleTransform.ScaleX = 1.0;
             ImageScaleTransform.ScaleY = 1.0;
+            _currentArithmeticMode = ArithmeticToggleMode.None;
+            _suppressArithmeticToggleHandlers = true;
+            ArithmeticAddToggle.IsChecked = false;
+            ArithmeticSubtractToggle.IsChecked = false;
+            _suppressArithmeticToggleHandlers = false;
             UpdateUiForNoImage();
         }
 
@@ -45,8 +51,13 @@ namespace MiniPhotoshop
             ArithmeticPanel.Visibility = Visibility.Collapsed;
             ArithmeticOffsetXTextBox.Text = "0";
             ArithmeticOffsetYTextBox.Text = "0";
-            ArithmeticAddButton.IsEnabled = false;
-            ArithmeticSubtractButton.IsEnabled = false;
+            ArithmeticAddToggle.IsEnabled = false;
+            ArithmeticSubtractToggle.IsEnabled = false;
+            _suppressArithmeticToggleHandlers = true;
+            ArithmeticAddToggle.IsChecked = false;
+            ArithmeticSubtractToggle.IsChecked = false;
+            _suppressArithmeticToggleHandlers = false;
+            _currentArithmeticMode = ArithmeticToggleMode.None;
             ArithmeticInfoText.Foreground = Brushes.Gray;
             if (string.IsNullOrWhiteSpace(ArithmeticInfoText.Text))
             {

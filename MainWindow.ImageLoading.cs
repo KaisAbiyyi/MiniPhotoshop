@@ -32,6 +32,12 @@ namespace MiniPhotoshop
             try
             {
                 ImageLoadResult result = _imageLoader.Load(openFileDialog.FileName);
+                _currentArithmeticMode = ArithmeticToggleMode.None;
+                _arithmeticService.ClearArithmeticSnapshot();
+                _suppressArithmeticToggleHandlers = true;
+                ArithmeticAddToggle.IsChecked = false;
+                ArithmeticSubtractToggle.IsChecked = false;
+                _suppressArithmeticToggleHandlers = false;
                 ApplyLoadedImage(result);
             }
             catch (Exception ex)
@@ -112,6 +118,10 @@ namespace MiniPhotoshop
             {
                 ArithmeticInfoText.Foreground = System.Windows.Media.Brushes.Black;
             }
+            _suppressArithmeticToggleHandlers = true;
+            ArithmeticAddToggle.IsChecked = _currentArithmeticMode == ArithmeticToggleMode.Addition;
+            ArithmeticSubtractToggle.IsChecked = _currentArithmeticMode == ArithmeticToggleMode.Subtraction;
+            _suppressArithmeticToggleHandlers = false;
 
             ShowSidebar();
             RenderHistograms();

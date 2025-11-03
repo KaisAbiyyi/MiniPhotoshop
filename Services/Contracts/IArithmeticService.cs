@@ -7,6 +7,9 @@ namespace MiniPhotoshop.Services.Contracts
         BitmapSource AddImage(BitmapSource overlay, int offsetX, int offsetY);
 
         BitmapSource SubtractImage(BitmapSource overlay, int offsetX, int offsetY);
+
+        BitmapSource RestoreArithmeticBase();
+
+        void ClearArithmeticSnapshot();
     }
 }
-

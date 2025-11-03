@@ -4,8 +4,8 @@ namespace MiniPhotoshop.Services.ImageEditor
     {
         public void ResetWorkspace()
         {
+            ClearArithmeticSnapshot();
             State.Reset();
         }
     }
 }
-
