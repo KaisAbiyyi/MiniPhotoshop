@@ -257,6 +257,157 @@ namespace MiniPhotoshop
             bool isEnabled = hasBase && hasOverlay;
             ArithmeticAddToggle.IsEnabled = isEnabled;
             ArithmeticSubtractToggle.IsEnabled = isEnabled;
+            ArithmeticMultiplyToggle.IsEnabled = isEnabled;
+            ArithmeticDivideToggle.IsEnabled = isEnabled;
+        }
+
+        private void ArithmeticMultiplyToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            HandleImageArithmeticToggleChecked(true);
+        }
+
+        private void ArithmeticMultiplyToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            HandleImageArithmeticToggleUnchecked();
+        }
+
+        private void ArithmeticDivideToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            HandleImageArithmeticToggleChecked(false);
+        }
+
+        private void ArithmeticDivideToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            HandleImageArithmeticToggleUnchecked();
+        }
+
+        private void HandleImageArithmeticToggleChecked(bool isMultiply)
+        {
+            if (_suppressArithmeticToggleHandlers)
+            {
+                return;
+            }
+
+            if (!EnsureArithmeticReady())
+            {
+                SuppressAndUncheckImageArithmeticToggle(isMultiply);
+                return;
+            }
+
+            // Ensure only one toggle stays active at a time
+            if (isMultiply && ArithmeticDivideToggle.IsChecked == true)
+            {
+                _suppressArithmeticToggleHandlers = true;
+                ArithmeticDivideToggle.IsChecked = false;
+                _suppressArithmeticToggleHandlers = false;
+            }
+            else if (!isMultiply && ArithmeticMultiplyToggle.IsChecked == true)
+            {
+                _suppressArithmeticToggleHandlers = true;
+                ArithmeticMultiplyToggle.IsChecked = false;
+                _suppressArithmeticToggleHandlers = false;
+            }
+
+            // Also uncheck add/subtract toggles
+            _suppressArithmeticToggleHandlers = true;
+            ArithmeticAddToggle.IsChecked = false;
+            ArithmeticSubtractToggle.IsChecked = false;
+            _suppressArithmeticToggleHandlers = false;
+
+            if (!ApplyImageMultiplyDivideOperation(isMultiply))
+            {
+                SuppressAndUncheckImageArithmeticToggle(isMultiply);
+            }
+        }
+
+        private void HandleImageArithmeticToggleUnchecked()
+        {
+            if (_suppressArithmeticToggleHandlers)
+            {
+                return;
+            }
+
+            if (ArithmeticMultiplyToggle.IsChecked == true || ArithmeticDivideToggle.IsChecked == true)
+            {
+                return;
+            }
+
+            if (_currentArithmeticMode != ArithmeticToggleMode.Multiplication && 
+                _currentArithmeticMode != ArithmeticToggleMode.Division)
+            {
+                return;
+            }
+
+            RestoreArithmeticBaseImage();
+        }
+
+        private bool ApplyImageMultiplyDivideOperation(bool isMultiply)
+        {
+            if (_arithmeticOverlayBitmap == null)
+            {
+                MessageBox.Show("Silakan pilih gambar B terlebih dahulu.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return false;
+            }
+
+            if (!TryParseOffset(ArithmeticOffsetXTextBox.Text, "Offset X", out int offsetX))
+            {
+                return false;
+            }
+
+            if (!TryParseOffset(ArithmeticOffsetYTextBox.Text, "Offset Y", out int offsetY))
+            {
+                return false;
+            }
+
+            try
+            {
+                string normInfo;
+                BitmapSource result = isMultiply
+                    ? _arithmeticService.MultiplyImage(_arithmeticOverlayBitmap, offsetX, offsetY, out normInfo)
+                    : _arithmeticService.DivideImage(_arithmeticOverlayBitmap, offsetX, offsetY, out normInfo);
+
+                string fallbackName = isMultiply ? "Hasil_Perkalian_Citra.png" : "Hasil_Pembagian_Citra.png";
+                string fileLabel = _state.CurrentFilePath ?? fallbackName;
+
+                var resultInfo = new ImageLoadResult(
+                    result,
+                    fileLabel,
+                    result.PixelWidth,
+                    result.PixelHeight,
+                    result.Format.ToString()
+                );
+
+                _currentArithmeticMode = isMultiply ? ArithmeticToggleMode.Multiplication : ArithmeticToggleMode.Division;
+
+                _suppressArithmeticToggleHandlers = true;
+                ApplyLoadedImage(resultInfo);
+                _suppressArithmeticToggleHandlers = false;
+                UpdateArithmeticButtonsState();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                string action = isMultiply ? "mengalikan" : "membagi";
+                MessageBox.Show($"Gagal {action} gambar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _currentArithmeticMode = ArithmeticToggleMode.None;
+                _arithmeticService.ClearArithmeticSnapshot();
+                return false;
+            }
+        }
+
+        private void SuppressAndUncheckImageArithmeticToggle(bool isMultiply)
+        {
+            _suppressArithmeticToggleHandlers = true;
+            if (isMultiply)
+            {
+                ArithmeticMultiplyToggle.IsChecked = false;
+            }
+            else
+            {
+                ArithmeticDivideToggle.IsChecked = false;
+            }
+            _suppressArithmeticToggleHandlers = false;
         }
 
         private void UpdateScalarButtonsState()

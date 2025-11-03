@@ -8,6 +8,10 @@ namespace MiniPhotoshop.Services.Contracts
 
         BitmapSource SubtractImage(BitmapSource overlay, int offsetX, int offsetY);
 
+        BitmapSource MultiplyImage(BitmapSource overlay, int offsetX, int offsetY, out string normalizationInfo);
+
+        BitmapSource DivideImage(BitmapSource overlay, int offsetX, int offsetY, out string normalizationInfo);
+
         BitmapSource MultiplyByScalar(double scalar);
 
         BitmapSource DivideByScalar(double scalar);

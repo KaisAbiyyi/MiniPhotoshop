@@ -26,12 +26,17 @@ namespace MiniPhotoshop
         private readonly IProcessedImageProvider _imageProvider;
         private readonly IWorkspaceResetService _workspaceResetService;
         private readonly IArithmeticService _arithmeticService;
+        private readonly IBinaryImageService _binaryImageService;
 
         private BitmapSource? _arithmeticOverlayBitmap;
         private bool _suppressArithmeticToggleHandlers;
         private ArithmeticToggleMode _currentArithmeticMode = ArithmeticToggleMode.None;
         private bool _suppressScalarToggleHandlers;
         private ScalarToggleMode _currentScalarMode = ScalarToggleMode.None;
+
+        private BitmapSource? _binaryOverlayBitmap;
+        private bool _suppressBinaryToggleHandlers;
+        private BinaryToggleMode _currentBinaryMode = BinaryToggleMode.None;
 
         private HwndSource? _hwndSource;
         private double _currentZoom = 1.0;
@@ -59,6 +64,7 @@ namespace MiniPhotoshop
             _imageProvider = _editor;
             _workspaceResetService = _editor;
             _arithmeticService = _editor;
+            _binaryImageService = _editor;
 
             FilterPreviewList.ItemsSource = _state.PreviewItems;
             DisplayImage.RenderTransformOrigin = new Point(0.5, 0.5);
@@ -90,7 +96,9 @@ namespace MiniPhotoshop
         {
             None,
             Addition,
-            Subtraction
+            Subtraction,
+            Multiplication,
+            Division
         }
 
         private enum ScalarToggleMode
@@ -98,6 +106,15 @@ namespace MiniPhotoshop
             None,
             Multiply,
             Divide
+        }
+
+        private enum BinaryToggleMode
+        {
+            None,
+            And,
+            Or,
+            Not,
+            Xor
         }
     }
 }

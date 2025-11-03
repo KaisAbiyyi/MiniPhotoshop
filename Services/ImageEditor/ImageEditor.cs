@@ -19,7 +19,8 @@ namespace MiniPhotoshop.Services.ImageEditor
         IProcessedImageProvider,
         IWorkspaceResetService,
         IGrayscaleComparisonService,
-        IArithmeticService
+        IArithmeticService,
+        IBinaryImageService
     {
         private const int PreviewThumbnailSize = 160;
 

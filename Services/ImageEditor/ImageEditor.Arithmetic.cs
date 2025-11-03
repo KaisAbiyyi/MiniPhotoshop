@@ -38,6 +38,18 @@ namespace MiniPhotoshop.Services.ImageEditor
             return ApplyScalarOperation(scalar, ArithmeticMode.Divide);
         }
 
+        public BitmapSource MultiplyImage(BitmapSource overlay, int offsetX, int offsetY, out string normalizationInfo)
+        {
+            CaptureArithmeticSnapshot();
+            return ApplyImageMultiplicationDivision(overlay, offsetX, offsetY, true, out normalizationInfo);
+        }
+
+        public BitmapSource DivideImage(BitmapSource overlay, int offsetX, int offsetY, out string normalizationInfo)
+        {
+            CaptureArithmeticSnapshot();
+            return ApplyImageMultiplicationDivision(overlay, offsetX, offsetY, false, out normalizationInfo);
+        }
+
         private BitmapSource ApplyScalarOperation(double scalar, ArithmeticMode mode)
         {
             if (State.OriginalBitmap == null)
@@ -78,6 +90,156 @@ namespace MiniPhotoshop.Services.ImageEditor
             BitmapSource result = CreateBitmapFromBuffer(buffer, width, height);
             string label = mode == ArithmeticMode.Multiply ? "Hasil_Perkalian.png" : "Hasil_Pembagian.png";
             return ReplaceWorkspaceBitmap(result, label);
+        }
+
+        private BitmapSource ApplyImageMultiplicationDivision(BitmapSource overlay, int offsetX, int offsetY, bool isMultiply, out string normalizationInfo)
+        {
+            const double EPSILON = 1e-10;
+
+            if (overlay == null)
+            {
+                throw new ArgumentNullException(nameof(overlay));
+            }
+
+            if (State.OriginalBitmap == null)
+            {
+                throw new InvalidOperationException("Tidak ada gambar utama untuk operasi.");
+            }
+
+            BitmapSource? baseBitmap = _arithmeticOriginalBitmap ?? State.OriginalBitmap;
+            if (baseBitmap == null)
+            {
+                throw new InvalidOperationException("Tidak ada gambar dasar untuk operasi.");
+            }
+
+            BitmapSource baseSource = EnsureBgra32(baseBitmap);
+            BitmapSource overlaySource = EnsureBgra32(overlay);
+
+            int baseWidth = baseSource.PixelWidth;
+            int baseHeight = baseSource.PixelHeight;
+            int overlayWidth = overlaySource.PixelWidth;
+            int overlayHeight = overlaySource.PixelHeight;
+
+            int baseStride = baseWidth * 4;
+            int overlayStride = overlayWidth * 4;
+
+            byte[] baseBuffer = new byte[baseStride * baseHeight];
+            byte[] overlayBuffer = new byte[overlayStride * overlayHeight];
+            baseSource.CopyPixels(baseBuffer, baseStride, 0);
+            overlaySource.CopyPixels(overlayBuffer, overlayStride, 0);
+
+            // Calculate overlap area
+            int overlapX1 = Math.Max(0, offsetX);
+            int overlapY1 = Math.Max(0, offsetY);
+            int overlapX2 = Math.Min(baseWidth, offsetX + overlayWidth);
+            int overlapY2 = Math.Min(baseHeight, offsetY + overlayHeight);
+
+            int resultWidth = baseWidth;
+            int resultHeight = baseHeight;
+            int resultStride = resultWidth * 4;
+            
+            // Temporary buffers for float calculation
+            float[] tempR = new float[resultWidth * resultHeight];
+            float[] tempG = new float[resultWidth * resultHeight];
+            float[] tempB = new float[resultWidth * resultHeight];
+            
+            // Min and max per channel
+            float minR = float.MaxValue, maxR = float.MinValue;
+            float minG = float.MaxValue, maxG = float.MinValue;
+            float minB = float.MaxValue, maxB = float.MinValue;
+
+            // Process all pixels
+            for (int y = 0; y < resultHeight; y++)
+            {
+                for (int x = 0; x < resultWidth; x++)
+                {
+                    int resultIndex = y * resultWidth + x;
+                    int baseIndex = y * baseStride + x * 4;
+
+                    // Check if in overlap area
+                    if (x >= overlapX1 && x < overlapX2 && y >= overlapY1 && y < overlapY2)
+                    {
+                        int overlayX = x - offsetX;
+                        int overlayY = y - offsetY;
+                        int overlayIndex = overlayY * overlayStride + overlayX * 4;
+
+                        float baseB = baseBuffer[baseIndex];
+                        float baseG = baseBuffer[baseIndex + 1];
+                        float baseR = baseBuffer[baseIndex + 2];
+
+                        float overlayB = overlayBuffer[overlayIndex];
+                        float overlayG = overlayBuffer[overlayIndex + 1];
+                        float overlayR = overlayBuffer[overlayIndex + 2];
+
+                        if (isMultiply)
+                        {
+                            tempR[resultIndex] = baseR * overlayR;
+                            tempG[resultIndex] = baseG * overlayG;
+                            tempB[resultIndex] = baseB * overlayB;
+                        }
+                        else // Divide
+                        {
+                            tempR[resultIndex] = baseR / (overlayR + (float)EPSILON);
+                            tempG[resultIndex] = baseG / (overlayG + (float)EPSILON);
+                            tempB[resultIndex] = baseB / (overlayB + (float)EPSILON);
+                        }
+
+                        // Update min and max
+                        minR = Math.Min(minR, tempR[resultIndex]);
+                        maxR = Math.Max(maxR, tempR[resultIndex]);
+                        minG = Math.Min(minG, tempG[resultIndex]);
+                        maxG = Math.Max(maxG, tempG[resultIndex]);
+                        minB = Math.Min(minB, tempB[resultIndex]);
+                        maxB = Math.Max(maxB, tempB[resultIndex]);
+                    }
+                    else
+                    {
+                        // Outside overlap: set to black (0,0,0)
+                        tempR[resultIndex] = 0;
+                        tempG[resultIndex] = 0;
+                        tempB[resultIndex] = 0;
+                    }
+                }
+            }
+
+            // Normalize and create result buffer
+            byte[] resultBuffer = new byte[resultStride * resultHeight];
+            
+            for (int y = 0; y < resultHeight; y++)
+            {
+                for (int x = 0; x < resultWidth; x++)
+                {
+                    int resultIndex = y * resultWidth + x;
+                    int bufferIndex = y * resultStride + x * 4;
+
+                    // Normalize per channel
+                    byte normalizedR = NormalizeValue(tempR[resultIndex], minR, maxR);
+                    byte normalizedG = NormalizeValue(tempG[resultIndex], minG, maxG);
+                    byte normalizedB = NormalizeValue(tempB[resultIndex], minB, maxB);
+
+                    resultBuffer[bufferIndex] = normalizedB;      // B
+                    resultBuffer[bufferIndex + 1] = normalizedG;  // G
+                    resultBuffer[bufferIndex + 2] = normalizedR;  // R
+                    resultBuffer[bufferIndex + 3] = 255;          // A
+                }
+            }
+
+            normalizationInfo = $"R: [{minR:F2}, {maxR:F2}] | G: [{minG:F2}, {maxG:F2}] | B: [{minB:F2}, {maxB:F2}]";
+
+            BitmapSource result = CreateBitmapFromBuffer(resultBuffer, resultWidth, resultHeight);
+            string label = isMultiply ? "Hasil_Perkalian_Citra.png" : "Hasil_Pembagian_Citra.png";
+            return ReplaceWorkspaceBitmap(result, label);
+        }
+
+        private byte NormalizeValue(float value, float min, float max)
+        {
+            if (max - min < 1e-6) // Avoid division by zero
+            {
+                return 0;
+            }
+            
+            float normalized = ((value - min) / (max - min)) * 255f;
+            return (byte)Math.Clamp((int)normalized, 0, 255);
         }
 
         private BitmapSource ApplyArithmeticOperation(BitmapSource overlay, int offsetX, int offsetY, ArithmeticMode mode)
