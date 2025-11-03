@@ -109,6 +109,7 @@ namespace MiniPhotoshop
 
             ArithmeticPanel.Visibility = Visibility.Visible;
             UpdateArithmeticButtonsState();
+            UpdateScalarButtonsState();
             if (_arithmeticOverlayBitmap == null)
             {
                 ArithmeticInfoText.Text = "Belum ada gambar B";
@@ -122,6 +123,11 @@ namespace MiniPhotoshop
             ArithmeticAddToggle.IsChecked = _currentArithmeticMode == ArithmeticToggleMode.Addition;
             ArithmeticSubtractToggle.IsChecked = _currentArithmeticMode == ArithmeticToggleMode.Subtraction;
             _suppressArithmeticToggleHandlers = false;
+
+            _suppressScalarToggleHandlers = true;
+            ScalarMultiplyToggle.IsChecked = _currentScalarMode == ScalarToggleMode.Multiply;
+            ScalarDivideToggle.IsChecked = _currentScalarMode == ScalarToggleMode.Divide;
+            _suppressScalarToggleHandlers = false;
 
             ShowSidebar();
             RenderHistograms();

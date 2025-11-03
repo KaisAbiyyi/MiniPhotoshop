@@ -21,6 +21,65 @@ namespace MiniPhotoshop.Services.ImageEditor
             return ApplyArithmeticOperation(overlay, offsetX, offsetY, ArithmeticMode.Subtract);
         }
 
+        public BitmapSource MultiplyByScalar(double scalar)
+        {
+            CaptureArithmeticSnapshot();
+            return ApplyScalarOperation(scalar, ArithmeticMode.Multiply);
+        }
+
+        public BitmapSource DivideByScalar(double scalar)
+        {
+            if (scalar == 0)
+            {
+                throw new ArgumentException("Tidak dapat membagi dengan nol.", nameof(scalar));
+            }
+
+            CaptureArithmeticSnapshot();
+            return ApplyScalarOperation(scalar, ArithmeticMode.Divide);
+        }
+
+        private BitmapSource ApplyScalarOperation(double scalar, ArithmeticMode mode)
+        {
+            if (State.OriginalBitmap == null)
+            {
+                throw new InvalidOperationException("Tidak ada gambar untuk operasi skalar.");
+            }
+
+            BitmapSource? baseBitmap = _arithmeticOriginalBitmap ?? State.OriginalBitmap;
+            if (baseBitmap == null)
+            {
+                throw new InvalidOperationException("Tidak ada gambar dasar untuk operasi skalar.");
+            }
+
+            BitmapSource source = EnsureBgra32(baseBitmap);
+            int width = source.PixelWidth;
+            int height = source.PixelHeight;
+            int stride = width * 4;
+            byte[] buffer = new byte[stride * height];
+            source.CopyPixels(buffer, stride, 0);
+
+            for (int i = 0; i < buffer.Length; i += 4)
+            {
+                if (mode == ArithmeticMode.Multiply)
+                {
+                    buffer[i] = (byte)Math.Clamp((int)(buffer[i] * scalar), 0, 255);         // B
+                    buffer[i + 1] = (byte)Math.Clamp((int)(buffer[i + 1] * scalar), 0, 255); // G
+                    buffer[i + 2] = (byte)Math.Clamp((int)(buffer[i + 2] * scalar), 0, 255); // R
+                }
+                else if (mode == ArithmeticMode.Divide)
+                {
+                    buffer[i] = (byte)Math.Clamp((int)(buffer[i] / scalar), 0, 255);         // B
+                    buffer[i + 1] = (byte)Math.Clamp((int)(buffer[i + 1] / scalar), 0, 255); // G
+                    buffer[i + 2] = (byte)Math.Clamp((int)(buffer[i + 2] / scalar), 0, 255); // R
+                }
+                // Alpha channel (i + 3) tetap tidak berubah
+            }
+
+            BitmapSource result = CreateBitmapFromBuffer(buffer, width, height);
+            string label = mode == ArithmeticMode.Multiply ? "Hasil_Perkalian.png" : "Hasil_Pembagian.png";
+            return ReplaceWorkspaceBitmap(result, label);
+        }
+
         private BitmapSource ApplyArithmeticOperation(BitmapSource overlay, int offsetX, int offsetY, ArithmeticMode mode)
         {
             if (overlay == null)
@@ -206,7 +265,9 @@ namespace MiniPhotoshop.Services.ImageEditor
         private enum ArithmeticMode
         {
             Add,
-            Subtract
+            Subtract,
+            Multiply,
+            Divide
         }
     }
 }

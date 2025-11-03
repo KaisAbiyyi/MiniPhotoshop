@@ -259,6 +259,13 @@ namespace MiniPhotoshop
             ArithmeticSubtractToggle.IsEnabled = isEnabled;
         }
 
+        private void UpdateScalarButtonsState()
+        {
+            bool hasBase = _state.OriginalBitmap != null;
+            ScalarMultiplyToggle.IsEnabled = hasBase;
+            ScalarDivideToggle.IsEnabled = hasBase;
+        }
+
         private bool EnsureArithmeticReady()
         {
             if (_state.OriginalBitmap == null)
@@ -288,6 +295,192 @@ namespace MiniPhotoshop
                 ArithmeticSubtractToggle.IsChecked = false;
             }
             _suppressArithmeticToggleHandlers = false;
+        }
+
+        private void ScalarMultiplyToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            HandleScalarToggleChecked(isMultiply: true);
+        }
+
+        private void ScalarMultiplyToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            HandleScalarToggleUnchecked();
+        }
+
+        private void ScalarDivideToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            HandleScalarToggleChecked(isMultiply: false);
+        }
+
+        private void ScalarDivideToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            HandleScalarToggleUnchecked();
+        }
+
+        private void HandleScalarToggleChecked(bool isMultiply)
+        {
+            if (_suppressScalarToggleHandlers)
+            {
+                return;
+            }
+
+            if (_state.OriginalBitmap == null)
+            {
+                MessageBox.Show("Silakan muat gambar terlebih dahulu.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                SuppressAndUncheckScalarToggle(isMultiply);
+                return;
+            }
+
+            if (!TryParseScalar(ScalarValueTextBox.Text, out double scalar))
+            {
+                SuppressAndUncheckScalarToggle(isMultiply);
+                return;
+            }
+
+            if (!isMultiply && scalar == 0)
+            {
+                MessageBox.Show("Tidak dapat membagi dengan nol.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                SuppressAndUncheckScalarToggle(isMultiply);
+                return;
+            }
+
+            // Ensure only one scalar toggle stays active at a time
+            if (isMultiply && ScalarDivideToggle.IsChecked == true)
+            {
+                _suppressScalarToggleHandlers = true;
+                ScalarDivideToggle.IsChecked = false;
+                _suppressScalarToggleHandlers = false;
+            }
+            else if (!isMultiply && ScalarMultiplyToggle.IsChecked == true)
+            {
+                _suppressScalarToggleHandlers = true;
+                ScalarMultiplyToggle.IsChecked = false;
+                _suppressScalarToggleHandlers = false;
+            }
+
+            if (!ApplyScalarOperation(isMultiply, scalar))
+            {
+                SuppressAndUncheckScalarToggle(isMultiply);
+            }
+        }
+
+        private void HandleScalarToggleUnchecked()
+        {
+            if (_suppressScalarToggleHandlers)
+            {
+                return;
+            }
+
+            if (ScalarMultiplyToggle.IsChecked == true || ScalarDivideToggle.IsChecked == true)
+            {
+                return;
+            }
+
+            if (_currentScalarMode == ScalarToggleMode.None)
+            {
+                return;
+            }
+
+            RestoreScalarBaseImage();
+        }
+
+        private bool ApplyScalarOperation(bool isMultiply, double scalar)
+        {
+            try
+            {
+                BitmapSource result = isMultiply
+                    ? _arithmeticService.MultiplyByScalar(scalar)
+                    : _arithmeticService.DivideByScalar(scalar);
+
+                string fallbackName = isMultiply ? "Hasil_Perkalian.png" : "Hasil_Pembagian.png";
+                string fileLabel = _state.CurrentFilePath ?? fallbackName;
+
+                var resultInfo = new ImageLoadResult(
+                    result,
+                    fileLabel,
+                    result.PixelWidth,
+                    result.PixelHeight,
+                    result.Format.ToString()
+                );
+
+                _currentScalarMode = isMultiply ? ScalarToggleMode.Multiply : ScalarToggleMode.Divide;
+
+                _suppressScalarToggleHandlers = true;
+                ApplyLoadedImage(resultInfo);
+                _suppressScalarToggleHandlers = false;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                string action = isMultiply ? "mengalikan" : "membagi";
+                MessageBox.Show($"Gagal {action} gambar dengan skalar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _currentScalarMode = ScalarToggleMode.None;
+                _arithmeticService.ClearArithmeticSnapshot();
+                return false;
+            }
+        }
+
+        private void RestoreScalarBaseImage()
+        {
+            try
+            {
+                BitmapSource restored = _arithmeticService.RestoreArithmeticBase();
+                _currentScalarMode = ScalarToggleMode.None;
+
+                string fileLabel = _state.CurrentFilePath ?? "Gambar.png";
+                var resultInfo = new ImageLoadResult(
+                    restored,
+                    fileLabel,
+                    restored.PixelWidth,
+                    restored.PixelHeight,
+                    restored.Format.ToString()
+                );
+
+                _suppressScalarToggleHandlers = true;
+                ApplyLoadedImage(resultInfo);
+                _suppressScalarToggleHandlers = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Gagal mengembalikan gambar awal: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _suppressScalarToggleHandlers = true;
+                ScalarMultiplyToggle.IsChecked = false;
+                ScalarDivideToggle.IsChecked = false;
+                _suppressScalarToggleHandlers = false;
+                _currentScalarMode = ScalarToggleMode.None;
+            }
+        }
+
+        private bool TryParseScalar(string? input, out double value)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                MessageBox.Show("Nilai skalar tidak boleh kosong.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                value = 0;
+                return false;
+            }
+
+            if (!double.TryParse(input, out value))
+            {
+                MessageBox.Show("Nilai skalar harus berupa angka.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return false;
+            }
+
+            return true;
+        }
+
+        private void SuppressAndUncheckScalarToggle(bool isMultiply)
+        {
+            _suppressScalarToggleHandlers = true;
+            if (isMultiply)
+            {
+                ScalarMultiplyToggle.IsChecked = false;
+            }
+            else
+            {
+                ScalarDivideToggle.IsChecked = false;
+            }
+            _suppressScalarToggleHandlers = false;
         }
     }
 }

@@ -20,6 +20,11 @@ namespace MiniPhotoshop
             ArithmeticAddToggle.IsChecked = false;
             ArithmeticSubtractToggle.IsChecked = false;
             _suppressArithmeticToggleHandlers = false;
+            _currentScalarMode = ScalarToggleMode.None;
+            _suppressScalarToggleHandlers = true;
+            ScalarMultiplyToggle.IsChecked = false;
+            ScalarDivideToggle.IsChecked = false;
+            _suppressScalarToggleHandlers = false;
             UpdateUiForNoImage();
         }
 
@@ -64,6 +69,16 @@ namespace MiniPhotoshop
                 ArithmeticInfoText.Text = "Belum ada gambar B";
             }
             UpdateArithmeticButtonsState();
+
+            ScalarValueTextBox.Text = "2";
+            ScalarMultiplyToggle.IsEnabled = false;
+            ScalarDivideToggle.IsEnabled = false;
+            _suppressScalarToggleHandlers = true;
+            ScalarMultiplyToggle.IsChecked = false;
+            ScalarDivideToggle.IsChecked = false;
+            _suppressScalarToggleHandlers = false;
+            _currentScalarMode = ScalarToggleMode.None;
+            UpdateScalarButtonsState();
 
             HideSidebar();
         }

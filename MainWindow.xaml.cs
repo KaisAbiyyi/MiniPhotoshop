@@ -30,6 +30,8 @@ namespace MiniPhotoshop
         private BitmapSource? _arithmeticOverlayBitmap;
         private bool _suppressArithmeticToggleHandlers;
         private ArithmeticToggleMode _currentArithmeticMode = ArithmeticToggleMode.None;
+        private bool _suppressScalarToggleHandlers;
+        private ScalarToggleMode _currentScalarMode = ScalarToggleMode.None;
 
         private HwndSource? _hwndSource;
         private double _currentZoom = 1.0;
@@ -89,6 +91,13 @@ namespace MiniPhotoshop
             None,
             Addition,
             Subtraction
+        }
+
+        private enum ScalarToggleMode
+        {
+            None,
+            Multiply,
+            Divide
         }
     }
 }
