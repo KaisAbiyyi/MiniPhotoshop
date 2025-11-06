@@ -5,7 +5,12 @@
         Height="600"
         Width="900"
         MinHeight="450"
-        MinWidth="700">
+        MinWidth="700"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        DragEnter="Window_DragEnter"
+        DragOver="Window_DragOver"
+        DragLeave="Window_DragLeave">
     <Window.Resources>
         <!-- Style untuk Toggle Button di Toolbar -->
         <Style x:Key="ToolbarToggleStyle" TargetType="ToggleButton">
@@ -317,7 +322,8 @@
             </Grid.ColumnDefinitions>
 
             <!-- Main Display Area -->
-            <Border Grid.Column="0"
+            <Border x:Name="DisplayImageBorder"
+                    Grid.Column="0"
                     BorderBrush="#FFDFE2E5"
                     BorderThickness="1"
                     CornerRadius="8"
