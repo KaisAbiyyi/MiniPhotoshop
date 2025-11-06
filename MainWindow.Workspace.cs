@@ -22,8 +22,8 @@ namespace MiniPhotoshop
             _suppressArithmeticToggleHandlers = false;
             _currentScalarMode = ScalarToggleMode.None;
             _suppressScalarToggleHandlers = true;
-            ScalarMultiplyToggle.IsChecked = false;
-            ScalarDivideToggle.IsChecked = false;
+            // ScalarMultiplyToggle.IsChecked = false;
+            // ScalarDivideToggle.IsChecked = false;
             _suppressScalarToggleHandlers = false;
             UpdateUiForNoImage();
         }
@@ -53,9 +53,9 @@ namespace MiniPhotoshop
             SelectedColorText.Foreground = Brushes.Gray;
             DisplayImage.MouseLeftButtonDown -= DisplayImage_ColorSelection_Click;
 
-            ArithmeticPanel.Visibility = Visibility.Collapsed;
-            ArithmeticOffsetXTextBox.Text = "0";
-            ArithmeticOffsetYTextBox.Text = "0";
+            // ArithmeticPanel.Visibility = Visibility.Collapsed;
+            // ArithmeticOffsetXTextBox.Text = "0";
+            // ArithmeticOffsetYTextBox.Text = "0";
             ArithmeticAddToggle.IsEnabled = false;
             ArithmeticSubtractToggle.IsEnabled = false;
             _suppressArithmeticToggleHandlers = true;
@@ -63,19 +63,19 @@ namespace MiniPhotoshop
             ArithmeticSubtractToggle.IsChecked = false;
             _suppressArithmeticToggleHandlers = false;
             _currentArithmeticMode = ArithmeticToggleMode.None;
-            ArithmeticInfoText.Foreground = Brushes.Gray;
-            if (string.IsNullOrWhiteSpace(ArithmeticInfoText.Text))
-            {
-                ArithmeticInfoText.Text = "Belum ada gambar B";
-            }
-            UpdateArithmeticButtonsState();
+            // // ArithmeticInfoText.Foreground = Brushes.Gray;
+            // if (string.IsNullOrWhiteSpace(ArithmeticInfoText.Text))
+            // {
+            //     ArithmeticInfoText.Text = "Belum ada gambar B";
+            // }
+            // UpdateArithmeticButtonsState();
 
-            ScalarValueTextBox.Text = "2";
-            ScalarMultiplyToggle.IsEnabled = false;
-            ScalarDivideToggle.IsEnabled = false;
+            // ScalarValueTextBox.Text = "2";
+            // ScalarMultiplyToggle.IsEnabled = false;
+            // ScalarDivideToggle.IsEnabled = false;
             _suppressScalarToggleHandlers = true;
-            ScalarMultiplyToggle.IsChecked = false;
-            ScalarDivideToggle.IsChecked = false;
+            // ScalarMultiplyToggle.IsChecked = false;
+            // ScalarDivideToggle.IsChecked = false;
             _suppressScalarToggleHandlers = false;
             _currentScalarMode = ScalarToggleMode.None;
             UpdateScalarButtonsState();

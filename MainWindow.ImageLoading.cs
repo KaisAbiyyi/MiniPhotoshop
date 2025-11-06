@@ -97,9 +97,13 @@ namespace MiniPhotoshop
             BinaryThresholdToggle.IsChecked = false;
             BinaryThresholdPanel.Visibility = Visibility.Collapsed;
             BinaryThresholdSlider.Value = ImageWorkspaceState.DefaultBinaryThreshold;
-            UpdateBinaryThresholdLabel(ImageWorkspaceState.DefaultBinaryThreshold);
 
-            BrightnessPanel.Visibility = Visibility.Visible;
+            BrightnessToggle.IsEnabled = true;
+            BrightnessToggle.IsChecked = false;
+            BrightnessPanel.Visibility = Visibility.Collapsed;
+            
+            // Enable Binary NOT toggle (doesn't need image B)
+            BinaryNotToggle.IsEnabled = true;
 
             ColorSelectionPanel.Visibility = Visibility.Visible;
             ColorSelectionCheckBox.IsChecked = false;
@@ -107,47 +111,11 @@ namespace MiniPhotoshop
             SelectedColorText.Foreground = System.Windows.Media.Brushes.Gray;
             DisplayImage.MouseLeftButtonDown -= DisplayImage_ColorSelection_Click;
 
-            ArithmeticPanel.Visibility = Visibility.Visible;
-            UpdateArithmeticButtonsState();
-            UpdateScalarButtonsState();
-            if (_arithmeticOverlayBitmap == null)
-            {
-                ArithmeticInfoText.Text = "Belum ada gambar B";
-                ArithmeticInfoText.Foreground = System.Windows.Media.Brushes.Gray;
-            }
-            else
-            {
-                ArithmeticInfoText.Foreground = System.Windows.Media.Brushes.Black;
-            }
-            _suppressArithmeticToggleHandlers = true;
-            ArithmeticAddToggle.IsChecked = _currentArithmeticMode == ArithmeticToggleMode.Addition;
-            ArithmeticSubtractToggle.IsChecked = _currentArithmeticMode == ArithmeticToggleMode.Subtraction;
-            ArithmeticMultiplyToggle.IsChecked = _currentArithmeticMode == ArithmeticToggleMode.Multiplication;
-            ArithmeticDivideToggle.IsChecked = _currentArithmeticMode == ArithmeticToggleMode.Division;
-            _suppressArithmeticToggleHandlers = false;
-
-            _suppressScalarToggleHandlers = true;
-            ScalarMultiplyToggle.IsChecked = _currentScalarMode == ScalarToggleMode.Multiply;
-            ScalarDivideToggle.IsChecked = _currentScalarMode == ScalarToggleMode.Divide;
-            _suppressScalarToggleHandlers = false;
-
-            BinaryImagePanel.Visibility = Visibility.Visible;
-            UpdateBinaryButtonsState();
-            if (_binaryOverlayBitmap == null)
-            {
-                BinaryInfoText.Text = "Belum ada gambar B";
-                BinaryInfoText.Foreground = System.Windows.Media.Brushes.Gray;
-            }
-            else
-            {
-                BinaryInfoText.Foreground = System.Windows.Media.Brushes.Black;
-            }
-            _suppressBinaryToggleHandlers = true;
-            BinaryAndToggle.IsChecked = _currentBinaryMode == BinaryToggleMode.And;
-            BinaryOrToggle.IsChecked = _currentBinaryMode == BinaryToggleMode.Or;
-            BinaryNotToggle.IsChecked = _currentBinaryMode == BinaryToggleMode.Not;
-            BinaryXorToggle.IsChecked = _currentBinaryMode == BinaryToggleMode.Xor;
-            _suppressBinaryToggleHandlers = false;
+            // Enable toolbar buttons
+            ScalarOperationToggle.IsEnabled = true;
+            ScalarOperationToggle.IsChecked = false;
+            // UpdateArithmeticButtonsState();
+            // UpdateBinaryButtonsState();
 
             ShowSidebar();
             RenderHistograms();

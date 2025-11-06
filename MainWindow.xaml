@@ -6,6 +6,45 @@
         Width="900"
         MinHeight="450"
         MinWidth="700">
+    <Window.Resources>
+        <!-- Style untuk Toggle Button di Toolbar -->
+        <Style x:Key="ToolbarToggleStyle" TargetType="ToggleButton">
+            <Setter Property="Foreground" Value="#FF35424E"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFE8F0FE"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#FFAAAAAA"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Foreground" Value="#FF1A56B3"/>
+                    <Setter Property="Background" Value="#FFD6E4FF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -13,6 +52,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Toolbar Utama -->
         <DockPanel Grid.Row="0"
                    Margin="0,0,0,12"
                    LastChildFill="False">
@@ -23,6 +63,7 @@
                     Padding="2"
                     HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
+                    <!-- File Menu -->
                     <Menu Background="Transparent"
                           BorderThickness="0"
                           Margin="0"
@@ -32,6 +73,9 @@
                                   Padding="16,6">
                             <MenuItem Header="Buka Gambar..."
                                       Click="SelectImageButton_Click"/>
+                            <MenuItem Header="Tambah Gambar B..."
+                                      Click="AddImageB_Click"
+                                      x:Name="AddImageBMenuItem"/>
                             <MenuItem x:Name="SavePixelsMenuItem"
                                       Header="Simpan Pixel"
                                       Click="SavePixelsButton_Click"
@@ -39,7 +83,25 @@
                         </MenuItem>
                     </Menu>
                     
-                    <!-- Button Grayscale Comparison -->
+                    <!-- Toggle Brightness -->
+                    <ToggleButton x:Name="BrightnessToggle"
+                                  Content="Brightness"
+                                  Checked="BrightnessToggle_Checked"
+                                  Unchecked="BrightnessToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Toggle Binary Threshold -->
+                    <ToggleButton x:Name="BinaryThresholdToggle"
+                                  Content="Binary Threshold"
+                                  Checked="BinaryThresholdToggle_Checked"
+                                  Unchecked="BinaryThresholdToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Grayscale Comparison -->
                     <Button x:Name="GrayscaleCompareButton"
                             Content="Grayscale Comparison"
                             Click="ShowGrayscaleComparison_Click"
@@ -65,64 +127,99 @@
                         </Button.Style>
                     </Button>
                     
-                    <!-- Toggle Binary Threshold -->
-                    <ToggleButton x:Name="BinaryThresholdToggle"
-                                  Content="Binary Threshold + Negasi"
-                                  Checked="BinaryThresholdToggle_Checked"
-                                  Unchecked="BinaryThresholdToggle_Unchecked"
+                    <!-- Operasi Aritmatika -->
+                    <ToggleButton x:Name="ArithmeticAddToggle"
+                                  Content="A + B"
+                                  Checked="ArithmeticAddToggle_Checked"
+                                  Unchecked="ArithmeticAddToggle_Unchecked"
                                   IsEnabled="False"
-                                  Padding="16,6"
                                   Margin="4,0,0,0"
-                                  FontSize="14"
-                                  Background="Transparent"
-                                  BorderThickness="0"
-                                  Cursor="Hand">
-                        <ToggleButton.Style>
-                            <Style TargetType="ToggleButton">
-                                <Setter Property="Foreground" Value="#FF35424E"/>
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="BorderBrush" Value="Transparent"/>
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="ToggleButton">
-                                            <Border Background="{TemplateBinding Background}"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    CornerRadius="6"
-                                                    Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center"
-                                                                  VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#FFE8F0FE"/>
-                                    </Trigger>
-                                    <Trigger Property="IsEnabled" Value="False">
-                                        <Setter Property="Foreground" Value="#FFAAAAAA"/>
-                                    </Trigger>
-                                    <Trigger Property="IsChecked" Value="True">
-                                        <Setter Property="Foreground" Value="#FF1A56B3"/>
-                                        <Setter Property="Background" Value="#FFD6E4FF"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ToggleButton.Style>
-                    </ToggleButton>
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="ArithmeticToggle_RightClick"/>
+                    
+                    <ToggleButton x:Name="ArithmeticSubtractToggle"
+                                  Content="A - B"
+                                  Checked="ArithmeticSubtractToggle_Checked"
+                                  Unchecked="ArithmeticSubtractToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="ArithmeticToggle_RightClick"/>
+                    
+                    <ToggleButton x:Name="ArithmeticMultiplyToggle"
+                                  Content="A × B"
+                                  Checked="ArithmeticMultiplyToggle_Checked"
+                                  Unchecked="ArithmeticMultiplyToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="ArithmeticToggle_RightClick"/>
+                    
+                    <ToggleButton x:Name="ArithmeticDivideToggle"
+                                  Content="A ÷ B"
+                                  Checked="ArithmeticDivideToggle_Checked"
+                                  Unchecked="ArithmeticDivideToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="ArithmeticToggle_RightClick"/>
+                    
+                    <!-- Operasi Skalar -->
+                    <ToggleButton x:Name="ScalarOperationToggle"
+                                  Content="Operasi Skalar"
+                                  Checked="ScalarOperationToggle_Checked"
+                                  Unchecked="ScalarOperationToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Operasi Biner - 4 Toggle Terpisah -->
+                    <ToggleButton x:Name="BinaryAndToggle"
+                                  Content="AND"
+                                  Checked="BinaryAndToggle_Checked"
+                                  Unchecked="BinaryAndToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="BinaryToggle_RightClick"/>
+                    
+                    <ToggleButton x:Name="BinaryOrToggle"
+                                  Content="OR"
+                                  Checked="BinaryOrToggle_Checked"
+                                  Unchecked="BinaryOrToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="BinaryToggle_RightClick"/>
+                    
+                    <ToggleButton x:Name="BinaryNotToggle"
+                                  Content="NOT"
+                                  Checked="BinaryNotToggle_Checked"
+                                  Unchecked="BinaryNotToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <ToggleButton x:Name="BinaryXorToggle"
+                                  Content="XOR"
+                                  Checked="BinaryXorToggle_Checked"
+                                  Unchecked="BinaryXorToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="BinaryToggle_RightClick"/>
                 </StackPanel>
             </Border>
         </DockPanel>
 
+        <!-- Info Panel -->
         <Border Grid.Row="1"
                 Padding="12"
                 BorderBrush="#FFDFE2E5"
                 BorderThickness="1"
                 CornerRadius="6"
                 Background="#FFF8FAFC">
-        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Vertical">
                 <TextBlock Name="FileNameText"
                            Text="Belum ada gambar dipilih"
                            FontSize="14"
@@ -130,11 +227,11 @@
                            Foreground="Gray"/>
                 <TextBlock Name="ImageInfoText"
                            Text="Pilih gambar untuk melihat detail dan menyimpan data pixel."
-               FontSize="12"
-               Foreground="#FF51606A"
-               Margin="0,4,0,0"/>
+                           FontSize="12"
+                           Foreground="#FF51606A"
+                           Margin="0,4,0,0"/>
                 
-                <!-- Brightness Slider (Tugas 2) - Bekerja di semua filter -->
+                <!-- Brightness Slider -->
                 <StackPanel x:Name="BrightnessPanel" Orientation="Vertical" Margin="0,12,0,0" Visibility="Collapsed">
                     <TextBlock Text="Brightness Adjustment (-255 to +255)" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
                     <Grid>
@@ -160,6 +257,7 @@
                     </Grid>
                 </StackPanel>
 
+                <!-- Binary Threshold Slider -->
                 <StackPanel x:Name="BinaryThresholdPanel" Orientation="Vertical" Margin="0,12,0,0" Visibility="Collapsed">
                     <TextBlock Text="Binary Threshold (0 - 255)" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
                     <Grid>
@@ -183,14 +281,9 @@
                                    MinWidth="40"
                                    TextAlignment="Right"/>
                     </Grid>
-                    <TextBlock x:Name="BinaryThresholdValueText"
-                               Text="Nilai Threshold: 128"
-                               FontSize="11"
-                               Foreground="#FF51606A"
-                               Margin="0,6,0,0"/>
                 </StackPanel>
                 
-                <!-- Color Selection (Tugas 4) -->
+                <!-- Color Selection -->
                 <StackPanel x:Name="ColorSelectionPanel" Orientation="Vertical" Margin="0,8,0,0" Visibility="Collapsed">
                     <TextBlock Text="Seleksi Warna Interaktif" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
                     <Grid>
@@ -212,190 +305,6 @@
                                    VerticalAlignment="Center"
                                    Margin="8,0,0,0"/>
                     </Grid>
-                </StackPanel>
-
-                <!-- Image Arithmetic -->
-                <StackPanel x:Name="ArithmeticPanel" Orientation="Vertical" Margin="0,12,0,0" Visibility="Collapsed">
-                    <TextBlock Text="Aritmetika Citra (Tambah / Kurang)" FontSize="12" FontWeight="Bold" Margin="0,0,0,6"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Button x:Name="ArithmeticSelectButton"
-                                Content="Pilih Gambar B"
-                                Click="ArithmeticSelectButton_Click"
-                                Padding="10,4"
-                                MinWidth="130"/>
-                        <TextBlock x:Name="ArithmeticInfoText"
-                                   Text="Belum ada gambar B"
-                                   FontSize="11"
-                                   Foreground="Gray"
-                                   VerticalAlignment="Center"
-                                   Margin="8,0,0,0"/>
-                    </StackPanel>
-                    <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Offset X" FontSize="11" Margin="0,0,0,2"/>
-                            <TextBox x:Name="ArithmeticOffsetXTextBox"
-                                     Text="0"
-                                     MinWidth="80"
-                                     HorizontalAlignment="Left"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Margin="8,0,0,0">
-                            <TextBlock Text="Offset Y" FontSize="11" Margin="0,0,0,2"/>
-                            <TextBox x:Name="ArithmeticOffsetYTextBox"
-                                     Text="0"
-                                     MinWidth="80"
-                                     HorizontalAlignment="Left"/>
-                        </StackPanel>
-                    </Grid>
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <ToggleButton x:Name="ArithmeticAddToggle"
-                                      Content="Tambah (A + B)"
-                                      Checked="ArithmeticAddToggle_Checked"
-                                      Unchecked="ArithmeticAddToggle_Unchecked"
-                                      IsEnabled="False"
-                                      Padding="10,4"
-                                      MinWidth="130"/>
-                        <ToggleButton x:Name="ArithmeticSubtractToggle"
-                                      Content="Kurangi (A - B)"
-                                      Checked="ArithmeticSubtractToggle_Checked"
-                                      Unchecked="ArithmeticSubtractToggle_Unchecked"
-                                      IsEnabled="False"
-                                      Padding="10,4"
-                                      Margin="8,0,0,0"
-                                      MinWidth="130"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <ToggleButton x:Name="ArithmeticMultiplyToggle"
-                                      Content="Kali Citra (×)"
-                                      Checked="ArithmeticMultiplyToggle_Checked"
-                                      Unchecked="ArithmeticMultiplyToggle_Unchecked"
-                                      IsEnabled="False"
-                                      Padding="10,4"
-                                      MinWidth="130"/>
-                        <ToggleButton x:Name="ArithmeticDivideToggle"
-                                      Content="Bagi Citra (÷)"
-                                      Checked="ArithmeticDivideToggle_Checked"
-                                      Unchecked="ArithmeticDivideToggle_Unchecked"
-                                      IsEnabled="False"
-                                      Padding="10,4"
-                                      Margin="8,0,0,0"
-                                      MinWidth="130"/>
-                    </StackPanel>
-                    
-                    <!-- Scalar Operations -->
-                    <TextBlock Text="Operasi Skalar" FontSize="12" FontWeight="Bold" Margin="0,12,0,6"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <TextBlock Text="Skalar (c):" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBox x:Name="ScalarValueTextBox"
-                                 Text="2"
-                                 MinWidth="60"
-                                 HorizontalAlignment="Left"
-                                 VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <ToggleButton x:Name="ScalarMultiplyToggle"
-                                      Content="Kali (A × c)"
-                                      Checked="ScalarMultiplyToggle_Checked"
-                                      Unchecked="ScalarMultiplyToggle_Unchecked"
-                                      IsEnabled="False"
-                                      Padding="10,4"
-                                      MinWidth="130"/>
-                        <ToggleButton x:Name="ScalarDivideToggle"
-                                      Content="Bagi (A ÷ c)"
-                                      Checked="ScalarDivideToggle_Checked"
-                                      Unchecked="ScalarDivideToggle_Unchecked"
-                                      IsEnabled="False"
-                                      Padding="10,4"
-                                      Margin="8,0,0,0"
-                                      MinWidth="130"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <!-- Binary Image Operations -->
-                <StackPanel x:Name="BinaryImagePanel" Orientation="Vertical" Margin="0,12,0,0" Visibility="Collapsed">
-                    <TextBlock Text="Citra Biner (Boolean)" FontSize="12" FontWeight="Bold" Margin="0,0,0,6"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <Button x:Name="BinarySelectButton"
-                                Content="Pilih Gambar B"
-                                Click="BinarySelectButton_Click"
-                                Padding="10,4"
-                                MinWidth="130"/>
-                        <TextBlock x:Name="BinaryInfoText"
-                                   Text="Belum ada gambar B"
-                                   FontSize="11"
-                                   Foreground="Gray"
-                                   VerticalAlignment="Center"
-                                   Margin="8,0,0,0"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <Button x:Name="ConvertToBinaryButton"
-                                Content="Convert to Binary"
-                                Click="ConvertToBinaryButton_Click"
-                                IsEnabled="False"
-                                Padding="10,4"
-                                MinWidth="130"/>
-                        <TextBlock Text="Threshold: 128"
-                                   FontSize="11"
-                                   Foreground="Gray"
-                                   VerticalAlignment="Center"
-                                   Margin="8,0,0,0"/>
-                    </StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Offset X" FontSize="11" Margin="0,0,0,2"/>
-                            <TextBox x:Name="BinaryOffsetXTextBox"
-                                     Text="0"
-                                     MinWidth="80"
-                                     HorizontalAlignment="Left"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Margin="8,0,0,0">
-                            <TextBlock Text="Offset Y" FontSize="11" Margin="0,0,0,2"/>
-                            <TextBox x:Name="BinaryOffsetYTextBox"
-                                     Text="0"
-                                     MinWidth="80"
-                                     HorizontalAlignment="Left"/>
-                        </StackPanel>
-                    </Grid>
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <ToggleButton x:Name="BinaryAndToggle"
-                                      Content="AND"
-                                      Checked="BinaryAndToggle_Checked"
-                                      Unchecked="BinaryAndToggle_Unchecked"
-                                      IsEnabled="False"
-                                      Padding="10,4"
-                                      MinWidth="60"
-                                      Margin="0,0,8,0"/>
-                        <ToggleButton x:Name="BinaryOrToggle"
-                                      Content="OR"
-                                      Checked="BinaryOrToggle_Checked"
-                                      Unchecked="BinaryOrToggle_Unchecked"
-                                      IsEnabled="False"
-                                      Padding="10,4"
-                                      MinWidth="60"
-                                      Margin="0,0,8,0"/>
-                        <ToggleButton x:Name="BinaryNotToggle"
-                                      Content="NOT"
-                                      Checked="BinaryNotToggle_Checked"
-                                      Unchecked="BinaryNotToggle_Unchecked"
-                                      IsEnabled="False"
-                                      Padding="10,4"
-                                      MinWidth="60"
-                                      Margin="0,0,8,0"/>
-                        <ToggleButton x:Name="BinaryXorToggle"
-                                      Content="XOR"
-                                      Checked="BinaryXorToggle_Checked"
-                                      Unchecked="BinaryXorToggle_Unchecked"
-                                      IsEnabled="False"
-                                      Padding="10,4"
-                                      MinWidth="60"/>
-                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -570,7 +479,7 @@
                 </StackPanel>
             </Border>
 
-            <!-- Sidebar Kanan - Histogram -->
+            <!-- Sidebar Kanan - Gambar B dan Histogram -->
             <Border x:Name="SidebarPanel"
                     Grid.Column="1"
                     BorderBrush="#FFDFE2E5"
@@ -582,6 +491,32 @@
                     Visibility="Collapsed">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
+                        <!-- Preview Gambar B -->
+                        <Border x:Name="ImageBPreviewBorder"
+                                BorderBrush="#FFDFE2E5"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="8"
+                                Margin="0,0,0,20"
+                                Visibility="Collapsed">
+                            <StackPanel>
+                                <TextBlock Text="Gambar B"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Margin="0,0,0,8"/>
+                                <Image x:Name="ImageBPreview"
+                                       MaxHeight="150"
+                                       Stretch="Uniform"
+                                       HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="ImageBInfoText"
+                                           Text=""
+                                           FontSize="10"
+                                           Foreground="#FF51606A"
+                                           TextAlignment="Center"
+                                           Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        
                         <TextBlock Text="Histogram"
                                    FontSize="16"
                                    FontWeight="Bold"

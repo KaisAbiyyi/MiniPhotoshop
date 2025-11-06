@@ -10,6 +10,9 @@ namespace MiniPhotoshop
 {
     public partial class MainWindow
     {
+        // DEPRECATED: Method ini sudah diganti dengan AddImageB_Click di MainWindow.ToolbarHandlers.cs
+        // Dikomen agar tidak error tapi tetap ada untuk referensi
+        /*
         private void ArithmeticSelectButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dialog = new()
@@ -40,9 +43,8 @@ namespace MiniPhotoshop
                 bitmap.Freeze();
 
                 _arithmeticOverlayBitmap = bitmap;
-                ArithmeticInfoText.Text = $"{Path.GetFileName(dialog.FileName)} ({bitmap.PixelWidth} x {bitmap.PixelHeight})";
-                ArithmeticInfoText.Foreground = Brushes.Black;
-                UpdateArithmeticButtonsState();
+                // ArithmeticInfoText sudah tidak ada di UI baru
+                // UpdateArithmeticButtonsState();
 
                 if (_currentArithmeticMode != ArithmeticToggleMode.None)
                 {
@@ -53,11 +55,10 @@ namespace MiniPhotoshop
             {
                 MessageBox.Show($"Gagal memuat gambar B: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 _arithmeticOverlayBitmap = null;
-                ArithmeticInfoText.Text = "Belum ada gambar B";
-                ArithmeticInfoText.Foreground = Brushes.Gray;
-                UpdateArithmeticButtonsState();
+                // UpdateArithmeticButtonsState();
             }
         }
+        */
 
         private void ArithmeticAddToggle_Checked(object sender, RoutedEventArgs e)
         {
@@ -140,15 +141,9 @@ namespace MiniPhotoshop
                 return false;
             }
 
-            if (!TryParseOffset(ArithmeticOffsetXTextBox.Text, "Offset X", out int offsetX))
-            {
-                return false;
-            }
-
-            if (!TryParseOffset(ArithmeticOffsetYTextBox.Text, "Offset Y", out int offsetY))
-            {
-                return false;
-            }
+            // Use fields from ToolbarHandlers instead of TextBox controls
+            int offsetX = _arithmeticOffsetX;
+            int offsetY = _arithmeticOffsetY;
 
             try
             {
@@ -167,12 +162,12 @@ namespace MiniPhotoshop
                     result.Format.ToString()
                 );
 
-                _currentArithmeticMode = isAddition ? ArithmeticToggleMode.Addition : ArithmeticToggleMode.Subtraction;
+                _currentArithmeticMode = isAddition ? ArithmeticToggleMode.Add : ArithmeticToggleMode.Subtract;
 
                 _suppressArithmeticToggleHandlers = true;
                 ApplyLoadedImage(resultInfo);
                 _suppressArithmeticToggleHandlers = false;
-                UpdateArithmeticButtonsState();
+                // UpdateArithmeticButtonsState is now in ToolbarHandlers
                 return true;
             }
             catch (Exception ex)
@@ -204,17 +199,16 @@ namespace MiniPhotoshop
                 _suppressArithmeticToggleHandlers = true;
                 ApplyLoadedImage(resultInfo);
                 _suppressArithmeticToggleHandlers = false;
-                UpdateArithmeticButtonsState();
+                // UpdateArithmeticButtonsState(); // Moved to ToolbarHandlers
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Gagal mengembalikan gambar awal: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 _suppressArithmeticToggleHandlers = true;
-                ArithmeticAddToggle.IsChecked = false;
-                ArithmeticSubtractToggle.IsChecked = false;
+                // ArithmeticAddToggle/SubtractToggle no longer exist in new UI
                 _suppressArithmeticToggleHandlers = false;
                 _currentArithmeticMode = ArithmeticToggleMode.None;
-                UpdateArithmeticButtonsState();
+                // UpdateArithmeticButtonsState(); // Moved to ToolbarHandlers
             }
         }
 
@@ -226,8 +220,7 @@ namespace MiniPhotoshop
             }
 
             _suppressArithmeticToggleHandlers = true;
-            ArithmeticAddToggle.IsChecked = false;
-            ArithmeticSubtractToggle.IsChecked = false;
+            // ArithmeticAddToggle/SubtractToggle no longer exist in new UI
             _suppressArithmeticToggleHandlers = false;
 
             RestoreArithmeticBaseImage();
@@ -250,6 +243,8 @@ namespace MiniPhotoshop
             return true;
         }
 
+        // DEPRECATED: UpdateArithmeticButtonsState moved to MainWindow.ToolbarHandlers.cs
+        /*
         private void UpdateArithmeticButtonsState()
         {
             bool hasBase = _state.OriginalBitmap != null;
@@ -257,9 +252,10 @@ namespace MiniPhotoshop
             bool isEnabled = hasBase && hasOverlay;
             ArithmeticAddToggle.IsEnabled = isEnabled;
             ArithmeticSubtractToggle.IsEnabled = isEnabled;
-            ArithmeticMultiplyToggle.IsEnabled = isEnabled;
-            ArithmeticDivideToggle.IsEnabled = isEnabled;
+            // ArithmeticMultiplyToggle.IsEnabled = isEnabled;
+            // ArithmeticDivideToggle.IsEnabled = isEnabled;
         }
+        */
 
         private void ArithmeticMultiplyToggle_Checked(object sender, RoutedEventArgs e)
         {
@@ -327,13 +323,13 @@ namespace MiniPhotoshop
                 return;
             }
 
-            if (ArithmeticMultiplyToggle.IsChecked == true || ArithmeticDivideToggle.IsChecked == true)
-            {
-                return;
-            }
+            // if (ArithmeticMultiplyToggle.IsChecked == true || ArithmeticDivideToggle.IsChecked == true)
+            // {
+            //     return;
+            // }
 
-            if (_currentArithmeticMode != ArithmeticToggleMode.Multiplication && 
-                _currentArithmeticMode != ArithmeticToggleMode.Division)
+            if (_currentArithmeticMode != ArithmeticToggleMode.Multiply && 
+                _currentArithmeticMode != ArithmeticToggleMode.Divide)
             {
                 return;
             }
@@ -349,12 +345,12 @@ namespace MiniPhotoshop
                 return false;
             }
 
-            if (!TryParseOffset(ArithmeticOffsetXTextBox.Text, "Offset X", out int offsetX))
+            if (!TryParseOffset(_arithmeticOffsetX.ToString(), "Offset X", out int offsetX))
             {
                 return false;
             }
 
-            if (!TryParseOffset(ArithmeticOffsetYTextBox.Text, "Offset Y", out int offsetY))
+            if (!TryParseOffset(_arithmeticOffsetY.ToString(), "Offset Y", out int offsetY))
             {
                 return false;
             }
@@ -377,12 +373,12 @@ namespace MiniPhotoshop
                     result.Format.ToString()
                 );
 
-                _currentArithmeticMode = isMultiply ? ArithmeticToggleMode.Multiplication : ArithmeticToggleMode.Division;
+                _currentArithmeticMode = isMultiply ? ArithmeticToggleMode.Multiply : ArithmeticToggleMode.Divide;
 
                 _suppressArithmeticToggleHandlers = true;
                 ApplyLoadedImage(resultInfo);
                 _suppressArithmeticToggleHandlers = false;
-                UpdateArithmeticButtonsState();
+                // UpdateArithmeticButtonsState();
 
                 return true;
             }
@@ -401,11 +397,11 @@ namespace MiniPhotoshop
             _suppressArithmeticToggleHandlers = true;
             if (isMultiply)
             {
-                ArithmeticMultiplyToggle.IsChecked = false;
+                // ArithmeticMultiplyToggle.IsChecked = false;
             }
             else
             {
-                ArithmeticDivideToggle.IsChecked = false;
+                // ArithmeticDivideToggle.IsChecked = false;
             }
             _suppressArithmeticToggleHandlers = false;
         }
@@ -413,8 +409,8 @@ namespace MiniPhotoshop
         private void UpdateScalarButtonsState()
         {
             bool hasBase = _state.OriginalBitmap != null;
-            ScalarMultiplyToggle.IsEnabled = hasBase;
-            ScalarDivideToggle.IsEnabled = hasBase;
+            // // ScalarMultiplyToggle.IsEnabled = hasBase;
+            // // ScalarDivideToggle.IsEnabled = hasBase;
         }
 
         private bool EnsureArithmeticReady()
@@ -448,92 +444,95 @@ namespace MiniPhotoshop
             _suppressArithmeticToggleHandlers = false;
         }
 
-        private void ScalarMultiplyToggle_Checked(object sender, RoutedEventArgs e)
-        {
-            HandleScalarToggleChecked(isMultiply: true);
-        }
+        // Deprecated: Scalar toggle handlers removed (now using ScalarOperationToggle dialog)
+        // private void ScalarMultiplyToggle_Checked(object sender, RoutedEventArgs e)
+        // {
+        //     HandleScalarToggleChecked(isMultiply: true);
+        // }
 
-        private void ScalarMultiplyToggle_Unchecked(object sender, RoutedEventArgs e)
-        {
-            HandleScalarToggleUnchecked();
-        }
+        // private void ScalarMultiplyToggle_Unchecked(object sender, RoutedEventArgs e)
+        // {
+        //     HandleScalarToggleUnchecked();
+        // }
 
-        private void ScalarDivideToggle_Checked(object sender, RoutedEventArgs e)
-        {
-            HandleScalarToggleChecked(isMultiply: false);
-        }
+        // private void ScalarDivideToggle_Checked(object sender, RoutedEventArgs e)
+        // {
+        //     HandleScalarToggleChecked(isMultiply: false);
+        // }
 
-        private void ScalarDivideToggle_Unchecked(object sender, RoutedEventArgs e)
-        {
-            HandleScalarToggleUnchecked();
-        }
+        // private void ScalarDivideToggle_Unchecked(object sender, RoutedEventArgs e)
+        // {
+        //     HandleScalarToggleUnchecked();
+        // }
 
-        private void HandleScalarToggleChecked(bool isMultiply)
-        {
-            if (_suppressScalarToggleHandlers)
-            {
-                return;
-            }
+        // Deprecated: HandleScalarToggleChecked now handled by ScalarOperationToggle_Checked in ToolbarHandlers
+        // private void HandleScalarToggleChecked(bool isMultiply)
+        // {
+        //     if (_suppressScalarToggleHandlers)
+        //     {
+        //         return;
+        //     }
+        //
+        //     if (_state.OriginalBitmap == null)
+        //     {
+        //         MessageBox.Show("Silakan muat gambar terlebih dahulu.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        //         SuppressAndUncheckScalarToggle(isMultiply);
+        //         return;
+        //     }
+        //
+        //     if (!TryParseScalar(ScalarValueTextBox.Text, out double scalar))
+        //     {
+        //         SuppressAndUncheckScalarToggle(isMultiply);
+        //         return;
+        //     }
+        //
+        //     if (!isMultiply && scalar == 0)
+        //     {
+        //         MessageBox.Show("Tidak dapat membagi dengan nol.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        //         SuppressAndUncheckScalarToggle(isMultiply);
+        //         return;
+        //     }
+        //
+        //     // Ensure only one scalar toggle stays active at a time
+        //     if (isMultiply && ScalarDivideToggle.IsChecked == true)
+        //     {
+        //         _suppressScalarToggleHandlers = true;
+        //         ScalarDivideToggle.IsChecked = false;
+        //         _suppressScalarToggleHandlers = false;
+        //     }
+        //     else if (!isMultiply && ScalarMultiplyToggle.IsChecked == true)
+        //     {
+        //         _suppressScalarToggleHandlers = true;
+        //         ScalarMultiplyToggle.IsChecked = false;
+        //         _suppressScalarToggleHandlers = false;
+        //     }
+        //
+        //     if (!ApplyScalarOperation(isMultiply, scalar))
+        //     {
+        //         SuppressAndUncheckScalarToggle(isMultiply);
+        //     }
+        // }
 
-            if (_state.OriginalBitmap == null)
-            {
-                MessageBox.Show("Silakan muat gambar terlebih dahulu.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                SuppressAndUncheckScalarToggle(isMultiply);
-                return;
-            }
-
-            if (!TryParseScalar(ScalarValueTextBox.Text, out double scalar))
-            {
-                SuppressAndUncheckScalarToggle(isMultiply);
-                return;
-            }
-
-            if (!isMultiply && scalar == 0)
-            {
-                MessageBox.Show("Tidak dapat membagi dengan nol.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                SuppressAndUncheckScalarToggle(isMultiply);
-                return;
-            }
-
-            // Ensure only one scalar toggle stays active at a time
-            if (isMultiply && ScalarDivideToggle.IsChecked == true)
-            {
-                _suppressScalarToggleHandlers = true;
-                ScalarDivideToggle.IsChecked = false;
-                _suppressScalarToggleHandlers = false;
-            }
-            else if (!isMultiply && ScalarMultiplyToggle.IsChecked == true)
-            {
-                _suppressScalarToggleHandlers = true;
-                ScalarMultiplyToggle.IsChecked = false;
-                _suppressScalarToggleHandlers = false;
-            }
-
-            if (!ApplyScalarOperation(isMultiply, scalar))
-            {
-                SuppressAndUncheckScalarToggle(isMultiply);
-            }
-        }
-
-        private void HandleScalarToggleUnchecked()
-        {
-            if (_suppressScalarToggleHandlers)
-            {
-                return;
-            }
-
-            if (ScalarMultiplyToggle.IsChecked == true || ScalarDivideToggle.IsChecked == true)
-            {
-                return;
-            }
-
-            if (_currentScalarMode == ScalarToggleMode.None)
-            {
-                return;
-            }
-
-            RestoreScalarBaseImage();
-        }
+        // Deprecated: HandleScalarToggleUnchecked now handled by ScalarOperationToggle_Unchecked in ToolbarHandlers
+        // private void HandleScalarToggleUnchecked()
+        // {
+        //     if (_suppressScalarToggleHandlers)
+        //     {
+        //         return;
+        //     }
+        //
+        //     if (ScalarMultiplyToggle.IsChecked == true || ScalarDivideToggle.IsChecked == true)
+        //     {
+        //         return;
+        //     }
+        //
+        //     if (_currentScalarMode == ScalarToggleMode.None)
+        //     {
+        //         return;
+        //     }
+        //
+        //     RestoreScalarBaseImage();
+        // }
 
         private bool ApplyScalarOperation(bool isMultiply, double scalar)
         {
@@ -595,8 +594,8 @@ namespace MiniPhotoshop
             {
                 MessageBox.Show($"Gagal mengembalikan gambar awal: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 _suppressScalarToggleHandlers = true;
-                ScalarMultiplyToggle.IsChecked = false;
-                ScalarDivideToggle.IsChecked = false;
+                // // ScalarMultiplyToggle.IsChecked = false;
+                // // ScalarDivideToggle.IsChecked = false;
                 _suppressScalarToggleHandlers = false;
                 _currentScalarMode = ScalarToggleMode.None;
             }
@@ -625,11 +624,11 @@ namespace MiniPhotoshop
             _suppressScalarToggleHandlers = true;
             if (isMultiply)
             {
-                ScalarMultiplyToggle.IsChecked = false;
+                // // ScalarMultiplyToggle.IsChecked = false;
             }
             else
             {
-                ScalarDivideToggle.IsChecked = false;
+                // // ScalarDivideToggle.IsChecked = false;
             }
             _suppressScalarToggleHandlers = false;
         }

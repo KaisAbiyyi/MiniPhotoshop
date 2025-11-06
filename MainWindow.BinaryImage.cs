@@ -40,9 +40,9 @@ namespace MiniPhotoshop
                 bitmap.Freeze();
 
                 _binaryOverlayBitmap = bitmap;
-                BinaryInfoText.Text = $"{Path.GetFileName(dialog.FileName)} ({bitmap.PixelWidth} x {bitmap.PixelHeight})";
-                BinaryInfoText.Foreground = Brushes.Black;
-                UpdateBinaryButtonsState();
+                // BinaryInfoText.Text = $"{Path.GetFileName(dialog.FileName)} ({bitmap.PixelWidth} x {bitmap.PixelHeight})";
+                // BinaryInfoText.Foreground = Brushes.Black;
+                // UpdateBinaryButtonsState();
 
                 if (_currentBinaryMode != BinaryToggleMode.None && _currentBinaryMode != BinaryToggleMode.Not)
                 {
@@ -53,9 +53,9 @@ namespace MiniPhotoshop
             {
                 MessageBox.Show($"Gagal memuat gambar B: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 _binaryOverlayBitmap = null;
-                BinaryInfoText.Text = "Belum ada gambar B";
-                BinaryInfoText.Foreground = Brushes.Gray;
-                UpdateBinaryButtonsState();
+                // BinaryInfoText.Text = "Belum ada gambar B";
+                // BinaryInfoText.Foreground = Brushes.Gray;
+                // UpdateBinaryButtonsState();
             }
         }
 
@@ -172,11 +172,11 @@ namespace MiniPhotoshop
                 return;
             }
 
-            if (BinaryAndToggle.IsChecked == true || BinaryOrToggle.IsChecked == true ||
-                BinaryNotToggle.IsChecked == true || BinaryXorToggle.IsChecked == true)
-            {
-                return;
-            }
+            // if (BinaryAndToggle.IsChecked == true || BinaryOrToggle.IsChecked == true ||
+            //     BinaryNotToggle.IsChecked == true || BinaryXorToggle.IsChecked == true)
+            // {
+            //     return;
+            // }
 
             if (_currentBinaryMode == BinaryToggleMode.None)
             {
@@ -198,12 +198,12 @@ namespace MiniPhotoshop
                 }
                 else
                 {
-                    if (!TryParseOffset(BinaryOffsetXTextBox.Text, "Offset X", out int offsetX))
+                    if (!TryParseOffset(_binaryOffsetX.ToString(), "Offset X", out int offsetX))
                     {
                         return false;
                     }
 
-                    if (!TryParseOffset(BinaryOffsetYTextBox.Text, "Offset Y", out int offsetY))
+                    if (!TryParseOffset(_binaryOffsetY.ToString(), "Offset Y", out int offsetY))
                     {
                         return false;
                     }
@@ -241,7 +241,7 @@ namespace MiniPhotoshop
                 _suppressBinaryToggleHandlers = true;
                 ApplyLoadedImage(resultInfo);
                 _suppressBinaryToggleHandlers = false;
-                UpdateBinaryButtonsState();
+                // UpdateBinaryButtonsState();
 
                 return true;
             }
@@ -274,19 +274,19 @@ namespace MiniPhotoshop
                 _suppressBinaryToggleHandlers = true;
                 ApplyLoadedImage(resultInfo);
                 _suppressBinaryToggleHandlers = false;
-                UpdateBinaryButtonsState();
+                // UpdateBinaryButtonsState();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Gagal mengembalikan gambar awal: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 _suppressBinaryToggleHandlers = true;
-                BinaryAndToggle.IsChecked = false;
-                BinaryOrToggle.IsChecked = false;
-                BinaryNotToggle.IsChecked = false;
-                BinaryXorToggle.IsChecked = false;
+                // BinaryAndToggle.IsChecked = false;
+                // BinaryOrToggle.IsChecked = false;
+                // BinaryNotToggle.IsChecked = false;
+                // BinaryXorToggle.IsChecked = false;
                 _suppressBinaryToggleHandlers = false;
                 _currentBinaryMode = BinaryToggleMode.None;
-                UpdateBinaryButtonsState();
+                // UpdateBinaryButtonsState();
             }
         }
 
@@ -298,10 +298,10 @@ namespace MiniPhotoshop
             }
 
             _suppressBinaryToggleHandlers = true;
-            BinaryAndToggle.IsChecked = false;
-            BinaryOrToggle.IsChecked = false;
-            BinaryNotToggle.IsChecked = false;
-            BinaryXorToggle.IsChecked = false;
+            // BinaryAndToggle.IsChecked = false;
+            // BinaryOrToggle.IsChecked = false;
+            // BinaryNotToggle.IsChecked = false;
+            // BinaryXorToggle.IsChecked = false;
             _suppressBinaryToggleHandlers = false;
 
             RestoreBinaryBaseImage();
@@ -312,13 +312,13 @@ namespace MiniPhotoshop
             bool hasBase = _state.OriginalBitmap != null;
             bool hasOverlay = _binaryOverlayBitmap != null;
             
-            ConvertToBinaryButton.IsEnabled = hasBase;
-            BinaryNotToggle.IsEnabled = hasBase;
+            // ConvertToBinaryButton.IsEnabled = hasBase;
+            // BinaryNotToggle.IsEnabled = hasBase;
             
             bool isBinaryOperationEnabled = hasBase && hasOverlay;
-            BinaryAndToggle.IsEnabled = isBinaryOperationEnabled;
-            BinaryOrToggle.IsEnabled = isBinaryOperationEnabled;
-            BinaryXorToggle.IsEnabled = isBinaryOperationEnabled;
+            // BinaryAndToggle.IsEnabled = isBinaryOperationEnabled;
+            // BinaryOrToggle.IsEnabled = isBinaryOperationEnabled;
+            // BinaryXorToggle.IsEnabled = isBinaryOperationEnabled;
         }
 
         private void SuppressAndUncheckBinaryToggle(BinaryToggleMode mode)
@@ -327,16 +327,16 @@ namespace MiniPhotoshop
             switch (mode)
             {
                 case BinaryToggleMode.And:
-                    BinaryAndToggle.IsChecked = false;
+                    // BinaryAndToggle.IsChecked = false;
                     break;
                 case BinaryToggleMode.Or:
-                    BinaryOrToggle.IsChecked = false;
+                    // BinaryOrToggle.IsChecked = false;
                     break;
                 case BinaryToggleMode.Not:
-                    BinaryNotToggle.IsChecked = false;
+                    // BinaryNotToggle.IsChecked = false;
                     break;
                 case BinaryToggleMode.Xor:
-                    BinaryXorToggle.IsChecked = false;
+                    // BinaryXorToggle.IsChecked = false;
                     break;
             }
             _suppressBinaryToggleHandlers = false;

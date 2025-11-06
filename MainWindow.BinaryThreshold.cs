@@ -60,12 +60,13 @@ namespace MiniPhotoshop
 
         private void UpdateBinaryThresholdLabel(int value)
         {
-            if (BinaryThresholdValueText == null)
-            {
-                return;
-            }
-
-            BinaryThresholdValueText.Text = $"Nilai Threshold: {value}";
+            // BinaryThresholdValueText control removed from UI
+            // if (BinaryThresholdValueText == null)
+            // {
+            //     return;
+            // }
+            //
+            // BinaryThresholdValueText.Text = $"Nilai Threshold: {value}";
         }
     }
 }

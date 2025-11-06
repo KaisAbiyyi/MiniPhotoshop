@@ -95,10 +95,10 @@ namespace MiniPhotoshop
         private enum ArithmeticToggleMode
         {
             None,
-            Addition,
-            Subtraction,
-            Multiplication,
-            Division
+            Add,
+            Subtract,
+            Multiply,
+            Divide
         }
 
         private enum ScalarToggleMode
