@@ -13,7 +13,7 @@ namespace MiniPhotoshop
         private Brush? _originalBorderBrush;
         private Brush? _originalBackground;
 
-        private void Window_DragEnter(object sender, DragEventArgs e)
+        private void DisplayImage_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -36,7 +36,7 @@ namespace MiniPhotoshop
             e.Handled = true;
         }
 
-        private void Window_DragOver(object sender, DragEventArgs e)
+        private void DisplayImage_DragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -57,14 +57,14 @@ namespace MiniPhotoshop
             e.Handled = true;
         }
 
-        private void Window_DragLeave(object sender, DragEventArgs e)
+        private void DisplayImage_DragLeave(object sender, DragEventArgs e)
         {
             _isDraggingFile = false;
             HideDragOverlay();
             e.Handled = true;
         }
 
-        private void Window_Drop(object sender, DragEventArgs e)
+        private void DisplayImage_Drop(object sender, DragEventArgs e)
         {
             _isDraggingFile = false;
             HideDragOverlay();
@@ -79,7 +79,7 @@ namespace MiniPhotoshop
                     {
                         try
                         {
-                            // Cek apakah sudah ada gambar A
+                            // Cek apakah sudah ada gambar A (drop di gambar yang sudah ada)
                             if (_state.OriginalBitmap != null)
                             {
                                 // Tampilkan dialog untuk memilih

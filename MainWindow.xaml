@@ -5,12 +5,7 @@
         Height="600"
         Width="900"
         MinHeight="450"
-        MinWidth="700"
-        AllowDrop="True"
-        Drop="Window_Drop"
-        DragEnter="Window_DragEnter"
-        DragOver="Window_DragOver"
-        DragLeave="Window_DragLeave">
+        MinWidth="700">
     <Window.Resources>
         <!-- Style untuk Toggle Button di Toolbar -->
         <Style x:Key="ToolbarToggleStyle" TargetType="ToggleButton">
@@ -342,6 +337,11 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                RenderOptions.BitmapScalingMode="HighQuality"
+                               AllowDrop="True"
+                               Drop="DisplayImage_Drop"
+                               DragEnter="DisplayImage_DragEnter"
+                               DragOver="DisplayImage_DragOver"
+                               DragLeave="DisplayImage_DragLeave"
                                IsManipulationEnabled="True"
                                ManipulationStarting="DisplayImage_ManipulationStarting"
                                ManipulationDelta="DisplayImage_ManipulationDelta">
