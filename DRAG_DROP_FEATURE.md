@@ -23,6 +23,7 @@ Fitur drag and drop memungkinkan pengguna untuk memuat gambar ke aplikasi MiniPh
 ## Fitur Visual Feedback
 
 Saat melakukan drag over window aplikasi:
+
 - **Border** akan berubah warna menjadi **biru** (#4C8BF5)
 - **Background** akan memiliki highlight **transparan biru**
 - **Border thickness** akan bertambah untuk indikasi yang lebih jelas
@@ -32,6 +33,7 @@ Feedback visual ini membantu pengguna mengetahui bahwa aplikasi siap menerima fi
 ## Validasi File
 
 Aplikasi akan otomatis memvalidasi:
+
 - Apakah file yang di-drop adalah gambar
 - Apakah format file didukung
 - Apakah file dapat dibaca
@@ -41,6 +43,7 @@ Jika file tidak valid, akan muncul pesan error yang informatif.
 ## Error Handling
 
 ### Format Tidak Valid
+
 ```
 File yang dipilih bukan gambar.
 
@@ -48,6 +51,7 @@ Format yang didukung: .jpg, .jpeg, .png, .bmp, .gif, .tiff
 ```
 
 ### Gagal Memuat Gambar
+
 ```
 Gagal memuat gambar: [pesan error detail]
 ```
@@ -57,6 +61,7 @@ Gagal memuat gambar: [pesan error detail]
 ### File yang Dimodifikasi/Ditambahkan
 
 1. **MainWindow.xaml**
+
    - Menambahkan `AllowDrop="True"` pada Window
    - Menambahkan event handlers: `Drop`, `DragEnter`, `DragOver`, `DragLeave`
    - Menambahkan `x:Name="DisplayImageBorder"` untuk visual feedback
@@ -99,7 +104,7 @@ Sembunyikan visual feedback
 ✅ **Cepat**: Langsung drag and drop  
 ✅ **Visual feedback**: Jelas kapan bisa drop file  
 ✅ **Validasi otomatis**: Hanya menerima file gambar yang valid  
-✅ **Error handling**: Pesan error yang informatif  
+✅ **Error handling**: Pesan error yang informatif
 
 ## Catatan
 

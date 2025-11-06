@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace MiniPhotoshop
 {
@@ -78,7 +79,34 @@ namespace MiniPhotoshop
                     {
                         try
                         {
-                            LoadImageFromFile(filePath);
+                            // Cek apakah sudah ada gambar A
+                            if (_state.OriginalBitmap != null)
+                            {
+                                // Tampilkan dialog untuk memilih
+                                var dialog = new ImageSelectionDialog
+                                {
+                                    Owner = this
+                                };
+
+                                if (dialog.ShowDialog() == true)
+                                {
+                                    if (dialog.SelectedTarget == ImageSelectionDialog.ImageTarget.ImageA)
+                                    {
+                                        // Ganti gambar A
+                                        LoadImageFromFile(filePath);
+                                    }
+                                    else if (dialog.SelectedTarget == ImageSelectionDialog.ImageTarget.ImageB)
+                                    {
+                                        // Set sebagai gambar B
+                                        LoadImageBFromFile(filePath);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // Jika belum ada gambar A, langsung load sebagai gambar A
+                                LoadImageFromFile(filePath);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -117,6 +145,45 @@ namespace MiniPhotoshop
         {
             var result = _imageLoader.Load(filePath);
             ApplyLoadedImage(result);
+        }
+
+        private void LoadImageBFromFile(string filePath)
+        {
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(filePath);
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+                bitmap.Freeze();
+
+                // Set sebagai gambar B untuk operasi aritmatika dan biner
+                _arithmeticOverlayBitmap = bitmap;
+                _binaryOverlayBitmap = bitmap;
+
+                // Deactivate mode jika sedang aktif
+                if (_currentArithmeticMode != ArithmeticToggleMode.None)
+                {
+                    DeactivateArithmeticMode();
+                }
+                if (_currentBinaryMode != BinaryToggleMode.None && _currentBinaryMode != BinaryToggleMode.Not)
+                {
+                    DeactivateBinaryMode();
+                }
+
+                MessageBox.Show(
+                    $"Gambar B berhasil dimuat:\n{Path.GetFileName(filePath)}\n({bitmap.PixelWidth} x {bitmap.PixelHeight})",
+                    "Gambar B Dimuat",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Gagal memuat gambar B: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _arithmeticOverlayBitmap = null;
+                _binaryOverlayBitmap = null;
+            }
         }
 
         private void ShowDragOverlay()
