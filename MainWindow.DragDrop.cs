@@ -10,10 +10,10 @@ namespace MiniPhotoshop
     public partial class MainWindow
     {
         private bool _isDraggingFile = false;
-        private Brush? _originalBorderBrush;
-        private Brush? _originalBackground;
+        private Brush _originalBorderBrush;
+        private Brush _originalBackground;
 
-        private void DisplayImage_DragEnter(object sender, DragEventArgs e)
+        private void Window_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -36,7 +36,7 @@ namespace MiniPhotoshop
             e.Handled = true;
         }
 
-        private void DisplayImage_DragOver(object sender, DragEventArgs e)
+        private void Window_DragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -57,14 +57,14 @@ namespace MiniPhotoshop
             e.Handled = true;
         }
 
-        private void DisplayImage_DragLeave(object sender, DragEventArgs e)
+        private void Window_DragLeave(object sender, DragEventArgs e)
         {
             _isDraggingFile = false;
             HideDragOverlay();
             e.Handled = true;
         }
 
-        private void DisplayImage_Drop(object sender, DragEventArgs e)
+        private void Window_Drop(object sender, DragEventArgs e)
         {
             _isDraggingFile = false;
             HideDragOverlay();
@@ -79,33 +79,25 @@ namespace MiniPhotoshop
                     {
                         try
                         {
-                            // Cek apakah sudah ada gambar A (drop di gambar yang sudah ada)
-                            if (_state.OriginalBitmap != null)
+                            // Tampilkan dialog untuk memilih apakah menjadi gambar A atau B
+                            var dialog = new ImageSelectionDialog
                             {
-                                // Tampilkan dialog untuk memilih
-                                var dialog = new ImageSelectionDialog
-                                {
-                                    Owner = this
-                                };
+                                Owner = this,
+                                HasExistingImageA = _state.OriginalBitmap != null
+                            };
 
-                                if (dialog.ShowDialog() == true)
-                                {
-                                    if (dialog.SelectedTarget == ImageSelectionDialog.ImageTarget.ImageA)
-                                    {
-                                        // Ganti gambar A
-                                        LoadImageFromFile(filePath);
-                                    }
-                                    else if (dialog.SelectedTarget == ImageSelectionDialog.ImageTarget.ImageB)
-                                    {
-                                        // Set sebagai gambar B
-                                        LoadImageBFromFile(filePath);
-                                    }
-                                }
-                            }
-                            else
+                            if (dialog.ShowDialog() == true)
                             {
-                                // Jika belum ada gambar A, langsung load sebagai gambar A
-                                LoadImageFromFile(filePath);
+                                if (dialog.SelectedTarget == ImageSelectionDialog.ImageTarget.ImageA)
+                                {
+                                    // Set/Ganti gambar A
+                                    LoadImageFromFile(filePath);
+                                }
+                                else if (dialog.SelectedTarget == ImageSelectionDialog.ImageTarget.ImageB)
+                                {
+                                    // Set sebagai gambar B
+                                    LoadImageBFromFile(filePath);
+                                }
                             }
                         }
                         catch (Exception ex)
@@ -161,6 +153,24 @@ namespace MiniPhotoshop
                 // Set sebagai gambar B untuk operasi aritmatika dan biner
                 _arithmeticOverlayBitmap = bitmap;
                 _binaryOverlayBitmap = bitmap;
+
+                // Show in sidebar (sama seperti AddImageB_Click)
+                ImageBPreview.Source = bitmap;
+                ImageBInfoText.Text = $"{Path.GetFileName(filePath)}\n{bitmap.PixelWidth} x {bitmap.PixelHeight}";
+                ImageBPreviewBorder.Visibility = Visibility.Visible;
+                
+                // Update button states
+                if (_state.PixelCache != null)
+                {
+                    ArithmeticAddToggle.IsEnabled = true;
+                    ArithmeticSubtractToggle.IsEnabled = true;
+                    ArithmeticMultiplyToggle.IsEnabled = true;
+                    ArithmeticDivideToggle.IsEnabled = true;
+                    BinaryAndToggle.IsEnabled = true;
+                    BinaryOrToggle.IsEnabled = true;
+                    BinaryNotToggle.IsEnabled = true;
+                    BinaryXorToggle.IsEnabled = true;
+                }
 
                 // Deactivate mode jika sedang aktif
                 if (_currentArithmeticMode != ArithmeticToggleMode.None)

@@ -90,6 +90,7 @@ namespace MiniPhotoshop
             ImageInfoText.Text = $"Resolusi: {result.Width} x {result.Height} | Format: {result.PixelFormatDescription}";
 
             SavePixelsMenuItem.IsEnabled = true;
+            ResetImageMenuItem.IsEnabled = true;
             NegationToggle.IsEnabled = true;
             NegationToggle.IsChecked = false;
             GrayscaleCompareButton.IsEnabled = true;

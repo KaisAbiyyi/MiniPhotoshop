@@ -35,6 +35,7 @@ namespace MiniPhotoshop
             ImageInfoText.Text = "Silakan pilih gambar untuk mulai bekerja.";
 
             SavePixelsMenuItem.IsEnabled = false;
+            ResetImageMenuItem.IsEnabled = false;
             NegationToggle.IsEnabled = false;
             NegationToggle.IsChecked = false;
             GrayscaleCompareButton.IsEnabled = false;

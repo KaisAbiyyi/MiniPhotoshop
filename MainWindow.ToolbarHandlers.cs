@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using MiniPhotoshop.Core.Enums;
 
 namespace MiniPhotoshop
 {
@@ -275,6 +276,134 @@ namespace MiniPhotoshop
                         // Reapply with new offset (handled by existing logic)
                     }
                 }
+            }
+        }
+
+        #endregion
+
+        #region Reset Image
+
+        private void ResetImage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_state.OriginalBitmap == null)
+            {
+                MessageBox.Show("Tidak ada gambar yang dimuat.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_state.CurrentFilePath))
+            {
+                MessageBox.Show("Path file gambar tidak ditemukan.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var result = MessageBox.Show(
+                "Apakah Anda yakin ingin mereset gambar ke kondisi asli?\n\nSemua perubahan (filter, brightness, dll) akan hilang.",
+                "Konfirmasi Reset",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    // Reload gambar dari file original
+                    var reloadResult = _imageLoader.Load(_state.CurrentFilePath);
+                    
+                    // Reset arithmetic modes
+                    _currentArithmeticMode = ArithmeticToggleMode.None;
+                    _arithmeticService.ClearArithmeticSnapshot();
+                    
+                    // Reset binary modes
+                    _currentBinaryMode = BinaryToggleMode.None;
+                    
+                    // Reset scalar mode
+                    _currentScalarMode = ScalarToggleMode.None;
+                    
+                    // Apply loaded image dengan method yang sama seperti saat pertama load
+                    DisplayImage.Source = _filterService.SetActiveFilter(ImageFilterMode.Original);
+                    _filterService.BuildPreviews();
+                    _filterService.SyncPreviewActivation();
+                    
+                    // Reset semua toggle dan control
+                    ResetAllTogglesAndControls();
+                    
+                    // Update UI
+                    FileNameText.Text = $"File: {Path.GetFileName(_state.CurrentFilePath)}";
+                    ImageInfoText.Text = $"Resolusi: {reloadResult.Width} x {reloadResult.Height} | Format: {reloadResult.PixelFormatDescription}";
+                    
+                    // Render histogram
+                    RenderHistograms();
+                    
+                    // Reset zoom
+                    _state.CurrentZoom = 1.0;
+                    _currentZoom = 1.0;
+                    QueueAutoFit();
+                    
+                    MessageBox.Show("Gambar berhasil direset ke kondisi asli.", "Sukses", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Gagal mereset gambar: {ex.Message}\n\nPath: {_state.CurrentFilePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void ResetAllTogglesAndControls()
+        {
+            // Reset brightness
+            if (BrightnessToggle.IsChecked == true)
+            {
+                BrightnessToggle.IsChecked = false;
+            }
+            BrightnessPanel.Visibility = Visibility.Collapsed;
+            _suppressBrightnessHandler = true;
+            BrightnessSlider.Value = 0;
+            _suppressBrightnessHandler = false;
+            _brightnessService.Reset();
+
+            // Reset binary threshold
+            if (BinaryThresholdToggle.IsChecked == true)
+            {
+                BinaryThresholdToggle.IsChecked = false;
+            }
+            BinaryThresholdPanel.Visibility = Visibility.Collapsed;
+
+            // Reset negation
+            if (NegationToggle.IsChecked == true)
+            {
+                NegationToggle.IsChecked = false;
+            }
+
+            // Reset arithmetic toggles
+            _suppressArithmeticToggleHandlers = true;
+            ArithmeticAddToggle.IsChecked = false;
+            ArithmeticSubtractToggle.IsChecked = false;
+            ArithmeticMultiplyToggle.IsChecked = false;
+            ArithmeticDivideToggle.IsChecked = false;
+            _suppressArithmeticToggleHandlers = false;
+            _currentArithmeticMode = ArithmeticToggleMode.None;
+
+            // Reset binary toggles
+            _suppressBinaryToggleHandlers = true;
+            BinaryAndToggle.IsChecked = false;
+            BinaryOrToggle.IsChecked = false;
+            BinaryXorToggle.IsChecked = false;
+            BinaryNotToggle.IsChecked = false;
+            _suppressBinaryToggleHandlers = false;
+            _currentBinaryMode = BinaryToggleMode.None;
+
+            // Reset scalar toggle
+            if (ScalarOperationToggle.IsChecked == true)
+            {
+                ScalarOperationToggle.IsChecked = false;
+            }
+            _currentScalarMode = ScalarToggleMode.None;
+
+            // Reset color selection
+            if (ColorSelectionCheckBox.IsChecked == true)
+            {
+                ColorSelectionCheckBox.IsChecked = false;
             }
         }
 

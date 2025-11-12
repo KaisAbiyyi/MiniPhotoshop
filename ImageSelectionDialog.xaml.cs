@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 
 namespace MiniPhotoshop
@@ -12,6 +13,7 @@ namespace MiniPhotoshop
         }
 
         public ImageTarget SelectedTarget { get; private set; }
+        public bool HasExistingImageA { get; set; }
 
         public ImageSelectionDialog()
         {
@@ -19,9 +21,22 @@ namespace MiniPhotoshop
             SelectedTarget = ImageTarget.Cancel;
         }
 
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+            
+            // Update teks berdasarkan apakah sudah ada Image A
+            if (HasExistingImageA)
+            {
+                TitleText.Text = "Gambar A sudah ada!";
+                DescriptionText.Text = "Pilih apakah ingin mengganti Gambar A atau menambahkan sebagai Gambar B:";
+                SetImageARadio.Content = "Ganti Gambar A (mengganti gambar utama)";
+            }
+        }
+
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            if (ReplaceImageARadio.IsChecked == true)
+            if (SetImageARadio.IsChecked == true)
             {
                 SelectedTarget = ImageTarget.ImageA;
             }

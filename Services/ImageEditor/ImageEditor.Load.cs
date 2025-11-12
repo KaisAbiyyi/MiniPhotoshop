@@ -20,7 +20,7 @@ namespace MiniPhotoshop.Services.ImageEditor
 
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri(filePath);
+            bitmap.UriSource = new Uri(Path.GetFullPath(filePath), UriKind.Absolute);
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.EndInit();
             bitmap.Freeze();
