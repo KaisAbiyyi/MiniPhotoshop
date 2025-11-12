@@ -25,6 +25,8 @@ namespace MiniPhotoshop
             // ScalarMultiplyToggle.IsChecked = false;
             // ScalarDivideToggle.IsChecked = false;
             _suppressScalarToggleHandlers = false;
+            _currentRotationMode = RotationMode.None;
+            _rotationService.ClearRotationSnapshot();
             UpdateUiForNoImage();
         }
 
@@ -38,6 +40,8 @@ namespace MiniPhotoshop
             ResetImageMenuItem.IsEnabled = false;
             NegationToggle.IsEnabled = false;
             NegationToggle.IsChecked = false;
+            NegationButton.IsEnabled = false;
+            UpdateNegationButtonStyle(false);
             GrayscaleCompareButton.IsEnabled = false;
             BinaryThresholdToggle.IsEnabled = false;
             BinaryThresholdToggle.IsChecked = false;
@@ -80,6 +84,11 @@ namespace MiniPhotoshop
             _suppressScalarToggleHandlers = false;
             _currentScalarMode = ScalarToggleMode.None;
             UpdateScalarButtonsState();
+
+            RotateButton.IsEnabled = false;
+            RotationPanel.Visibility = Visibility.Collapsed;
+            _currentRotationMode = RotationMode.None;
+            _rotationService.ClearRotationSnapshot();
 
             HideSidebar();
         }

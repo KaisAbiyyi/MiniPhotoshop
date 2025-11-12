@@ -93,6 +93,8 @@ namespace MiniPhotoshop
             ResetImageMenuItem.IsEnabled = true;
             NegationToggle.IsEnabled = true;
             NegationToggle.IsChecked = false;
+            NegationButton.IsEnabled = true;
+            UpdateNegationButtonStyle(false);
             GrayscaleCompareButton.IsEnabled = true;
             BinaryThresholdToggle.IsEnabled = true;
             BinaryThresholdToggle.IsChecked = false;
@@ -115,6 +117,7 @@ namespace MiniPhotoshop
             // Enable toolbar buttons
             ScalarOperationToggle.IsEnabled = true;
             ScalarOperationToggle.IsChecked = false;
+            UpdateRotationButtonsState();
             // UpdateArithmeticButtonsState();
             // UpdateBinaryButtonsState();
 

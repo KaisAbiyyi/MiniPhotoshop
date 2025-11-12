@@ -219,6 +219,32 @@
                                   Margin="4,0,0,0"
                                   Style="{StaticResource ToolbarToggleStyle}"
                                   MouseRightButtonDown="BinaryToggle_RightClick"/>
+                    
+                    <!-- Button Rotasi -->
+                    <Button x:Name="RotateButton"
+                            Content="Rotasi"
+                            Click="RotateButton_Click"
+                            IsEnabled="False"
+                            Padding="16,6"
+                            Margin="4,0,0,0"
+                            FontSize="14"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Foreground" Value="#FF35424E"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFE8F0FE"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Foreground" Value="#FFAAAAAA"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </StackPanel>
             </Border>
         </DockPanel>
@@ -317,6 +343,92 @@
                                    Margin="8,0,0,0"/>
                     </Grid>
                 </StackPanel>
+
+                <!-- Rotation Panel -->
+                <StackPanel x:Name="RotationPanel" Orientation="Vertical" Margin="0,12,0,0" Visibility="Collapsed">
+                    <TextBlock Text="Rotasi Citra" FontSize="12" FontWeight="Bold" Margin="0,0,0,6"/>
+                    
+                    <!-- Preset Rotations -->
+                    <WrapPanel Margin="0,0,0,8">
+                        <Button x:Name="Rotate45Button"
+                                Content="45°"
+                                Click="Rotate45Button_Click"
+                                Padding="12,4"
+                                MinWidth="60"
+                                Margin="0,0,4,4"/>
+                        <Button x:Name="Rotate90Button"
+                                Content="90°"
+                                Click="Rotate90Button_Click"
+                                Padding="12,4"
+                                MinWidth="60"
+                                Margin="0,0,4,4"/>
+                        <Button x:Name="Rotate180Button"
+                                Content="180°"
+                                Click="Rotate180Button_Click"
+                                Padding="12,4"
+                                MinWidth="60"
+                                Margin="0,0,4,4"/>
+                        <Button x:Name="Rotate270Button"
+                                Content="270°"
+                                Click="Rotate270Button_Click"
+                                Padding="12,4"
+                                MinWidth="60"
+                                Margin="0,0,0,4"/>
+                    </WrapPanel>
+                    
+                    <!-- Fine Control: ±1° -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Fine Control:" 
+                                   FontSize="11" 
+                                   VerticalAlignment="Center" 
+                                   MinWidth="110"
+                                   Margin="0,0,8,0"/>
+                        <Button x:Name="RotateLeft1Button"
+                                Content="← 1°"
+                                Click="RotateLeft1Button_Click"
+                                Padding="8,4"
+                                MinWidth="50"
+                                Margin="0,0,4,0"
+                                ToolTip="Putar kiri 1°"/>
+                        <Button x:Name="RotateRight1Button"
+                                Content="1° →"
+                                Click="RotateRight1Button_Click"
+                                Padding="8,4"
+                                MinWidth="50"
+                                ToolTip="Putar kanan 1°"/>
+                    </StackPanel>
+                    
+                    <!-- Custom Rotation Input -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Input Nilai Rotasi:" 
+                                   FontSize="11" 
+                                   VerticalAlignment="Center"
+                                   MinWidth="110"
+                                   Margin="0,0,8,0"/>
+                        <TextBox x:Name="CustomRotationInput"
+                                 Width="60"
+                                 Padding="6,4"
+                                 FontSize="12"
+                                 VerticalContentAlignment="Center"
+                                 ToolTip="Masukkan sudut rotasi (0-360°)"
+                                 Margin="0,0,4,0"
+                                 PreviewTextInput="CustomRotationInput_PreviewTextInput"
+                                 Text="0"/>
+                        <Button x:Name="ApplyCustomRotationButton"
+                                Content="Rotasi"
+                                Click="ApplyCustomRotationButton_Click"
+                                Padding="12,4"
+                                MinWidth="70"
+                                ToolTip="Terapkan rotasi sesuai input"/>
+                    </StackPanel>
+                    
+                    <!-- Restore Button -->
+                    <Button x:Name="RestoreRotationButton"
+                            Content="Kembalikan ke Asli"
+                            Click="RestoreRotationButton_Click"
+                            Padding="10,4"
+                            HorizontalAlignment="Left"/>
+                </StackPanel>
             </StackPanel>
         </Border>
 
@@ -336,162 +448,41 @@
                     Background="White"
                     Padding="12"
                     SnapsToDevicePixels="True">
-                <ScrollViewer x:Name="WorkspaceScrollViewer"
-                              HorizontalScrollBarVisibility="Auto"
-                              VerticalScrollBarVisibility="Auto"
-                              PanningMode="Both"
-                              Focusable="True"
-                              PreviewMouseWheel="WorkspaceScrollViewer_PreviewMouseWheel">
-                    <Grid Background="Transparent">
-                        <Image Name="DisplayImage"
-                               Stretch="None"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               RenderOptions.BitmapScalingMode="HighQuality"
-                               IsManipulationEnabled="True"
-                               ManipulationStarting="DisplayImage_ManipulationStarting"
-                               ManipulationDelta="DisplayImage_ManipulationDelta">
-                            <Image.LayoutTransform>
-                                <ScaleTransform x:Name="ImageScaleTransform"
-                                                ScaleX="1"
-                                                ScaleY="1"/>
-                            </Image.LayoutTransform>
-                        </Image>
-                    </Grid>
-                </ScrollViewer>
+                <Grid>
+                    <ScrollViewer x:Name="WorkspaceScrollViewer"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto"
+                                  PanningMode="Both"
+                                  Focusable="True"
+                                  PreviewMouseWheel="WorkspaceScrollViewer_PreviewMouseWheel">
+                        <Grid Background="Transparent">
+                            <Image Name="DisplayImage"
+                                   Stretch="None"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   RenderOptions.BitmapScalingMode="HighQuality"
+                                   IsManipulationEnabled="True"
+                                   ManipulationStarting="DisplayImage_ManipulationStarting"
+                                   ManipulationDelta="DisplayImage_ManipulationDelta">
+                                <Image.RenderTransform>
+                                    <ScaleTransform x:Name="ImageScaleTransform"
+                                                    ScaleX="1"
+                                                    ScaleY="1"/>
+                                </Image.RenderTransform>
+                            </Image>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
             </Border>
 
-            <Border HorizontalAlignment="Center"
-                    VerticalAlignment="Bottom"
-                    Margin="0,0,0,12"
-                    Background="#F9FBFD"
-                    BorderBrush="#FFD0D7DF"
-                    BorderThickness="1"
-                    CornerRadius="12"
-                    Panel.ZIndex="10">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="12"
-                                      ShadowDepth="0"
-                                      Color="#1A000000"
-                                      Opacity="0.8"/>
-                </Border.Effect>
-                <StackPanel>
-                    <!-- Filter Previews -->
-                    <ItemsControl x:Name="FilterPreviewList" Padding="12,10,12,6">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Center"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border CornerRadius="8"
-                                        BorderThickness="2"
-                                        Padding="2"
-                                        Margin="4,0">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="BorderBrush"
-                                                    Value="Transparent"/>
-                                            <Setter Property="Background"
-                                                    Value="White"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsActive}"
-                                                             Value="True">
-                                                    <Setter Property="BorderBrush"
-                                                            Value="#FF4C8BF5"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <Button Click="FilterPreview_Click"
-                                            CommandParameter="{Binding Mode}"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Padding="8,6"
-                                            Cursor="Hand">
-                                        <StackPanel Width="110">
-                                            <Image Source="{Binding PreviewSource}"
-                                                   Width="110"
-                                                   Height="72"
-                                                   Stretch="UniformToFill"
-                                                   SnapsToDevicePixels="True"
-                                                   Margin="0,0,0,6"/>
-                                            <TextBlock Text="{Binding Title}"
-                                                       FontSize="12"
-                                                       Foreground="#FF35424E"
-                                                       HorizontalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    
-                    <!-- Negasi Toggle Button -->
-                    <Border BorderBrush="#FFDFE2E5" 
-                            BorderThickness="0,1,0,0" 
-                            Padding="12,8,12,10"
-                            Background="Transparent">
-                        <ToggleButton x:Name="NegationToggle"
-                                      Content="Negasi Citra"
-                                      Checked="NegationToggle_Checked"
-                                      Unchecked="NegationToggle_Unchecked"
-                                      IsEnabled="False"
-                                      Padding="16,8"
-                                      FontSize="12"
-                                      FontWeight="SemiBold"
-                                      Cursor="Hand">
-                            <ToggleButton.Style>
-                                <Style TargetType="ToggleButton">
-                                    <Setter Property="Background" Value="#FFF8FAFC"/>
-                                    <Setter Property="Foreground" Value="#FF35424E"/>
-                                    <Setter Property="BorderBrush" Value="#FFDFE2E5"/>
-                                    <Setter Property="BorderThickness" Value="1"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="ToggleButton">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                                        CornerRadius="6"
-                                                        Padding="{TemplateBinding Padding}">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsChecked" Value="True">
-                                            <Setter Property="Background" Value="#FF4C8BF5"/>
-                                            <Setter Property="Foreground" Value="White"/>
-                                            <Setter Property="BorderBrush" Value="#FF4C8BF5"/>
-                                        </Trigger>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#FFE8F0FE"/>
-                                        </Trigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsMouseOver" Value="True"/>
-                                                <Condition Property="IsChecked" Value="True"/>
-                                            </MultiTrigger.Conditions>
-                                            <Setter Property="Background" Value="#FF3A7BE0"/>
-                                        </MultiTrigger>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter Property="Opacity" Value="0.5"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ToggleButton.Style>
-                        </ToggleButton>
-                    </Border>
-                </StackPanel>
-            </Border>
+            <!-- Hidden Negation Toggle for programmatic control -->
+            <ToggleButton x:Name="NegationToggle"
+                          Visibility="Collapsed"
+                          Checked="NegationToggle_Checked"
+                          Unchecked="NegationToggle_Unchecked"
+                          IsEnabled="False"/>
 
-            <!-- Sidebar Kanan - Gambar B dan Histogram -->
+            <!-- Sidebar Kanan - TabControl untuk Histogram dan Filter -->
             <Border x:Name="SidebarPanel"
                     Grid.Column="1"
                     BorderBrush="#FFDFE2E5"
@@ -499,78 +490,219 @@
                     CornerRadius="8"
                     Background="White"
                     Margin="12,0,0,0"
-                    Padding="16"
                     Visibility="Collapsed">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel>
-                        <!-- Preview Gambar B -->
-                        <Border x:Name="ImageBPreviewBorder"
-                                BorderBrush="#FFDFE2E5"
-                                BorderThickness="1"
-                                CornerRadius="6"
-                                Padding="8"
-                                Margin="0,0,0,20"
-                                Visibility="Collapsed">
+                <TabControl x:Name="SidebarTabControl" 
+                            BorderThickness="0"
+                            Padding="0">
+                    <TabControl.Resources>
+                        <Style TargetType="TabItem">
+                            <Setter Property="FontSize" Value="13"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="Padding" Value="16,8"/>
+                            <Setter Property="Foreground" Value="#FF51606A"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TabItem">
+                                        <Border Name="Border" 
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="#FFDFE2E5"
+                                                BorderThickness="0,0,0,2"
+                                                Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter x:Name="ContentSite"
+                                                              VerticalAlignment="Center"
+                                                              HorizontalAlignment="Center"
+                                                              ContentSource="Header"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="Border" Property="BorderBrush" Value="#FF4C8BF5"/>
+                                                <Setter Property="Foreground" Value="#FF4C8BF5"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Border" Property="Background" Value="#FFF8FAFC"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TabControl.Resources>
+                    
+                    <!-- Tab Histogram -->
+                    <TabItem Header="Histogram">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
                             <StackPanel>
-                                <TextBlock Text="Gambar B"
-                                           FontSize="12"
-                                           FontWeight="Bold"
-                                           Margin="0,0,0,8"/>
-                                <Image x:Name="ImageBPreview"
-                                       MaxHeight="150"
-                                       Stretch="Uniform"
-                                       HorizontalAlignment="Center"/>
-                                <TextBlock x:Name="ImageBInfoText"
-                                           Text=""
-                                           FontSize="10"
-                                           Foreground="#FF51606A"
-                                           TextAlignment="Center"
-                                           Margin="0,8,0,0"/>
+                                <!-- Preview Gambar B -->
+                                <Border x:Name="ImageBPreviewBorder"
+                                        BorderBrush="#FFDFE2E5"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Padding="8"
+                                        Margin="0,0,0,20"
+                                        Visibility="Collapsed">
+                                    <StackPanel>
+                                        <TextBlock Text="Gambar B"
+                                                   FontSize="12"
+                                                   FontWeight="Bold"
+                                                   Margin="0,0,0,8"/>
+                                        <Image x:Name="ImageBPreview"
+                                               MaxHeight="150"
+                                               Stretch="Uniform"
+                                               HorizontalAlignment="Center"/>
+                                        <TextBlock x:Name="ImageBInfoText"
+                                                   Text=""
+                                                   FontSize="10"
+                                                   Foreground="#FF51606A"
+                                                   TextAlignment="Center"
+                                                   Margin="0,8,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <!-- Red -->
+                                <TextBlock Text="Red" FontSize="11" Foreground="#E74C3C" Margin="0,0,0,4"/>
+                                <Canvas x:Name="HistogramRed" 
+                                        Height="80" 
+                                        Background="#FFF5F5F5" 
+                                        Margin="0,0,0,16"
+                                        Cursor="Hand"
+                                        MouseLeftButtonDown="HistogramRed_Click"/>
+                                
+                                <!-- Green -->
+                                <TextBlock Text="Green" FontSize="11" Foreground="#27AE60" Margin="0,0,0,4"/>
+                                <Canvas x:Name="HistogramGreen" 
+                                        Height="80" 
+                                        Background="#FFF5F5F5" 
+                                        Margin="0,0,0,16"
+                                        Cursor="Hand"
+                                        MouseLeftButtonDown="HistogramGreen_Click"/>
+                                
+                                <!-- Blue -->
+                                <TextBlock Text="Blue" FontSize="11" Foreground="#3498DB" Margin="0,0,0,4"/>
+                                <Canvas x:Name="HistogramBlue" 
+                                        Height="80" 
+                                        Background="#FFF5F5F5" 
+                                        Margin="0,0,0,16"
+                                        Cursor="Hand"
+                                        MouseLeftButtonDown="HistogramBlue_Click"/>
+                                
+                                <!-- Grayscale -->
+                                <TextBlock Text="Grayscale" FontSize="11" Foreground="#95A5A6" Margin="0,0,0,4"/>
+                                <Canvas x:Name="HistogramGray" 
+                                        Height="80" 
+                                        Background="#FFF5F5F5" 
+                                        Margin="0,0,0,0"
+                                        Cursor="Hand"
+                                        MouseLeftButtonDown="HistogramGray_Click"/>
                             </StackPanel>
-                        </Border>
-                        
-                        <TextBlock Text="Histogram"
-                                   FontSize="16"
-                                   FontWeight="Bold"
-                                   Margin="0,0,0,20"/>
-                        
-                        <!-- Red -->
-                        <TextBlock Text="Red" FontSize="11" Foreground="#E74C3C" Margin="0,0,0,4"/>
-                        <Canvas x:Name="HistogramRed" 
-                                Height="80" 
-                                Background="#FFF5F5F5" 
-                                Margin="0,0,0,16"
-                                Cursor="Hand"
-                                MouseLeftButtonDown="HistogramRed_Click"/>
-                        
-                        <!-- Green -->
-                        <TextBlock Text="Green" FontSize="11" Foreground="#27AE60" Margin="0,0,0,4"/>
-                        <Canvas x:Name="HistogramGreen" 
-                                Height="80" 
-                                Background="#FFF5F5F5" 
-                                Margin="0,0,0,16"
-                                Cursor="Hand"
-                                MouseLeftButtonDown="HistogramGreen_Click"/>
-                        
-                        <!-- Blue -->
-                        <TextBlock Text="Blue" FontSize="11" Foreground="#3498DB" Margin="0,0,0,4"/>
-                        <Canvas x:Name="HistogramBlue" 
-                                Height="80" 
-                                Background="#FFF5F5F5" 
-                                Margin="0,0,0,16"
-                                Cursor="Hand"
-                                MouseLeftButtonDown="HistogramBlue_Click"/>
-                        
-                        <!-- Grayscale -->
-                        <TextBlock Text="Grayscale" FontSize="11" Foreground="#95A5A6" Margin="0,0,0,4"/>
-                        <Canvas x:Name="HistogramGray" 
-                                Height="80" 
-                                Background="#FFF5F5F5" 
-                                Margin="0,0,0,0"
-                                Cursor="Hand"
-                                MouseLeftButtonDown="HistogramGray_Click"/>
-                    </StackPanel>
-                </ScrollViewer>
+                        </ScrollViewer>
+                    </TabItem>
+                    
+                    <!-- Tab Filter -->
+                    <TabItem Header="Filter">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+                            <StackPanel>
+                                <!-- Filter Previews with Images -->
+                                <ItemsControl x:Name="FilterPreviewList">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="8"
+                                                    BorderThickness="2"
+                                                    Padding="4"
+                                                    Margin="4">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="BorderBrush" Value="Transparent"/>
+                                                        <Setter Property="Background" Value="White"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                <Setter Property="BorderBrush" Value="#FF4C8BF5"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <Button Click="FilterPreview_Click"
+                                                        CommandParameter="{Binding Mode}"
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Padding="4"
+                                                        Cursor="Hand">
+                                                    <StackPanel Width="110">
+                                                        <Image Source="{Binding PreviewSource}"
+                                                               Width="110"
+                                                               Height="72"
+                                                               Stretch="UniformToFill"
+                                                               SnapsToDevicePixels="True"
+                                                               Margin="0,0,0,4"/>
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontSize="11"
+                                                                   Foreground="#FF35424E"
+                                                                   HorizontalAlignment="Center"
+                                                                   TextWrapping="Wrap"
+                                                                   TextAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                
+                                <!-- Negasi Toggle Button -->
+                                <Border BorderBrush="#FFDFE2E5" 
+                                        BorderThickness="0,1,0,0" 
+                                        Padding="8"
+                                        Margin="0,12,0,0">
+                                    <Button x:Name="NegationButton"
+                                            Content="Negasi Citra"
+                                            Click="NegationButton_Click"
+                                            IsEnabled="False"
+                                            Padding="12,8"
+                                            FontSize="12"
+                                            FontWeight="SemiBold"
+                                            Cursor="Hand"
+                                            HorizontalAlignment="Stretch">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Background" Value="#FFF8FAFC"/>
+                                                <Setter Property="Foreground" Value="#FF35424E"/>
+                                                <Setter Property="BorderBrush" Value="#FFDFE2E5"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                                    CornerRadius="6"
+                                                                    Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                  VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#FFE8F0FE"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Opacity" Value="0.5"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                </TabControl>
             </Border>
         </Grid>
     </Grid>

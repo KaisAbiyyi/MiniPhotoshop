@@ -27,6 +27,7 @@ namespace MiniPhotoshop
                 ResetBrightnessControl();
                 DisplayImage.Source = _negationService.SetNegationActive(isActive);
                 _filterService.SyncPreviewActivation();
+                UpdateNegationButtonStyle(isActive);
             }
             catch (Exception ex)
             {

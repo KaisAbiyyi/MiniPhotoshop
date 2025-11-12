@@ -27,6 +27,7 @@ namespace MiniPhotoshop
         private readonly IWorkspaceResetService _workspaceResetService;
         private readonly IArithmeticService _arithmeticService;
         private readonly IBinaryImageService _binaryImageService;
+        private readonly IRotationService _rotationService;
 
         private BitmapSource? _arithmeticOverlayBitmap;
         private bool _suppressArithmeticToggleHandlers;
@@ -37,6 +38,9 @@ namespace MiniPhotoshop
         private BitmapSource? _binaryOverlayBitmap;
         private bool _suppressBinaryToggleHandlers;
         private BinaryToggleMode _currentBinaryMode = BinaryToggleMode.None;
+
+        private RotationMode _currentRotationMode = RotationMode.None;
+        private double _cumulativeRotationAngle = 0; // Track total rotation for incremental buttons
 
         private HwndSource? _hwndSource;
         private double _currentZoom = 1.0;
@@ -65,6 +69,7 @@ namespace MiniPhotoshop
             _workspaceResetService = _editor;
             _arithmeticService = _editor;
             _binaryImageService = _editor;
+            _rotationService = _editor;
 
             FilterPreviewList.ItemsSource = _state.PreviewItems;
             DisplayImage.RenderTransformOrigin = new Point(0.5, 0.5);
@@ -115,6 +120,12 @@ namespace MiniPhotoshop
             Or,
             Not,
             Xor
+        }
+
+        private enum RotationMode
+        {
+            None,
+            Rotated
         }
     }
 }
