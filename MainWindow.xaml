@@ -220,6 +220,15 @@
                                   Style="{StaticResource ToolbarToggleStyle}"
                                   MouseRightButtonDown="BinaryToggle_RightClick"/>
                     
+                    <!-- Color Selection Toggle -->
+                    <ToggleButton x:Name="ColorSelectionToggle"
+                                  Content="Seleksi Warna"
+                                  Checked="ColorSelectionToggle_Checked"
+                                  Unchecked="ColorSelectionToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
                     <!-- Button Rotasi -->
                     <Button x:Name="RotateButton"
                             Content="Rotasi"
@@ -320,28 +329,15 @@
                     </Grid>
                 </StackPanel>
                 
-                <!-- Color Selection -->
-                <StackPanel x:Name="ColorSelectionPanel" Orientation="Vertical" Margin="0,8,0,0" Visibility="Collapsed">
+                <!-- Color Selection Panel - Now Simplified -->
+                <StackPanel x:Name="ColorSelectionPanel" Orientation="Vertical" Margin="0,12,0,0" Visibility="Collapsed">
                     <TextBlock Text="Seleksi Warna Interaktif" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <CheckBox x:Name="ColorSelectionCheckBox" 
-                                  Grid.Column="0"
-                                  Content="Aktifkan" 
-                                  VerticalAlignment="Center"
-                                  Checked="ColorSelection_Checked"
-                                  Unchecked="ColorSelection_Unchecked"/>
-                        <TextBlock x:Name="SelectedColorText" 
-                                   Grid.Column="1"
-                                   Text="Klik pada gambar untuk memilih warna" 
-                                   FontSize="11" 
-                                   Foreground="Gray"
-                                   VerticalAlignment="Center"
-                                   Margin="8,0,0,0"/>
-                    </Grid>
+                    <TextBlock x:Name="SelectedColorText" 
+                               Text="Klik pada gambar untuk memilih warna" 
+                               FontSize="11" 
+                               Foreground="Gray"
+                               VerticalAlignment="Center"
+                               Margin="0,4,0,0"/>
                 </StackPanel>
 
                 <!-- Rotation Panel -->

@@ -108,8 +108,11 @@ namespace MiniPhotoshop
             // Enable Binary NOT toggle (doesn't need image B)
             BinaryNotToggle.IsEnabled = true;
 
-            ColorSelectionPanel.Visibility = Visibility.Visible;
-            ColorSelectionCheckBox.IsChecked = false;
+            // Enable Color Selection toggle
+            ColorSelectionToggle.IsEnabled = true;
+            ColorSelectionToggle.IsChecked = false;
+            ColorSelectionPanel.Visibility = Visibility.Collapsed;
+
             SelectedColorText.Text = "Klik pada gambar untuk memilih warna";
             SelectedColorText.Foreground = System.Windows.Media.Brushes.Gray;
             DisplayImage.MouseLeftButtonDown -= DisplayImage_ColorSelection_Click;

@@ -401,9 +401,9 @@ namespace MiniPhotoshop
             _currentScalarMode = ScalarToggleMode.None;
 
             // Reset color selection
-            if (ColorSelectionCheckBox.IsChecked == true)
+            if (ColorSelectionToggle.IsChecked == true)
             {
-                ColorSelectionCheckBox.IsChecked = false;
+                ColorSelectionToggle.IsChecked = false;
             }
         }
 

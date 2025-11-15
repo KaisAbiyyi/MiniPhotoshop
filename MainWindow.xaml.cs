@@ -47,7 +47,7 @@ namespace MiniPhotoshop
         private bool _suppressBrightnessHandler;
 
         private const double MinZoom = 0.1;
-        private const double MaxZoom = 5.0;
+        private const double MaxZoom = 50.0;
         private const double HorizontalWheelStep = 48.0;
         private const int WM_MOUSEHWHEEL = 0x020E;
 

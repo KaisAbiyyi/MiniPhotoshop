@@ -7,12 +7,54 @@ namespace MiniPhotoshop
 {
     public partial class MainWindow
     {
+        // New toggle handlers
+        private void ColorSelectionToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_state.PixelCache == null)
+            {
+                MessageBox.Show("Tidak ada gambar yang dimuat.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                ColorSelectionToggle.IsChecked = false;
+                return;
+            }
+
+            try
+            {
+                ColorSelectionPanel.Visibility = Visibility.Visible;
+                DisplayImage.Source = _colorSelectionService.SetColorSelectionActive(true);
+                DisplayImage.MouseLeftButtonDown += DisplayImage_ColorSelection_Click;
+                SelectedColorText.Text = "Klik pada gambar untuk memilih warna";
+                SelectedColorText.Foreground = Brushes.Blue;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Gagal mengaktifkan seleksi warna: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ColorSelectionToggle.IsChecked = false;
+            }
+        }
+
+        private void ColorSelectionToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ColorSelectionPanel.Visibility = Visibility.Collapsed;
+            DisplayImage.MouseLeftButtonDown -= DisplayImage_ColorSelection_Click;
+            try
+            {
+                DisplayImage.Source = _colorSelectionService.SetColorSelectionActive(false);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Gagal menonaktifkan seleksi warna: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            SelectedColorText.Text = "Klik pada gambar untuk memilih warna";
+            SelectedColorText.Foreground = Brushes.Gray;
+        }
+
+        // Legacy checkbox handlers (kept for backward compatibility if needed)
         private void ColorSelection_Checked(object sender, RoutedEventArgs e)
         {
             if (_state.PixelCache == null)
             {
                 MessageBox.Show("Tidak ada gambar yang dimuat.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                ColorSelectionCheckBox.IsChecked = false;
                 return;
             }
 
@@ -26,7 +68,6 @@ namespace MiniPhotoshop
             catch (Exception ex)
             {
                 MessageBox.Show($"Gagal mengaktifkan seleksi warna: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                ColorSelectionCheckBox.IsChecked = false;
             }
         }
 

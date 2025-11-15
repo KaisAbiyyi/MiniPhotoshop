@@ -52,8 +52,10 @@ namespace MiniPhotoshop
             _suppressBrightnessHandler = true;
             BrightnessSlider.Value = 0;
             _suppressBrightnessHandler = false;
+            
+            ColorSelectionToggle.IsEnabled = false;
+            ColorSelectionToggle.IsChecked = false;
             ColorSelectionPanel.Visibility = Visibility.Collapsed;
-            ColorSelectionCheckBox.IsChecked = false;
             SelectedColorText.Text = "Klik pada gambar untuk memilih warna";
             SelectedColorText.Foreground = Brushes.Gray;
             DisplayImage.MouseLeftButtonDown -= DisplayImage_ColorSelection_Click;
