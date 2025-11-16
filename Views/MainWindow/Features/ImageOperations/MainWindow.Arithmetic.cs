@@ -63,6 +63,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void ArithmeticAddToggle_Checked(object sender, RoutedEventArgs e)
         {
+            // Aktifkan mode penjumlahan antar gambar.
             HandleArithmeticToggleChecked(isAddition: true);
         }
 
@@ -73,6 +74,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void ArithmeticSubtractToggle_Checked(object sender, RoutedEventArgs e)
         {
+            // Aktifkan mode pengurangan antar gambar.
             HandleArithmeticToggleChecked(isAddition: false);
         }
 
@@ -88,13 +90,14 @@ namespace MiniPhotoshop.Views.MainWindow
                 return;
             }
 
+            // Pastikan sudah ada gambar A (base) dan gambar B (overlay) sebelum operasi.
             if (!EnsureArithmeticReady())
             {
                 SuppressAndUncheckToggle(isAddition);
                 return;
             }
 
-            // Ensure only one toggle stays active at a time.
+            // Pastikan hanya satu toggle (Add/Subtract) yang aktif pada satu waktu.
             if (isAddition && ArithmeticSubtractToggle.IsChecked == true)
             {
                 _suppressArithmeticToggleHandlers = true;
@@ -108,6 +111,7 @@ namespace MiniPhotoshop.Views.MainWindow
                 _suppressArithmeticToggleHandlers = false;
             }
 
+            // Jalankan operasi dan batalkan toggle jika gagal.
             if (!ApplyArithmeticOperation(isAddition))
             {
                 SuppressAndUncheckToggle(isAddition);
@@ -142,12 +146,13 @@ namespace MiniPhotoshop.Views.MainWindow
                 return false;
             }
 
-            // Use fields from ToolbarHandlers instead of TextBox controls
+            // Gunakan offset X/Y yang disimpan (diisi oleh dialog/toolbar) sebagai pergeseran citra B.
             int offsetX = _arithmeticOffsetX;
             int offsetY = _arithmeticOffsetY;
 
             try
             {
+                // Panggil service arithmetic untuk melakukan penjumlahan/pengurangan antar citra.
                 BitmapSource result = isAddition
                     ? _arithmeticService.AddImage(_arithmeticOverlayBitmap, offsetX, offsetY)
                     : _arithmeticService.SubtractImage(_arithmeticOverlayBitmap, offsetX, offsetY);
@@ -163,6 +168,7 @@ namespace MiniPhotoshop.Views.MainWindow
                     result.Format.ToString()
                 );
 
+                // Simpan mode aktif saat ini untuk keperluan restore.
                 _currentArithmeticMode = isAddition ? ArithmeticToggleMode.Add : ArithmeticToggleMode.Subtract;
 
                 _suppressArithmeticToggleHandlers = true;
@@ -260,6 +266,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void ArithmeticMultiplyToggle_Checked(object sender, RoutedEventArgs e)
         {
+            // Aktifkan mode perkalian citra A dan B.
             HandleImageArithmeticToggleChecked(true);
         }
 
@@ -270,6 +277,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void ArithmeticDivideToggle_Checked(object sender, RoutedEventArgs e)
         {
+            // Aktifkan mode pembagian citra A dan B.
             HandleImageArithmeticToggleChecked(false);
         }
 
@@ -285,13 +293,14 @@ namespace MiniPhotoshop.Views.MainWindow
                 return;
             }
 
+            // Pastikan gambar A dan B sudah siap sebelum operasi.
             if (!EnsureArithmeticReady())
             {
                 SuppressAndUncheckImageArithmeticToggle(isMultiply);
                 return;
             }
 
-            // Ensure only one toggle stays active at a time
+            // Pastikan hanya satu toggle (Multiply/Divide) yang aktif pada satu waktu
             if (isMultiply && ArithmeticDivideToggle.IsChecked == true)
             {
                 _suppressArithmeticToggleHandlers = true;
@@ -305,12 +314,13 @@ namespace MiniPhotoshop.Views.MainWindow
                 _suppressArithmeticToggleHandlers = false;
             }
 
-            // Also uncheck add/subtract toggles
+            // Juga matikan toggle Add/Subtract jika ada yang masih aktif.
             _suppressArithmeticToggleHandlers = true;
             ArithmeticAddToggle.IsChecked = false;
             ArithmeticSubtractToggle.IsChecked = false;
             _suppressArithmeticToggleHandlers = false;
 
+            // Jalankan operasi dan batalkan toggle jika ada error.
             if (!ApplyImageMultiplyDivideOperation(isMultiply))
             {
                 SuppressAndUncheckImageArithmeticToggle(isMultiply);

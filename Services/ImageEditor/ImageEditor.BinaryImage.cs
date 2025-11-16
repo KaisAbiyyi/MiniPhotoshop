@@ -8,6 +8,8 @@ namespace MiniPhotoshop.Services.ImageEditor
         private BitmapSource _binaryOriginalBitmap;
         private string _binaryOriginalLabel;
 
+        // Mengonversi gambar (base atau snapshot binary) menjadi citra biner
+        // menggunakan threshold: gray >= threshold → putih, selain itu hitam.
         public BitmapSource ToBinary(int threshold)
         {
             CaptureBinarySnapshot();
@@ -23,6 +25,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                 throw new InvalidOperationException("Tidak ada gambar dasar untuk konversi biner.");
             }
 
+            // Pastikan format pixel konsisten (Bgra32) untuk mempermudah akses buffer.
             BitmapSource source = EnsureBgra32(baseBitmap);
             int width = source.PixelWidth;
             int height = source.PixelHeight;
@@ -32,10 +35,10 @@ namespace MiniPhotoshop.Services.ImageEditor
 
             for (int i = 0; i < buffer.Length; i += 4)
             {
-                // Convert to grayscale first
+                // Konversi ke grayscale terlebih dahulu dengan bobot luminance.
                 byte gray = (byte)((buffer[i + 2] * 0.299) + (buffer[i + 1] * 0.587) + (buffer[i] * 0.114));
                 
-                // Apply threshold
+                // Terapkan threshold: jika gray >= threshold, pixel menjadi putih, jika tidak hitam.
                 byte binary = (byte)(gray >= threshold ? 255 : 0);
                 
                 buffer[i] = binary;      // B
@@ -48,18 +51,21 @@ namespace MiniPhotoshop.Services.ImageEditor
             return ReplaceBinaryWorkspaceBitmap(result, "Citra_Biner.png");
         }
 
+        // Operasi AND biner antar gambar base vs overlay.
         public BitmapSource AndImage(BitmapSource overlay, int offsetX, int offsetY)
         {
             CaptureBinarySnapshot();
             return ApplyBinaryOperation(overlay, offsetX, offsetY, BinaryOperation.And);
         }
 
+        // Operasi OR biner antar gambar base vs overlay.
         public BitmapSource OrImage(BitmapSource overlay, int offsetX, int offsetY)
         {
             CaptureBinarySnapshot();
             return ApplyBinaryOperation(overlay, offsetX, offsetY, BinaryOperation.Or);
         }
 
+        // Operasi NOT biner pada gambar base.
         public BitmapSource NotImage()
         {
             CaptureBinarySnapshot();
@@ -69,6 +75,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                 throw new InvalidOperationException("Tidak ada gambar untuk operasi NOT.");
             }
 
+            // Gunakan snapshot binary jika sudah ada, kalau tidak pakai gambar asli.
             BitmapSource baseBitmap = _binaryOriginalBitmap ?? State.OriginalBitmap;
             if (baseBitmap == null)
             {
@@ -84,7 +91,7 @@ namespace MiniPhotoshop.Services.ImageEditor
 
             for (int i = 0; i < buffer.Length; i += 4)
             {
-                // Invert: 0 -> 255, 255 -> 0
+                // Invert biner: 0 → 255, 255 → 0 di channel B,G,R (alpha tetap).
                 buffer[i] = (byte)(255 - buffer[i]);         // B
                 buffer[i + 1] = (byte)(255 - buffer[i + 1]); // G
                 buffer[i + 2] = (byte)(255 - buffer[i + 2]); // R
@@ -95,12 +102,14 @@ namespace MiniPhotoshop.Services.ImageEditor
             return ReplaceBinaryWorkspaceBitmap(result, "Hasil_NOT.png");
         }
 
+        // Operasi XOR biner antar gambar base vs overlay.
         public BitmapSource XorImage(BitmapSource overlay, int offsetX, int offsetY)
         {
             CaptureBinarySnapshot();
             return ApplyBinaryOperation(overlay, offsetX, offsetY, BinaryOperation.Xor);
         }
 
+        // Implementasi inti operasi AND/OR/XOR biner dengan memperhitungkan offset dan overlap.
         private BitmapSource ApplyBinaryOperation(BitmapSource overlay, int offsetX, int offsetY, BinaryOperation operation)
         {
             if (overlay == null)
@@ -113,6 +122,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                 throw new InvalidOperationException("Tidak ada gambar utama untuk operasi biner.");
             }
 
+            // Pilih gambar dasar: snapshot binary jika ada, kalau tidak gambar asli.
             BitmapSource baseBitmap = _binaryOriginalBitmap ?? State.OriginalBitmap;
             if (baseBitmap == null)
             {
@@ -135,7 +145,7 @@ namespace MiniPhotoshop.Services.ImageEditor
             baseSource.CopyPixels(baseBuffer, baseStride, 0);
             overlaySource.CopyPixels(overlayBuffer, overlayStride, 0);
 
-            // Calculate overlap area
+            // Hitung area overlap antara base dan overlay berdasarkan offset.
             int overlapX1 = Math.Max(0, offsetX);
             int overlapY1 = Math.Max(0, offsetY);
             int overlapX2 = Math.Min(baseWidth, offsetX + overlayWidth);
@@ -146,7 +156,7 @@ namespace MiniPhotoshop.Services.ImageEditor
             int resultStride = resultWidth * 4;
             byte[] resultBuffer = new byte[resultStride * resultHeight];
 
-            // Process all pixels
+            // Proses semua pixel hasil.
             for (int y = 0; y < resultHeight; y++)
             {
                 for (int x = 0; x < resultWidth; x++)
@@ -154,14 +164,14 @@ namespace MiniPhotoshop.Services.ImageEditor
                     int baseIndex = y * baseStride + x * 4;
                     int resultIndex = y * resultStride + x * 4;
 
-                    // Check if in overlap area
+                    // Cek apakah (x,y) berada di area overlap.
                     if (x >= overlapX1 && x < overlapX2 && y >= overlapY1 && y < overlapY2)
                     {
                         int overlayX = x - offsetX;
                         int overlayY = y - offsetY;
                         int overlayIndex = overlayY * overlayStride + overlayX * 4;
 
-                        // Get binary values (check if >= 128 for binary 1)
+                        // Konversi nilai intensitas (0–255) menjadi boolean (>=128 → true).
                         bool baseVal = baseBuffer[baseIndex] >= 128;
                         bool overlayVal = overlayBuffer[overlayIndex] >= 128;
                         bool resultVal;
@@ -182,6 +192,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                                 break;
                         }
 
+                        // Konversi kembali boolean ke byte 0 atau 255.
                         byte resultByte = (byte)(resultVal ? 255 : 0);
                         resultBuffer[resultIndex] = resultByte;     // B
                         resultBuffer[resultIndex + 1] = resultByte; // G
@@ -190,7 +201,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                     }
                     else
                     {
-                        // Outside overlap: set to black (0,0,0)
+                        // Di luar overlap: set ke hitam (0,0,0) dengan alpha penuh.
                         resultBuffer[resultIndex] = 0;
                         resultBuffer[resultIndex + 1] = 0;
                         resultBuffer[resultIndex + 2] = 0;

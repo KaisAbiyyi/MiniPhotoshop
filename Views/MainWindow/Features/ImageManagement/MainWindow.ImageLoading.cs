@@ -9,8 +9,11 @@ namespace MiniPhotoshop.Views.MainWindow
 {
     public partial class MainWindow
     {
+        // Handler untuk tombol "Pilih Gambar" di UI.
+        // Membuka dialog file, memanggil service loader, lalu menerapkan hasilnya ke workspace.
         private void SelectImageButton_Click(object sender, RoutedEventArgs e)
         {
+            // Konfigurasi dialog open file untuk memilih gambar.
             OpenFileDialog openFileDialog = new()
             {
                 Title = "Pilih Gambar",
@@ -24,6 +27,7 @@ namespace MiniPhotoshop.Views.MainWindow
                 FilterIndex = 1
             };
 
+            // Jika user membatalkan dialog, tidak ada aksi lanjutan.
             if (openFileDialog.ShowDialog() != true)
             {
                 return;
@@ -31,17 +35,29 @@ namespace MiniPhotoshop.Views.MainWindow
 
             try
             {
+                // Panggil service loader (ImageEditor.Load) untuk benar-benar memuat gambar
+                // dan mengisi state internal (bitmap, pixel cache, histogram, dsb.).
                 ImageLoadResult result = _imageLoader.Load(openFileDialog.FileName);
+
+                // Setiap kali load gambar baru, mode aritmatika di-reset ke None
+                // dan snapshot aritmatika dibersihkan supaya tidak tercampur dengan gambar sebelumnya.
                 _currentArithmeticMode = ArithmeticToggleMode.None;
                 _arithmeticService.ClearArithmeticSnapshot();
+
+                // Sementara menonaktifkan handler toggle agar perubahan IsChecked
+                // tidak memicu logika aritmatika secara tidak sengaja.
                 _suppressArithmeticToggleHandlers = true;
                 ArithmeticAddToggle.IsChecked = false;
                 ArithmeticSubtractToggle.IsChecked = false;
                 _suppressArithmeticToggleHandlers = false;
+
+                // Terapkan hasil load (update DisplayImage, teks informasi, enable fitur, dsb.).
                 ApplyLoadedImage(result);
             }
             catch (Exception ex)
             {
+                // Jika terjadi error saat load, tampilkan pesan dan reset workspace
+                // agar UI kembali ke kondisi aman.
                 MessageBox.Show($"Gagal memuat gambar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 ResetWorkspaceState();
             }

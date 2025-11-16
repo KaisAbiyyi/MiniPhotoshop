@@ -13,6 +13,8 @@ namespace MiniPhotoshop.Views.MainWindow
     {
         private void BinarySelectButton_Click(object sender, RoutedEventArgs e)
         {
+            // Dialog untuk memilih gambar B (overlay) yang akan digunakan
+            // pada operasi biner (AND/OR/XOR) terhadap gambar A.
             OpenFileDialog dialog = new()
             {
                 Title = "Pilih Gambar B untuk Operasi Biner",
@@ -40,6 +42,7 @@ namespace MiniPhotoshop.Views.MainWindow
                 bitmap.EndInit();
                 bitmap.Freeze();
 
+                // Simpan gambar B ke field overlay agar bisa dipakai oleh operasi biner.
                 _binaryOverlayBitmap = bitmap;
                 // BinaryInfoText.Text = $"{Path.GetFileName(dialog.FileName)} ({bitmap.PixelWidth} x {bitmap.PixelHeight})";
                 // BinaryInfoText.Foreground = Brushes.Black;
@@ -70,6 +73,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
             try
             {
+                // Konversi gambar A saat ini menjadi citra biner dengan threshold default 128.
                 BitmapSource result = _binaryImageService.ToBinary(128);
 
                 var resultInfo = new ImageLoadResult(
@@ -92,6 +96,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void BinaryAndToggle_Checked(object sender, RoutedEventArgs e)
         {
+            // Aktifkan mode operasi AND biner.
             HandleBinaryToggleChecked(BinaryToggleMode.And);
         }
 
@@ -102,6 +107,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void BinaryOrToggle_Checked(object sender, RoutedEventArgs e)
         {
+            // Aktifkan mode operasi OR biner.
             HandleBinaryToggleChecked(BinaryToggleMode.Or);
         }
 
@@ -112,6 +118,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void BinaryNotToggle_Checked(object sender, RoutedEventArgs e)
         {
+            // Aktifkan mode operasi NOT biner (hanya butuh gambar A).
             HandleBinaryToggleChecked(BinaryToggleMode.Not);
         }
 
@@ -122,6 +129,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void BinaryXorToggle_Checked(object sender, RoutedEventArgs e)
         {
+            // Aktifkan mode operasi XOR biner.
             HandleBinaryToggleChecked(BinaryToggleMode.Xor);
         }
 
@@ -137,6 +145,7 @@ namespace MiniPhotoshop.Views.MainWindow
                 return;
             }
 
+            // Pastikan gambar A sudah dimuat.
             if (_state.OriginalBitmap == null)
             {
                 MessageBox.Show("Silakan muat gambar terlebih dahulu.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -144,7 +153,7 @@ namespace MiniPhotoshop.Views.MainWindow
                 return;
             }
 
-            // NOT operation doesn't require overlay
+            // Operasi NOT tidak membutuhkan gambar B, operasi lain membutuhkan overlay.
             if (mode != BinaryToggleMode.Not && _binaryOverlayBitmap == null)
             {
                 MessageBox.Show("Silakan pilih gambar B terlebih dahulu.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -152,7 +161,7 @@ namespace MiniPhotoshop.Views.MainWindow
                 return;
             }
 
-            // Ensure only one toggle stays active at a time
+            // Pastikan hanya satu toggle (AND/OR/NOT/XOR) yang aktif pada satu waktu.
             _suppressBinaryToggleHandlers = true;
             if (mode != BinaryToggleMode.And) BinaryAndToggle.IsChecked = false;
             if (mode != BinaryToggleMode.Or) BinaryOrToggle.IsChecked = false;
@@ -160,6 +169,7 @@ namespace MiniPhotoshop.Views.MainWindow
             if (mode != BinaryToggleMode.Xor) BinaryXorToggle.IsChecked = false;
             _suppressBinaryToggleHandlers = false;
 
+            // Jalankan operasi dan batalkan toggle jika terjadi error.
             if (!ApplyBinaryOperation(mode))
             {
                 SuppressAndUncheckBinaryToggle(mode);

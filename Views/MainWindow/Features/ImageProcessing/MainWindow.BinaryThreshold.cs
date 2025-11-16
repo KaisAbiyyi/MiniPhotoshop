@@ -5,6 +5,7 @@ namespace MiniPhotoshop.Views.MainWindow
 {
     public partial class MainWindow
     {
+        // Toggle utama untuk mengaktifkan panel dan efek binary threshold.
         private void BinaryThresholdToggle_Checked(object sender, RoutedEventArgs e)
         {
             if (_state.PixelCache == null)
@@ -14,9 +15,11 @@ namespace MiniPhotoshop.Views.MainWindow
                 return;
             }
 
+            // Tampilkan panel slider threshold di UI.
             BinaryThresholdPanel.Visibility = Visibility.Visible;
             try
             {
+                // Beri tahu service bahwa mode threshold aktif dan minta processed bitmap terbaru.
                 DisplayImage.Source = _binaryThresholdService.SetBinaryThresholdActive(true);
             }
             catch (Exception ex)
@@ -27,9 +30,11 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void BinaryThresholdToggle_Unchecked(object sender, RoutedEventArgs e)
         {
+            // Sembunyikan panel ketika fitur dinonaktifkan.
             BinaryThresholdPanel.Visibility = Visibility.Collapsed;
             try
             {
+                // Matikan mode threshold dan kembalikan tampilan ke pipeline normal.
                 DisplayImage.Source = _binaryThresholdService.SetBinaryThresholdActive(false);
             }
             catch (Exception ex)
@@ -43,6 +48,7 @@ namespace MiniPhotoshop.Views.MainWindow
             int thresholdValue = (int)Math.Round(e.NewValue);
             UpdateBinaryThresholdLabel(thresholdValue);
 
+            // Jika belum ada gambar atau mode threshold belum aktif, tidak perlu update.
             if (_state.PixelCache == null || !_state.IsBinaryThresholdActive)
             {
                 return;
@@ -50,6 +56,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
             try
             {
+                // Kirim nilai threshold baru ke service untuk dihitung ulang.
                 DisplayImage.Source = _binaryThresholdService.UpdateThreshold(thresholdValue);
             }
             catch (Exception ex)

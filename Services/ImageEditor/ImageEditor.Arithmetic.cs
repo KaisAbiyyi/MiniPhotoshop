@@ -9,24 +9,29 @@ namespace MiniPhotoshop.Services.ImageEditor
         private BitmapSource? _arithmeticOriginalBitmap;
         private string? _arithmeticOriginalLabel;
 
+        // Menjumlahkan gambar overlay ke gambar dasar dengan offset tertentu.
+        // Menyimpan snapshot gambar awal sebelum operasi pertama kali dilakukan.
         public BitmapSource AddImage(BitmapSource overlay, int offsetX, int offsetY)
         {
             CaptureArithmeticSnapshot();
             return ApplyArithmeticOperation(overlay, offsetX, offsetY, ArithmeticMode.Add);
         }
 
+        // Mengurangkan gambar overlay dari gambar dasar dengan offset tertentu.
         public BitmapSource SubtractImage(BitmapSource overlay, int offsetX, int offsetY)
         {
             CaptureArithmeticSnapshot();
             return ApplyArithmeticOperation(overlay, offsetX, offsetY, ArithmeticMode.Subtract);
         }
 
+        // Mengalikan semua pixel gambar dasar dengan nilai skalar.
         public BitmapSource MultiplyByScalar(double scalar)
         {
             CaptureArithmeticSnapshot();
             return ApplyScalarOperation(scalar, ArithmeticMode.Multiply);
         }
 
+        // Membagi semua pixel gambar dasar dengan nilai skalar (tidak boleh 0).
         public BitmapSource DivideByScalar(double scalar)
         {
             if (scalar == 0)
@@ -50,6 +55,7 @@ namespace MiniPhotoshop.Services.ImageEditor
             return ApplyImageMultiplicationDivision(overlay, offsetX, offsetY, false, out normalizationInfo);
         }
 
+        // Implementasi inti operasi skalar pada citra (perkalian/pembagian per channel).
         private BitmapSource ApplyScalarOperation(double scalar, ArithmeticMode mode)
         {
             if (State.OriginalBitmap == null)
@@ -74,12 +80,14 @@ namespace MiniPhotoshop.Services.ImageEditor
             {
                 if (mode == ArithmeticMode.Multiply)
                 {
+                    // Kalikan B,G,R dengan skalar lalu clamp ke 0–255.
                     buffer[i] = (byte)Math.Clamp((int)(buffer[i] * scalar), 0, 255);         // B
                     buffer[i + 1] = (byte)Math.Clamp((int)(buffer[i + 1] * scalar), 0, 255); // G
                     buffer[i + 2] = (byte)Math.Clamp((int)(buffer[i + 2] * scalar), 0, 255); // R
                 }
                 else if (mode == ArithmeticMode.Divide)
                 {
+                    // Bagi B,G,R dengan skalar lalu clamp ke 0–255.
                     buffer[i] = (byte)Math.Clamp((int)(buffer[i] / scalar), 0, 255);         // B
                     buffer[i + 1] = (byte)Math.Clamp((int)(buffer[i + 1] / scalar), 0, 255); // G
                     buffer[i + 2] = (byte)Math.Clamp((int)(buffer[i + 2] / scalar), 0, 255); // R
@@ -92,6 +100,8 @@ namespace MiniPhotoshop.Services.ImageEditor
             return ReplaceWorkspaceBitmap(result, label);
         }
 
+        // Operasi perkalian/pembagian antar dua citra (base vs overlay) dengan offset,
+        // dihitung dalam float lalu dinormalisasi ke 0–255 per channel.
         private BitmapSource ApplyImageMultiplicationDivision(BitmapSource overlay, int offsetX, int offsetY, bool isMultiply, out string normalizationInfo)
         {
             const double EPSILON = 1e-10;
@@ -128,7 +138,7 @@ namespace MiniPhotoshop.Services.ImageEditor
             baseSource.CopyPixels(baseBuffer, baseStride, 0);
             overlaySource.CopyPixels(overlayBuffer, overlayStride, 0);
 
-            // Calculate overlap area
+            // Hitung area overlap antara base dan overlay berdasarkan offset.
             int overlapX1 = Math.Max(0, offsetX);
             int overlapY1 = Math.Max(0, offsetY);
             int overlapX2 = Math.Min(baseWidth, offsetX + overlayWidth);
@@ -138,17 +148,17 @@ namespace MiniPhotoshop.Services.ImageEditor
             int resultHeight = baseHeight;
             int resultStride = resultWidth * 4;
             
-            // Temporary buffers for float calculation
+            // Buffer sementara (float) untuk menyimpan hasil sebelum dinormalisasi.
             float[] tempR = new float[resultWidth * resultHeight];
             float[] tempG = new float[resultWidth * resultHeight];
             float[] tempB = new float[resultWidth * resultHeight];
             
-            // Min and max per channel
+            // Menyimpan nilai minimum & maksimum per channel untuk keperluan normalisasi.
             float minR = float.MaxValue, maxR = float.MinValue;
             float minG = float.MaxValue, maxG = float.MinValue;
             float minB = float.MaxValue, maxB = float.MinValue;
 
-            // Process all pixels
+            // Proses semua pixel pada citra hasil.
             for (int y = 0; y < resultHeight; y++)
             {
                 for (int x = 0; x < resultWidth; x++)
@@ -156,7 +166,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                     int resultIndex = y * resultWidth + x;
                     int baseIndex = y * baseStride + x * 4;
 
-                    // Check if in overlap area
+                    // Cek apakah koordinat (x,y) berada di area overlap.
                     if (x >= overlapX1 && x < overlapX2 && y >= overlapY1 && y < overlapY2)
                     {
                         int overlayX = x - offsetX;
@@ -173,18 +183,20 @@ namespace MiniPhotoshop.Services.ImageEditor
 
                         if (isMultiply)
                         {
+                            // Perkalian langsung per channel.
                             tempR[resultIndex] = baseR * overlayR;
                             tempG[resultIndex] = baseG * overlayG;
                             tempB[resultIndex] = baseB * overlayB;
                         }
                         else // Divide
                         {
+                            // Pembagian per channel, tambahkan EPSILON untuk menghindari pembagian 0.
                             tempR[resultIndex] = baseR / (overlayR + (float)EPSILON);
                             tempG[resultIndex] = baseG / (overlayG + (float)EPSILON);
                             tempB[resultIndex] = baseB / (overlayB + (float)EPSILON);
                         }
 
-                        // Update min and max
+                        // Update nilai min dan max untuk normalisasi.
                         minR = Math.Min(minR, tempR[resultIndex]);
                         maxR = Math.Max(maxR, tempR[resultIndex]);
                         minG = Math.Min(minG, tempG[resultIndex]);
@@ -194,7 +206,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                     }
                     else
                     {
-                        // Outside overlap: set to black (0,0,0)
+                        // Di luar overlap: hasil di-set hitam (0,0,0).
                         tempR[resultIndex] = 0;
                         tempG[resultIndex] = 0;
                         tempB[resultIndex] = 0;
@@ -202,7 +214,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                 }
             }
 
-            // Normalize and create result buffer
+            // Normalisasi nilai float ke rentang 0–255 dan tulis ke buffer byte.
             byte[] resultBuffer = new byte[resultStride * resultHeight];
             
             for (int y = 0; y < resultHeight; y++)
@@ -212,7 +224,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                     int resultIndex = y * resultWidth + x;
                     int bufferIndex = y * resultStride + x * 4;
 
-                    // Normalize per channel
+                    // Normalisasi per channel dari rentang [min,max] ke [0,255].
                     byte normalizedR = NormalizeValue(tempR[resultIndex], minR, maxR);
                     byte normalizedG = NormalizeValue(tempG[resultIndex], minG, maxG);
                     byte normalizedB = NormalizeValue(tempB[resultIndex], minB, maxB);
@@ -224,6 +236,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                 }
             }
 
+            // Kembalikan informasi rentang nilai sebelum normalisasi (berguna untuk debug / UI).
             normalizationInfo = $"R: [{minR:F2}, {maxR:F2}] | G: [{minG:F2}, {maxG:F2}] | B: [{minB:F2}, {maxB:F2}]";
 
             BitmapSource result = CreateBitmapFromBuffer(resultBuffer, resultWidth, resultHeight);
@@ -231,6 +244,7 @@ namespace MiniPhotoshop.Services.ImageEditor
             return ReplaceWorkspaceBitmap(result, label);
         }
 
+        // Mengubah satu nilai float di rentang [min,max] ke byte 0–255.
         private byte NormalizeValue(float value, float min, float max)
         {
             if (max - min < 1e-6) // Avoid division by zero
@@ -242,6 +256,8 @@ namespace MiniPhotoshop.Services.ImageEditor
             return (byte)Math.Clamp((int)normalized, 0, 255);
         }
 
+        // Implementasi inti operasi penjumlahan/pengurangan antar dua citra.
+        // Hasilnya bisa lebih besar dari ukuran salah satu citra karena mempertimbangkan offset.
         private BitmapSource ApplyArithmeticOperation(BitmapSource overlay, int offsetX, int offsetY, ArithmeticMode mode)
         {
             if (overlay == null)
@@ -276,6 +292,8 @@ namespace MiniPhotoshop.Services.ImageEditor
             baseSource.CopyPixels(baseBuffer, baseStride, 0);
             overlaySource.CopyPixels(overlayBuffer, overlayStride, 0);
 
+            // Hitung dimensi kanvas hasil sehingga bisa memuat kedua citra
+            // meskipun overlay bergeser ke kiri/atas (offset negatif).
             int minX = Math.Min(0, offsetX);
             int minY = Math.Min(0, offsetY);
             int baseOffsetX = -minX;
@@ -333,12 +351,14 @@ namespace MiniPhotoshop.Services.ImageEditor
 
                             if (mode == ArithmeticMode.Add)
                             {
+                                // Jika mode Add, jumlahkan channel base dan overlay.
                                 b += overlayB;
                                 g += overlayG;
                                 r += overlayR;
                             }
                             else
                             {
+                                // Jika mode Subtract, kurangi channel overlay dari base.
                                 b -= overlayB;
                                 g -= overlayG;
                                 r -= overlayR;
