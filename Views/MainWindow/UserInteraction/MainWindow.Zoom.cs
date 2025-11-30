@@ -11,7 +11,8 @@ namespace MiniPhotoshop.Views.MainWindow
     {
         private void WorkspaceScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (_state.OriginalBitmap == null)
+            // Allow zoom when canvas is initialized (even without image loaded)
+            if (_currentCanvasState == null || !_currentCanvasState.IsInitialized)
             {
                 return;
             }
@@ -58,7 +59,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void DisplayImage_ManipulationStarting(object sender, ManipulationStartingEventArgs e)
         {
-            if (_state.OriginalBitmap == null)
+            if (_currentCanvasState == null || !_currentCanvasState.IsInitialized)
             {
                 return;
             }
@@ -70,7 +71,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void DisplayImage_ManipulationDelta(object sender, ManipulationDeltaEventArgs e)
         {
-            if (_state.OriginalBitmap == null)
+            if (_currentCanvasState == null || !_currentCanvasState.IsInitialized)
             {
                 return;
             }
@@ -108,7 +109,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void ResetZoomToFit()
         {
-            if (_state.OriginalBitmap == null)
+            if (_currentCanvasState == null || !_currentCanvasState.IsInitialized)
             {
                 return;
             }
@@ -121,8 +122,9 @@ namespace MiniPhotoshop.Views.MainWindow
                 return;
             }
 
-            double scaleX = viewportWidth / _state.CachedWidth;
-            double scaleY = viewportHeight / _state.CachedHeight;
+            // Use canvas dimensions instead of cached image dimensions
+            double scaleX = viewportWidth / _currentCanvasState.Width;
+            double scaleY = viewportHeight / _currentCanvasState.Height;
             double targetZoom = Math.Min(scaleX, scaleY);
             targetZoom = Math.Clamp(targetZoom, MinZoom, MaxZoom);
 
