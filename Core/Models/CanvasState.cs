@@ -17,8 +17,17 @@ namespace MiniPhotoshop.Core.Models
         public int Width { get; set; } = DefaultWidth;
         public int Height { get; set; } = DefaultHeight;
         public Color BackgroundColor { get; set; } = DefaultBackgroundColor;
+        
+        /// <summary>
+        /// X offset for placing image on canvas (for future drag feature).
+        /// </summary>
         public int ImageOffsetX { get; set; } = DefaultImageOffsetX;
+        
+        /// <summary>
+        /// Y offset for placing image on canvas (for future drag feature).
+        /// </summary>
         public int ImageOffsetY { get; set; } = DefaultImageOffsetY;
+        
         public bool IsInitialized { get; set; }
 
         public void Reset()

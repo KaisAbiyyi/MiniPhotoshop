@@ -14,6 +14,14 @@ namespace MiniPhotoshop.Services.ImageEditor
     internal sealed partial class ImageEditor
     {
         private CanvasState _canvasState = new CanvasState();
+        
+        /// <summary>
+        /// Stores the original image pixels separately for future drag/move feature.
+        /// This preserves the original image data even when rendering on canvas.
+        /// </summary>
+        private byte[]? _originalImagePixels;
+        private int _originalImageWidth;
+        private int _originalImageHeight;
 
         /// <summary>
         /// Initializes a new canvas with specified dimensions and background color.
@@ -55,9 +63,20 @@ namespace MiniPhotoshop.Services.ImageEditor
         {
             _canvasState.BackgroundColor = newColor;
         }
+        
+        /// <summary>
+        /// Sets the image offset position on canvas (for drag feature).
+        /// </summary>
+        public void SetImageOffset(int offsetX, int offsetY)
+        {
+            _canvasState.ImageOffsetX = offsetX;
+            _canvasState.ImageOffsetY = offsetY;
+        }
 
         /// <summary>
         /// Renders the current canvas with any placed images.
+        /// Images are clipped to canvas bounds and placed at the offset position.
+        /// Original image pixels are preserved for future drag feature.
         /// </summary>
         public BitmapSource? RenderCanvas()
         {
@@ -66,62 +85,89 @@ namespace MiniPhotoshop.Services.ImageEditor
                 return null;
             }
 
-            int width = _canvasState.Width;
-            int height = _canvasState.Height;
+            int canvasWidth = _canvasState.Width;
+            int canvasHeight = _canvasState.Height;
             Color backgroundColor = _canvasState.BackgroundColor;
+            int offsetX = _canvasState.ImageOffsetX;
+            int offsetY = _canvasState.ImageOffsetY;
 
             // Create canvas buffer
-            int stride = width * 4;
-            byte[] buffer = new byte[stride * height];
+            int stride = canvasWidth * 4;
+            byte[] buffer = new byte[stride * canvasHeight];
 
-            byte b = backgroundColor.B;
-            byte g = backgroundColor.G;
-            byte r = backgroundColor.R;
-            byte a = backgroundColor.A;
+            byte bgB = backgroundColor.B;
+            byte bgG = backgroundColor.G;
+            byte bgR = backgroundColor.R;
+            byte bgA = backgroundColor.A;
 
             // Fill with background color
             for (int i = 0; i < buffer.Length; i += 4)
             {
-                buffer[i] = b;
-                buffer[i + 1] = g;
-                buffer[i + 2] = r;
-                buffer[i + 3] = a;
+                buffer[i] = bgB;
+                buffer[i + 1] = bgG;
+                buffer[i + 2] = bgR;
+                buffer[i + 3] = bgA;
             }
 
-            // If there's an image loaded, place it at (0,0)
+            // If there's an image loaded, place it at offset position
             if (State.OriginalBitmap != null)
             {
                 BitmapSource image = EnsureBgra32(State.OriginalBitmap);
                 int imageWidth = image.PixelWidth;
                 int imageHeight = image.PixelHeight;
 
+                // Store original image pixels for future drag feature
                 int imageStride = imageWidth * 4;
-                byte[] imageBuffer = new byte[imageStride * imageHeight];
-                image.CopyPixels(imageBuffer, imageStride, 0);
-
-                int copyWidth = Math.Min(imageWidth, width);
-                int copyHeight = Math.Min(imageHeight, height);
-
-                for (int y = 0; y < copyHeight; y++)
+                if (_originalImagePixels == null || 
+                    _originalImageWidth != imageWidth || 
+                    _originalImageHeight != imageHeight)
                 {
-                    for (int x = 0; x < copyWidth; x++)
-                    {
-                        int srcIndex = y * imageStride + x * 4;
-                        int dstIndex = y * stride + x * 4;
+                    _originalImagePixels = new byte[imageStride * imageHeight];
+                    image.CopyPixels(_originalImagePixels, imageStride, 0);
+                    _originalImageWidth = imageWidth;
+                    _originalImageHeight = imageHeight;
+                }
 
-                        buffer[dstIndex] = imageBuffer[srcIndex];
-                        buffer[dstIndex + 1] = imageBuffer[srcIndex + 1];
-                        buffer[dstIndex + 2] = imageBuffer[srcIndex + 2];
-                        buffer[dstIndex + 3] = imageBuffer[srcIndex + 3];
+                // Calculate visible region of image on canvas
+                // Only copy pixels that fall within canvas bounds
+                int srcStartX = Math.Max(0, -offsetX);
+                int srcStartY = Math.Max(0, -offsetY);
+                int dstStartX = Math.Max(0, offsetX);
+                int dstStartY = Math.Max(0, offsetY);
+                
+                int copyWidth = Math.Min(imageWidth - srcStartX, canvasWidth - dstStartX);
+                int copyHeight = Math.Min(imageHeight - srcStartY, canvasHeight - dstStartY);
+
+                if (copyWidth > 0 && copyHeight > 0)
+                {
+                    for (int y = 0; y < copyHeight; y++)
+                    {
+                        int srcY = srcStartY + y;
+                        int dstY = dstStartY + y;
+                        
+                        for (int x = 0; x < copyWidth; x++)
+                        {
+                            int srcX = srcStartX + x;
+                            int dstX = dstStartX + x;
+                            
+                            int srcIndex = srcY * imageStride + srcX * 4;
+                            int dstIndex = dstY * stride + dstX * 4;
+
+                            // Copy BGRA values from image to canvas
+                            buffer[dstIndex] = _originalImagePixels[srcIndex];         // B
+                            buffer[dstIndex + 1] = _originalImagePixels[srcIndex + 1]; // G
+                            buffer[dstIndex + 2] = _originalImagePixels[srcIndex + 2]; // R
+                            buffer[dstIndex + 3] = _originalImagePixels[srcIndex + 3]; // A
+                        }
                     }
                 }
             }
 
-            return CreateBitmapFromBuffer(buffer, width, height);
+            return CreateBitmapFromBuffer(buffer, canvasWidth, canvasHeight);
         }
 
         /// <summary>
-        /// Places an image onto the canvas at position (0,0).
+        /// Places an image onto the canvas at the current offset position.
         /// </summary>
         public BitmapSource PlaceImageOnCanvas(BitmapSource image)
         {
@@ -138,55 +184,13 @@ namespace MiniPhotoshop.Services.ImageEditor
                 _canvasState.IsInitialized = true;
             }
 
-            int canvasWidth = _canvasState.Width;
-            int canvasHeight = _canvasState.Height;
-            Color backgroundColor = _canvasState.BackgroundColor;
+            // Store original bitmap in state
+            State.OriginalBitmap = image;
+            
+            // Clear cached original pixels to force refresh
+            _originalImagePixels = null;
 
-            BitmapSource sourceImage = EnsureBgra32(image);
-            int imageWidth = sourceImage.PixelWidth;
-            int imageHeight = sourceImage.PixelHeight;
-
-            // Create canvas buffer
-            int stride = canvasWidth * 4;
-            byte[] resultBuffer = new byte[stride * canvasHeight];
-
-            // Fill with background color
-            byte bgB = backgroundColor.B;
-            byte bgG = backgroundColor.G;
-            byte bgR = backgroundColor.R;
-            byte bgA = backgroundColor.A;
-
-            for (int i = 0; i < resultBuffer.Length; i += 4)
-            {
-                resultBuffer[i] = bgB;
-                resultBuffer[i + 1] = bgG;
-                resultBuffer[i + 2] = bgR;
-                resultBuffer[i + 3] = bgA;
-            }
-
-            // Copy image pixels to position (0,0)
-            int imageStride = imageWidth * 4;
-            byte[] imageBuffer = new byte[imageStride * imageHeight];
-            sourceImage.CopyPixels(imageBuffer, imageStride, 0);
-
-            int copyWidth = Math.Min(imageWidth, canvasWidth);
-            int copyHeight = Math.Min(imageHeight, canvasHeight);
-
-            for (int y = 0; y < copyHeight; y++)
-            {
-                for (int x = 0; x < copyWidth; x++)
-                {
-                    int srcIndex = y * imageStride + x * 4;
-                    int dstIndex = y * stride + x * 4;
-
-                    resultBuffer[dstIndex] = imageBuffer[srcIndex];
-                    resultBuffer[dstIndex + 1] = imageBuffer[srcIndex + 1];
-                    resultBuffer[dstIndex + 2] = imageBuffer[srcIndex + 2];
-                    resultBuffer[dstIndex + 3] = imageBuffer[srcIndex + 3];
-                }
-            }
-
-            return CreateBitmapFromBuffer(resultBuffer, canvasWidth, canvasHeight);
+            return RenderCanvas()!;
         }
 
         /// <summary>
@@ -195,6 +199,22 @@ namespace MiniPhotoshop.Services.ImageEditor
         public (int Width, int Height) GetCanvasDimensions()
         {
             return (_canvasState.Width, _canvasState.Height);
+        }
+        
+        /// <summary>
+        /// Gets the original image dimensions (before clipping to canvas).
+        /// </summary>
+        public (int Width, int Height) GetOriginalImageDimensions()
+        {
+            return (_originalImageWidth, _originalImageHeight);
+        }
+        
+        /// <summary>
+        /// Gets the current image offset on canvas.
+        /// </summary>
+        public (int X, int Y) GetImageOffset()
+        {
+            return (_canvasState.ImageOffsetX, _canvasState.ImageOffsetY);
         }
     }
 }

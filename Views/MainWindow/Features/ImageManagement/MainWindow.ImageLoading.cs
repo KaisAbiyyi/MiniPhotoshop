@@ -96,10 +96,14 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void ApplyLoadedImage(ImageLoadResult result)
         {
-            DisplayImage.Source = _filterService.SetActiveFilter(ImageFilterMode.Original);
+            // Apply filter first to update state
+            _filterService.SetActiveFilter(ImageFilterMode.Original);
             _filterService.BuildPreviews();
             _filterService.SyncPreviewActivation();
             ResetBrightnessControl();
+            
+            // Render image through canvas (image will be clipped to canvas bounds)
+            UpdateCanvasDisplay();
 
             FileNameText.Text = Path.GetFileName(result.FilePath);
             FileNameText.Foreground = System.Windows.Media.Brushes.Black;

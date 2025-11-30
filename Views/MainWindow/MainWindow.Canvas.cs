@@ -58,12 +58,16 @@ namespace MiniPhotoshop.Views.MainWindow
                 Height = height,
                 BackgroundColor = backgroundColor,
                 ImageOffsetX = CanvasState.DefaultImageOffsetX,
-                ImageOffsetY = CanvasState.DefaultImageOffsetY
+                ImageOffsetY = CanvasState.DefaultImageOffsetY,
+                IsInitialized = true
             };
 
             _canvasService.InitializeCanvas(width, height, backgroundColor);
             UpdateCanvasDisplay();
             UpdateCanvasInfoDisplay();
+            
+            // Queue auto fit after canvas is initialized
+            QueueAutoFit();
         }
 
         #endregion
