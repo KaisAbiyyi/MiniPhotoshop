@@ -65,7 +65,7 @@ namespace MiniPhotoshop.Services.ImageEditor
             return ApplyBinaryOperation(overlay, offsetX, offsetY, BinaryOperation.Or);
         }
 
-        // Operasi NOT biner pada gambar base.
+        // Operasi NOT biner pada gambar base (menggunakan gambar yang sudah di-threshold).
         public BitmapSource NotImage()
         {
             CaptureBinarySnapshot();
@@ -91,11 +91,17 @@ namespace MiniPhotoshop.Services.ImageEditor
 
             for (int i = 0; i < buffer.Length; i += 4)
             {
-                // Invert biner: 0 → 255, 255 → 0 di channel B,G,R (alpha tetap).
-                buffer[i] = (byte)(255 - buffer[i]);         // B
-                buffer[i + 1] = (byte)(255 - buffer[i + 1]); // G
-                buffer[i + 2] = (byte)(255 - buffer[i + 2]); // R
-                // Alpha channel (i + 3) remains unchanged
+                // Konversi ke boolean berdasarkan threshold (>=128 → true, <128 → false)
+                bool val = buffer[i] >= 128;
+                // Invert boolean
+                bool resultVal = !val;
+                // Konversi kembali ke byte (true → 255, false → 0)
+                byte resultByte = (byte)(resultVal ? 255 : 0);
+                
+                buffer[i] = resultByte;         // B
+                buffer[i + 1] = resultByte;     // G
+                buffer[i + 2] = resultByte;     // R
+                buffer[i + 3] = 255;            // A
             }
 
             BitmapSource result = CreateBitmapFromBuffer(buffer, width, height);

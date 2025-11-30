@@ -27,6 +27,7 @@ namespace MiniPhotoshop.Views.MainWindow
             _suppressScalarToggleHandlers = false;
             _currentRotationMode = RotationMode.None;
             _rotationService.ClearRotationSnapshot();
+            _distortionService.ClearDistortionSnapshot();
             UpdateUiForNoImage();
         }
 
@@ -91,6 +92,10 @@ namespace MiniPhotoshop.Views.MainWindow
             RotationPanel.Visibility = Visibility.Collapsed;
             _currentRotationMode = RotationMode.None;
             _rotationService.ClearRotationSnapshot();
+
+            DistortionButton.IsEnabled = false;
+            DistortionPanel.Visibility = Visibility.Collapsed;
+            _distortionService.ClearDistortionSnapshot();
 
             HideSidebar();
         }

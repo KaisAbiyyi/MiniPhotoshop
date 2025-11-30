@@ -137,6 +137,7 @@ namespace MiniPhotoshop.Views.MainWindow
             ScalarOperationToggle.IsEnabled = true;
             ScalarOperationToggle.IsChecked = false;
             UpdateRotationButtonsState();
+            UpdateDistortionButtonState();
             // UpdateArithmeticButtonsState();
             // UpdateBinaryButtonsState();
 

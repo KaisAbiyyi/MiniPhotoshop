@@ -1,0 +1,109 @@
+<Window x:Class="MiniPhotoshop.Views.Dialogs.CanvasSettingsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Pengaturan Kanvas"
+        Height="350"
+        Width="400"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0" 
+                   Text="Pengaturan Kanvas Baru"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   Foreground="#FF35424E"
+                   Margin="0,0,0,20"/>
+
+        <!-- Width Input -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,12">
+            <TextBlock Text="Lebar (px):" FontSize="13" Margin="0,0,0,4"/>
+            <TextBox x:Name="WidthInput"
+                     Text="800"
+                     FontSize="14"
+                     Padding="8,6"
+                     PreviewTextInput="NumberOnly_PreviewTextInput"/>
+        </StackPanel>
+
+        <!-- Height Input -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,12">
+            <TextBlock Text="Tinggi (px):" FontSize="13" Margin="0,0,0,4"/>
+            <TextBox x:Name="HeightInput"
+                     Text="600"
+                     FontSize="14"
+                     Padding="8,6"
+                     PreviewTextInput="NumberOnly_PreviewTextInput"/>
+        </StackPanel>
+
+        <!-- Color Picker -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,12">
+            <TextBlock Text="Warna Latar Belakang:" FontSize="13" Margin="0,0,0,4"/>
+            <StackPanel Orientation="Horizontal">
+                <Border x:Name="ColorPreview"
+                        Width="40"
+                        Height="30"
+                        Background="White"
+                        BorderBrush="#FFDFE2E5"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Margin="0,0,10,0"/>
+                <ComboBox x:Name="ColorComboBox"
+                          Width="200"
+                          FontSize="13"
+                          Padding="8,6"
+                          SelectionChanged="ColorComboBox_SelectionChanged">
+                    <ComboBoxItem Content="Putih" Tag="#FFFFFFFF" IsSelected="True"/>
+                    <ComboBoxItem Content="Hitam" Tag="#FF000000"/>
+                    <ComboBoxItem Content="Abu-abu Muda" Tag="#FFE0E0E0"/>
+                    <ComboBoxItem Content="Abu-abu" Tag="#FF808080"/>
+                    <ComboBoxItem Content="Merah" Tag="#FFFF0000"/>
+                    <ComboBoxItem Content="Hijau" Tag="#FF00FF00"/>
+                    <ComboBoxItem Content="Biru" Tag="#FF0000FF"/>
+                    <ComboBoxItem Content="Kuning" Tag="#FFFFFF00"/>
+                    <ComboBoxItem Content="Transparan" Tag="#00FFFFFF"/>
+                </ComboBox>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Preset Sizes -->
+        <StackPanel Grid.Row="4" Margin="0,8,0,0">
+            <TextBlock Text="Preset Ukuran:" FontSize="13" Margin="0,0,0,8"/>
+            <WrapPanel>
+                <Button Content="640×480" Click="PresetSize_Click" Tag="640,480" Margin="0,0,8,8" Padding="12,6"/>
+                <Button Content="800×600" Click="PresetSize_Click" Tag="800,600" Margin="0,0,8,8" Padding="12,6"/>
+                <Button Content="1024×768" Click="PresetSize_Click" Tag="1024,768" Margin="0,0,8,8" Padding="12,6"/>
+                <Button Content="1280×720" Click="PresetSize_Click" Tag="1280,720" Margin="0,0,8,8" Padding="12,6"/>
+                <Button Content="1920×1080" Click="PresetSize_Click" Tag="1920,1080" Margin="0,0,0,8" Padding="12,6"/>
+            </WrapPanel>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="5" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right"
+                    Margin="0,16,0,0">
+            <Button x:Name="SkipButton"
+                    Content="Lewati"
+                    Click="SkipButton_Click"
+                    Padding="20,8"
+                    Margin="0,0,10,0"
+                    Background="#FFF0F0F0"/>
+            <Button x:Name="CreateButton"
+                    Content="Buat Kanvas"
+                    Click="CreateButton_Click"
+                    Padding="20,8"
+                    Background="#FF1A56B3"
+                    Foreground="White"/>
+        </StackPanel>
+    </Grid>
+</Window>

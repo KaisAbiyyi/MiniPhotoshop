@@ -28,6 +28,8 @@ namespace MiniPhotoshop.Views.MainWindow
         private readonly IArithmeticService _arithmeticService;
         private readonly IBinaryImageService _binaryImageService;
         private readonly IRotationService _rotationService;
+        private readonly IDistortionService _distortionService;
+        private readonly ICanvasService _canvasService;
 
         private BitmapSource? _arithmeticOverlayBitmap;
         private bool _suppressArithmeticToggleHandlers;
@@ -70,13 +72,24 @@ namespace MiniPhotoshop.Views.MainWindow
             _arithmeticService = _editor;
             _binaryImageService = _editor;
             _rotationService = _editor;
+            _distortionService = _editor;
+            _canvasService = _editor;
 
             FilterPreviewList.ItemsSource = _state.PreviewItems;
             DisplayImage.RenderTransformOrigin = new Point(0.5, 0.5);
             WorkspaceScrollViewer.SizeChanged += WorkspaceScrollViewer_SizeChanged;
             BinaryThresholdSlider.Value = ImageWorkspaceState.DefaultBinaryThreshold;
 
+            // Register Loaded event to show canvas settings on startup
+            Loaded += MainWindow_Loaded;
+
             UpdateUiForNoImage();
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Show canvas settings dialog on app startup
+            ShowCanvasSettingsOnStartup();
         }
 
         protected override void OnSourceInitialized(EventArgs e)
