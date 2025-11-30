@@ -82,6 +82,9 @@
                                       Click="AddImageB_Click"
                                       x:Name="AddImageBMenuItem"/>
                             <Separator/>
+                            <MenuItem Header="Pengaturan Kanvas..."
+                                      Click="OpenCanvasSettingsDialog_Click"/>
+                            <Separator/>
                             <MenuItem x:Name="ResetImageMenuItem"
                                       Header="Reset Gambar"
                                       Click="ResetImage_Click"
@@ -275,28 +278,6 @@
                                     </Trigger>
                                     <Trigger Property="IsEnabled" Value="False">
                                         <Setter Property="Foreground" Value="#FFAAAAAA"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    
-                    <!-- Button Canvas Settings -->
-                    <Button x:Name="CanvasSettingsButton"
-                            Content="Kanvas"
-                            Click="CanvasSettingsButton_Click"
-                            Padding="16,6"
-                            Margin="4,0,0,0"
-                            FontSize="14"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Cursor="Hand">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Foreground" Value="#FF35424E"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#FFE8F0FE"/>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -515,96 +496,6 @@
                                 Padding="10,4"
                                 HorizontalAlignment="Left"/>
                     </StackPanel>
-                </StackPanel>
-
-                <!-- Canvas Settings Panel -->
-                <StackPanel x:Name="CanvasSettingsPanel" Orientation="Vertical" Margin="0,12,0,0" Visibility="Collapsed">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Pengaturan Kanvas" FontSize="12" FontWeight="Bold" Margin="0,0,0,6"/>
-                        <Button Grid.Column="1" 
-                                Content="✕" 
-                                Click="CloseCanvasSettingsPanel_Click"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Padding="4,0"
-                                Cursor="Hand"
-                                FontSize="10"/>
-                    </Grid>
-                    
-                    <!-- Canvas Info -->
-                    <TextBlock x:Name="CanvasInfoLabel"
-                               Text="Kanvas: 800 × 600 px"
-                               FontSize="11"
-                               Foreground="#FF51606A"
-                               Margin="0,0,0,8"/>
-                    
-                    <!-- Canvas Size Inputs -->
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <TextBlock Text="Lebar:" 
-                                   FontSize="11" 
-                                   VerticalAlignment="Center" 
-                                   MinWidth="45"
-                                   Margin="0,0,4,0"/>
-                        <TextBox x:Name="CanvasWidthInput"
-                                 Width="60"
-                                 Padding="4,2"
-                                 FontSize="11"
-                                 Text="800"
-                                 PreviewTextInput="CanvasSizeInput_PreviewTextInput"
-                                 VerticalContentAlignment="Center"/>
-                        <TextBlock Text="px" 
-                                   FontSize="11" 
-                                   VerticalAlignment="Center"
-                                   Margin="4,0,12,0"/>
-                        
-                        <TextBlock Text="Tinggi:" 
-                                   FontSize="11" 
-                                   VerticalAlignment="Center" 
-                                   MinWidth="45"
-                                   Margin="0,0,4,0"/>
-                        <TextBox x:Name="CanvasHeightInput"
-                                 Width="60"
-                                 Padding="4,2"
-                                 FontSize="11"
-                                 Text="600"
-                                 PreviewTextInput="CanvasSizeInput_PreviewTextInput"
-                                 VerticalContentAlignment="Center"/>
-                        <TextBlock Text="px" 
-                                   FontSize="11" 
-                                   VerticalAlignment="Center"
-                                   Margin="4,0,0,0"/>
-                    </StackPanel>
-                    
-                    <!-- Canvas Color -->
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <TextBlock Text="Warna:" 
-                                   FontSize="11" 
-                                   VerticalAlignment="Center" 
-                                   MinWidth="45"
-                                   Margin="0,0,4,0"/>
-                        <ComboBox x:Name="CanvasColorComboBox"
-                                  Width="140"
-                                  FontSize="11"
-                                  Padding="4,2"
-                                  SelectionChanged="CanvasColorComboBox_SelectionChanged">
-                            <ComboBoxItem Content="Putih" Tag="#FFFFFFFF" IsSelected="True"/>
-                            <ComboBoxItem Content="Hitam" Tag="#FF000000"/>
-                            <ComboBoxItem Content="Abu-abu Muda" Tag="#FFE0E0E0"/>
-                            <ComboBoxItem Content="Abu-abu" Tag="#FF808080"/>
-                            <ComboBoxItem Content="Transparan" Tag="#00FFFFFF"/>
-                        </ComboBox>
-                    </StackPanel>
-                    
-                    <!-- Apply Button -->
-                    <Button x:Name="ApplyCanvasSizeButton"
-                            Content="Terapkan Ukuran"
-                            Click="ApplyCanvasSize_Click"
-                            Padding="12,4"
-                            HorizontalAlignment="Left"/>
                 </StackPanel>
             </StackPanel>
         </Border>

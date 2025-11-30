@@ -44,6 +44,50 @@ namespace MiniPhotoshop.Views.Dialogs
 
         #endregion
 
+        #region Public Methods
+
+        /// <summary>
+        /// Set nilai awal dialog dari kanvas yang sudah ada (untuk edit).
+        /// </summary>
+        public void SetCurrentValues(int width, int height, Color backgroundColor)
+        {
+            CanvasWidth = width;
+            CanvasHeight = height;
+            BackgroundColor = backgroundColor;
+
+            WidthInput.Text = width.ToString();
+            HeightInput.Text = height.ToString();
+            ColorPreview.Background = new SolidColorBrush(backgroundColor);
+
+            // Select matching color in ComboBox
+            SelectColorInComboBox(backgroundColor);
+            
+            // Change button text for edit mode
+            CreateButton.Content = "Terapkan";
+            Title = "Edit Pengaturan Kanvas";
+        }
+
+        /// <summary>
+        /// Pilih warna yang sesuai di ComboBox.
+        /// </summary>
+        private void SelectColorInComboBox(Color color)
+        {
+            string colorHex = $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
+            
+            foreach (ComboBoxItem item in ColorComboBox.Items)
+            {
+                if (item.Tag is string tag && tag.Equals(colorHex, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    ColorComboBox.SelectedItem = item;
+                    return;
+                }
+            }
+            
+            // If no exact match, keep first selected
+        }
+
+        #endregion
+
         #region Event Handlers
 
         /// <summary>
