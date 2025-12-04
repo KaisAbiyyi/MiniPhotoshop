@@ -1,0 +1,104 @@
+<Window x:Class="MiniPhotoshop.Views.Dialogs.CustomKernelDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Kernel Konvolusi Custom"
+        Width="500"
+        Height="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="Custom Kernel Konvolusi"
+                       FontSize="18"
+                       FontWeight="Bold"/>
+            <TextBlock Text="Masukkan nilai kernel (matriks harus berukuran ganjil: 3x3, 5x5, 7x7)"
+                       FontSize="12"
+                       Foreground="Gray"
+                       TextWrapping="Wrap"
+                       Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- Kernel Size Selection -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+            <TextBlock Text="Ukuran Kernel:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+            <ComboBox x:Name="KernelSizeCombo"
+                      Width="80"
+                      SelectionChanged="KernelSizeCombo_SelectionChanged">
+                <ComboBoxItem Content="3x3" IsSelected="True"/>
+                <ComboBoxItem Content="5x5"/>
+                <ComboBoxItem Content="7x7"/>
+            </ComboBox>
+            
+            <TextBlock Text="Multiplier (C):"
+                       VerticalAlignment="Center"
+                       Margin="24,0,8,0"/>
+            <TextBox x:Name="MultiplierTextBox"
+                     Width="80"
+                     Text="1.0"
+                     VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Kernel Grid -->
+        <Border Grid.Row="2"
+                BorderBrush="#FFDFE2E5"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="8">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <Grid x:Name="KernelGrid" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Preset Buttons -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,16,0,0" HorizontalAlignment="Center">
+            <Button Content="Reset (0)"
+                    Click="ResetKernel_Click"
+                    Padding="12,6"
+                    Margin="4,0"/>
+            <Button Content="Identity"
+                    Click="IdentityKernel_Click"
+                    Padding="12,6"
+                    Margin="4,0"/>
+            <Button Content="Sharpen"
+                    Click="SharpenKernel_Click"
+                    Padding="12,6"
+                    Margin="4,0"/>
+            <Button Content="Blur"
+                    Click="BlurKernel_Click"
+                    Padding="12,6"
+                    Margin="4,0"/>
+            <Button Content="Edge"
+                    Click="EdgeKernel_Click"
+                    Padding="12,6"
+                    Margin="4,0"/>
+        </StackPanel>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="4" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right"
+                    Margin="0,16,0,0">
+            <Button Content="Batal"
+                    Click="Cancel_Click"
+                    Padding="24,8"
+                    Margin="0,0,8,0"
+                    Background="#FFEEEEEE"/>
+            <Button Content="Terapkan"
+                    Click="Apply_Click"
+                    Padding="24,8"
+                    Background="#FF1976D2"
+                    Foreground="White"/>
+        </StackPanel>
+    </Grid>
+</Window>

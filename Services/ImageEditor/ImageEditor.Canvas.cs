@@ -194,6 +194,15 @@ namespace MiniPhotoshop.Services.ImageEditor
         }
 
         /// <summary>
+        /// Clears cached image pixels to force refresh from State.OriginalBitmap.
+        /// Call this after modifying the original bitmap (e.g., after convolution).
+        /// </summary>
+        public void RefreshImagePixels()
+        {
+            _originalImagePixels = null;
+        }
+
+        /// <summary>
         /// Gets the current canvas dimensions.
         /// </summary>
         public (int Width, int Height) GetCanvasDimensions()

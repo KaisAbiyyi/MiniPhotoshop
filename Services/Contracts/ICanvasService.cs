@@ -38,5 +38,26 @@ namespace MiniPhotoshop.Services.Contracts
         /// Gets the current canvas dimensions.
         /// </summary>
         (int Width, int Height) GetCanvasDimensions();
+
+        /// <summary>
+        /// Sets the image offset position on canvas (for drag/move feature).
+        /// </summary>
+        void SetImageOffset(int offsetX, int offsetY);
+
+        /// <summary>
+        /// Gets the current image offset on canvas.
+        /// </summary>
+        (int X, int Y) GetImageOffset();
+
+        /// <summary>
+        /// Gets the original image dimensions (before any clipping).
+        /// </summary>
+        (int Width, int Height) GetOriginalImageDimensions();
+
+        /// <summary>
+        /// Clears cached image pixels to force refresh from OriginalBitmap.
+        /// Call this after modifying the original bitmap.
+        /// </summary>
+        void RefreshImagePixels();
     }
 }

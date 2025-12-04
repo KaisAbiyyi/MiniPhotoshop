@@ -36,17 +36,8 @@ namespace MiniPhotoshop.Views.MainWindow
             {
                 int level = (int)DistortionSlider.Value;
                 var result = _distortionService.ApplyDistortion(level);
-
-                string fileLabel = $"Distorsi_Level{level}.png";
-                var resultInfo = new ImageLoadResult(
-                    result,
-                    fileLabel,
-                    result.PixelWidth,
-                    result.PixelHeight,
-                    result.Format.ToString()
-                );
-
-                ApplyLoadedImage(resultInfo);
+                
+                ApplyImageProcessingResult(result, $"Distorsi Level {level}");
             }
             catch (Exception ex)
             {
@@ -60,17 +51,8 @@ namespace MiniPhotoshop.Views.MainWindow
             try
             {
                 var restored = _distortionService.RestoreDistortion();
-
-                string fileLabel = _state.CurrentFilePath ?? "Gambar.png";
-                var resultInfo = new ImageLoadResult(
-                    restored,
-                    fileLabel,
-                    restored.PixelWidth,
-                    restored.PixelHeight,
-                    restored.Format.ToString()
-                );
-
-                ApplyLoadedImage(resultInfo);
+                
+                ApplyImageProcessingResult(restored, "Gambar Dikembalikan");
                 DistortionSlider.Value = 5; // Reset slider ke default
             }
             catch (Exception ex)

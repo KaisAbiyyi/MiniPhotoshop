@@ -283,6 +283,131 @@
                             </Style>
                         </Button.Style>
                     </Button>
+                    
+                    <!-- Convolution Menu -->
+                    <Menu Background="Transparent"
+                          BorderThickness="0"
+                          Margin="4,0,0,0"
+                          VerticalAlignment="Center"
+                          FontSize="14"
+                          x:Name="ConvolutionMenu"
+                          IsEnabled="False">
+                        <MenuItem Header="Konvolusi"
+                                  Padding="16,6">
+                            <MenuItem Header="Low Pass Filter">
+                                <MenuItem Header="3x3" Tag="3" Click="ConvolutionLowPass_Click"/>
+                                <MenuItem Header="5x5" Tag="5" Click="ConvolutionLowPass_Click"/>
+                                <MenuItem Header="7x7" Tag="7" Click="ConvolutionLowPass_Click"/>
+                            </MenuItem>
+                            <MenuItem Header="High Pass Filter" Click="ConvolutionHighPass_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Gaussian Blur">
+                                <MenuItem Header="3x3" Tag="3" Click="ConvolutionGaussianBlur_Click"/>
+                                <MenuItem Header="5x5" Tag="5" Click="ConvolutionGaussianBlur_Click"/>
+                                <MenuItem Header="7x7" Tag="7" Click="ConvolutionGaussianBlur_Click"/>
+                            </MenuItem>
+                            <Separator/>
+                            <MenuItem Header="Edge Detection">
+                                <MenuItem Header="Sobel Horizontal" Click="ConvolutionSobelH_Click"/>
+                                <MenuItem Header="Sobel Vertical" Click="ConvolutionSobelV_Click"/>
+                                <MenuItem Header="Laplacian" Click="ConvolutionLaplacian_Click"/>
+                            </MenuItem>
+                            <Separator/>
+                            <MenuItem Header="Emboss" Click="ConvolutionEmboss_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Custom Kernel..." Click="ConvolutionCustom_Click"/>
+                        </MenuItem>
+                    </Menu>
+                    
+                    <!-- Move Image Toggle -->
+                    <ToggleButton x:Name="MoveImageToggle"
+                                  Content="Pindah Gambar"
+                                  Checked="MoveImageToggle_Checked"
+                                  Unchecked="MoveImageToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Selection Tools Separator (Hidden temporarily) -->
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="8,4" Visibility="Collapsed"/>
+                    
+                    <!-- Rectangle Selection Toggle (Hidden temporarily) -->
+                    <ToggleButton x:Name="RectangleSelectToggle"
+                                  Content="Seleksi Kotak"
+                                  Checked="RectangleSelectToggle_Checked"
+                                  Unchecked="RectangleSelectToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Visibility="Collapsed"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Lasso Selection Toggle (Hidden temporarily) -->
+                    <ToggleButton x:Name="LassoSelectToggle"
+                                  Content="Seleksi Bebas"
+                                  Checked="LassoSelectToggle_Checked"
+                                  Unchecked="LassoSelectToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Visibility="Collapsed"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Move Selection Toggle (Hidden temporarily) -->
+                    <ToggleButton x:Name="MoveSelectionToggle"
+                                  Content="Pindah Seleksi"
+                                  Checked="MoveSelectionToggle_Checked"
+                                  Unchecked="MoveSelectionToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Visibility="Collapsed"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Apply Selection Button (Hidden temporarily) -->
+                    <Button x:Name="ApplySelectionButton"
+                            Content="Terapkan"
+                            Click="ApplySelectionMove_Click"
+                            IsEnabled="False"
+                            Visibility="Collapsed"
+                            Padding="12,6"
+                            Margin="4,0,0,0"
+                            FontSize="14"
+                            Background="#FF4CAF50"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.5"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <!-- Clear Selection Button (Hidden temporarily) -->
+                    <Button x:Name="ClearSelectionButton"
+                            Content="Hapus Seleksi"
+                            Click="ClearSelection_Click"
+                            IsEnabled="False"
+                            Visibility="Collapsed"
+                            Padding="12,6"
+                            Margin="4,0,0,0"
+                            FontSize="14"
+                            Background="#FFF44336"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.5"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </StackPanel>
             </Border>
         </DockPanel>

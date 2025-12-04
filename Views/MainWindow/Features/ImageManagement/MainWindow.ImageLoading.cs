@@ -102,6 +102,9 @@ namespace MiniPhotoshop.Views.MainWindow
             _filterService.SyncPreviewActivation();
             ResetBrightnessControl();
             
+            // Clear cached canvas pixels to force refresh with new image
+            _canvasService.RefreshImagePixels();
+            
             // Render image through canvas (image will be clipped to canvas bounds)
             UpdateCanvasDisplay();
 
@@ -140,6 +143,16 @@ namespace MiniPhotoshop.Views.MainWindow
             // Enable toolbar buttons
             ScalarOperationToggle.IsEnabled = true;
             ScalarOperationToggle.IsChecked = false;
+            ConvolutionMenu.IsEnabled = true;
+            MoveImageToggle.IsEnabled = true;
+            MoveImageToggle.IsChecked = false;
+            RectangleSelectToggle.IsEnabled = true;
+            RectangleSelectToggle.IsChecked = false;
+            LassoSelectToggle.IsEnabled = true;
+            LassoSelectToggle.IsChecked = false;
+            MoveSelectionToggle.IsEnabled = false; // Enabled after selection is made
+            ApplySelectionButton.IsEnabled = false;
+            ClearSelectionButton.IsEnabled = false;
             UpdateRotationButtonsState();
             UpdateDistortionButtonState();
             // UpdateArithmeticButtonsState();

@@ -97,6 +97,20 @@ namespace MiniPhotoshop.Views.MainWindow
             DistortionPanel.Visibility = Visibility.Collapsed;
             _distortionService.ClearDistortionSnapshot();
 
+            ConvolutionMenu.IsEnabled = false;
+
+            MoveImageToggle.IsEnabled = false;
+            MoveImageToggle.IsChecked = false;
+
+            RectangleSelectToggle.IsEnabled = false;
+            RectangleSelectToggle.IsChecked = false;
+            LassoSelectToggle.IsEnabled = false;
+            LassoSelectToggle.IsChecked = false;
+            MoveSelectionToggle.IsEnabled = false;
+            MoveSelectionToggle.IsChecked = false;
+            ApplySelectionButton.IsEnabled = false;
+            ClearSelectionButton.IsEnabled = false;
+
             HideSidebar();
         }
 

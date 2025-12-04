@@ -30,12 +30,15 @@ namespace MiniPhotoshop.Views.MainWindow
         private readonly IRotationService _rotationService;
         private readonly IDistortionService _distortionService;
         private readonly ICanvasService _canvasService;
+        private readonly IConvolutionService _convolutionService;
+        private readonly ISelectionService _selectionService;
 
         private BitmapSource? _arithmeticOverlayBitmap;
         private bool _suppressArithmeticToggleHandlers;
         private ArithmeticToggleMode _currentArithmeticMode = ArithmeticToggleMode.None;
         private bool _suppressScalarToggleHandlers;
         private ScalarToggleMode _currentScalarMode = ScalarToggleMode.None;
+        private bool _suppressSelectionToggleHandlers;
 
         private BitmapSource? _binaryOverlayBitmap;
         private bool _suppressBinaryToggleHandlers;
@@ -74,6 +77,8 @@ namespace MiniPhotoshop.Views.MainWindow
             _rotationService = _editor;
             _distortionService = _editor;
             _canvasService = _editor;
+            _convolutionService = _editor;
+            _selectionService = _editor;
 
             FilterPreviewList.ItemsSource = _state.PreviewItems;
             DisplayImage.RenderTransformOrigin = new Point(0.5, 0.5);

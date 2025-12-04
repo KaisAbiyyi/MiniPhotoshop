@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using MiniPhotoshop.Core.Models;
 using MiniPhotoshop.Views.Dialogs;
 
@@ -17,6 +18,39 @@ namespace MiniPhotoshop.Views.MainWindow
         /// State kanvas saat ini.
         /// </summary>
         private CanvasState? _currentCanvasState;
+
+        #endregion
+
+        #region Apply Image Processing Result
+
+        /// <summary>
+        /// Menerapkan hasil pemrosesan gambar ke canvas.
+        /// Digunakan oleh semua fitur seperti konvolusi, distorsi, rotasi, dll.
+        /// </summary>
+        /// <param name="result">Hasil bitmap dari pemrosesan</param>
+        /// <param name="operationName">Nama operasi untuk status text</param>
+        private void ApplyImageProcessingResult(BitmapSource result, string operationName)
+        {
+            if (result == null) return;
+
+            // Update the original bitmap with the processing result
+            _state.OriginalBitmap = result;
+            
+            // Clear cached pixels so canvas re-reads the updated bitmap
+            _canvasService.RefreshImagePixels();
+            
+            // Rebuild filter previews with new image
+            _filterService.BuildPreviews();
+            
+            // Update histogram
+            RenderHistograms();
+            
+            // Refresh canvas display
+            UpdateCanvasDisplay();
+            
+            // Update info
+            ImageInfoText.Text = $"{operationName} diterapkan | Resolusi: {result.PixelWidth} x {result.PixelHeight}";
+        }
 
         #endregion
 
