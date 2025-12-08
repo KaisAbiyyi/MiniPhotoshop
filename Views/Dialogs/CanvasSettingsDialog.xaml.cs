@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using MiniPhotoshop.Core.Models;
 
 namespace MiniPhotoshop.Views.Dialogs
 {
@@ -40,6 +41,44 @@ namespace MiniPhotoshop.Views.Dialogs
         public CanvasSettingsDialog()
         {
             InitializeComponent();
+            PopulatePresets();
+        }
+
+        #endregion
+
+        #region Initialization
+
+        /// <summary>
+        /// Populates the preset dropdown with all available canvas presets.
+        /// </summary>
+        private void PopulatePresets()
+        {
+            var presetsByCategory = CanvasPreset.Presets.GetAllPresets();
+
+            foreach (var category in presetsByCategory)
+            {
+                // Add category header
+                var header = new ComboBoxItem
+                {
+                    Content = $"── {category.Key} ──",
+                    IsEnabled = false,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100))
+                };
+                PresetComboBox.Items.Add(header);
+
+                // Add presets in category
+                foreach (var preset in category.Value)
+                {
+                    var item = new ComboBoxItem
+                    {
+                        Content = preset.ToString(),
+                        Tag = preset,
+                        Padding = new Thickness(12, 4, 4, 4)
+                    };
+                    PresetComboBox.Items.Add(item);
+                }
+            }
         }
 
         #endregion
@@ -99,6 +138,18 @@ namespace MiniPhotoshop.Views.Dialogs
         }
 
         /// <summary>
+        /// Handler for preset dropdown selection change.
+        /// </summary>
+        private void PresetComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (PresetComboBox.SelectedItem is ComboBoxItem item && item.Tag is CanvasPreset preset)
+            {
+                WidthInput.Text = preset.Width.ToString();
+                HeightInput.Text = preset.Height.ToString();
+            }
+        }
+
+        /// <summary>
         /// Handler untuk perubahan pilihan warna.
         /// </summary>
         private void ColorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -135,6 +186,27 @@ namespace MiniPhotoshop.Views.Dialogs
                 {
                     WidthInput.Text = width.ToString();
                     HeightInput.Text = height.ToString();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handler for quick preset buttons.
+        /// </summary>
+        private void QuickPreset_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string sizeTag)
+            {
+                string[] parts = sizeTag.Split(',');
+                if (parts.Length == 2 && 
+                    int.TryParse(parts[0], out int width) && 
+                    int.TryParse(parts[1], out int height))
+                {
+                    WidthInput.Text = width.ToString();
+                    HeightInput.Text = height.ToString();
+                    
+                    // Reset preset dropdown to custom
+                    PresetComboBox.SelectedIndex = 0;
                 }
             }
         }

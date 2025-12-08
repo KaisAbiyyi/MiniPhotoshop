@@ -16,6 +16,7 @@ namespace MiniPhotoshop.Views.MainWindow
         private bool _isMoveImageActive;
         private bool _isDraggingImage;
         private Point _dragStartPoint;
+        private Point _dragStartCanvasPoint;
         private int _dragStartOffsetX;
         private int _dragStartOffsetY;
 
@@ -79,7 +80,17 @@ namespace MiniPhotoshop.Views.MainWindow
                 return;
 
             _isDraggingImage = true;
-            _dragStartPoint = e.GetPosition(DisplayImage);
+
+            // Track start point in canvas coordinates (accounts for zoom + scrolling)
+            Point viewportPoint = e.GetPosition(WorkspaceScrollViewer);
+            Point contentPoint = new Point(
+                WorkspaceScrollViewer.HorizontalOffset + viewportPoint.X,
+                WorkspaceScrollViewer.VerticalOffset + viewportPoint.Y);
+
+            _dragStartPoint = viewportPoint; // keep for reference
+            _dragStartCanvasPoint = new Point(
+                contentPoint.X / _currentZoom,
+                contentPoint.Y / _currentZoom);
             
             // Get current offset
             var (currentOffsetX, currentOffsetY) = _canvasService.GetImageOffset();
@@ -97,13 +108,17 @@ namespace MiniPhotoshop.Views.MainWindow
             if (!_isDraggingImage || !_isMoveImageActive)
                 return;
 
-            Point currentPoint = e.GetPosition(DisplayImage);
-            
-            // Calculate delta based on current zoom level
-            // Δx = (currentX - startX) / zoom
-            // Δy = (currentY - startY) / zoom
-            double deltaX = (currentPoint.X - _dragStartPoint.X) / _currentZoom;
-            double deltaY = (currentPoint.Y - _dragStartPoint.Y) / _currentZoom;
+            // Compute cursor position in canvas space: (scroll offset + viewport point) / zoom
+            Point viewportPoint = e.GetPosition(WorkspaceScrollViewer);
+            Point contentPoint = new Point(
+                WorkspaceScrollViewer.HorizontalOffset + viewportPoint.X,
+                WorkspaceScrollViewer.VerticalOffset + viewportPoint.Y);
+
+            double canvasX = contentPoint.X / _currentZoom;
+            double canvasY = contentPoint.Y / _currentZoom;
+
+            double deltaX = canvasX - _dragStartCanvasPoint.X;
+            double deltaY = canvasY - _dragStartCanvasPoint.Y;
             
             // Calculate new position: Pos_baru = Pos_lama + Δ
             int newOffsetX = _dragStartOffsetX + (int)Math.Round(deltaX);
