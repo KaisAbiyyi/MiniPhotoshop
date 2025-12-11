@@ -6,7 +6,7 @@
         Width="520"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
-        Background="#FFF8FAFC">
+        Background="{StaticResource WindowBackgroundBrush}">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -21,7 +21,7 @@
                    Text="Pilih Tipe Gambar"
                    FontSize="16"
                    FontWeight="Bold"
-                   Foreground="#FF35424E"
+                   Foreground="{StaticResource TextBrush}"
                    Margin="0,0,0,10"/>
 
         <!-- Description -->
@@ -29,14 +29,15 @@
                    x:Name="DescriptionText"
                    Text="Pilih bagaimana Anda ingin menggunakan gambar yang di-drop:"
                    FontSize="12"
-                   Foreground="#FF51606A"
+                   Foreground="{StaticResource TextBrush}"
+                   Opacity="0.7"
                    TextWrapping="Wrap"
                    Margin="0,0,0,20"/>
 
         <!-- Options -->
         <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,0,0,20">
-            <Border Background="White"
-                    BorderBrush="#FFDFE2E5"
+            <Border Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrush}"
                     BorderThickness="2"
                     CornerRadius="8"
                     Padding="15"
@@ -49,18 +50,19 @@
                         <TextBlock Text="Gambar A (Gambar Utama)"
                                    FontSize="15"
                                    FontWeight="Bold"
-                                   Foreground="#FF1A56B3"
+                                   Foreground="{StaticResource AccentBrush}"
                                    Margin="0,0,0,5"/>
                         <TextBlock Text="Gambar yang akan diproses dan ditampilkan sebagai gambar utama"
                                    FontSize="12"
-                                   Foreground="#FF51606A"
+                                   Foreground="{StaticResource TextBrush}"
+                                   Opacity="0.7"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
                 </RadioButton>
             </Border>
             
-            <Border Background="White"
-                    BorderBrush="#FFDFE2E5"
+            <Border Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrush}"
                     BorderThickness="2"
                     CornerRadius="8"
                     Padding="15">
@@ -71,11 +73,12 @@
                         <TextBlock Text="Gambar B (Untuk Operasi)"
                                    FontSize="15"
                                    FontWeight="Bold"
-                                   Foreground="#FF1A56B3"
+                                   Foreground="{StaticResource AccentBrush}"
                                    Margin="0,0,0,5"/>
                         <TextBlock Text="Gambar yang akan digunakan untuk operasi aritmatika dan biner"
                                    FontSize="12"
-                                   Foreground="#FF51606A"
+                                   Foreground="{StaticResource TextBrush}"
+                                   Opacity="0.7"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
                 </RadioButton>
@@ -92,15 +95,15 @@
                     Margin="0,0,10,0"
                     MinWidth="80"
                     Background="Transparent"
-                    BorderBrush="#FFDFE2E5"
+                    BorderBrush="{StaticResource BorderBrush}"
                     BorderThickness="1"
                     Cursor="Hand">
                 <Button.Style>
                     <Style TargetType="Button">
-                        <Setter Property="Foreground" Value="#FF35424E"/>
+                        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#FFF0F0F0"/>
+                                <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -110,7 +113,7 @@
                     Click="OkButton_Click"
                     Padding="20,8"
                     MinWidth="80"
-                    Background="#FF4C8BF5"
+                    Background="{StaticResource AccentBrush}"
                     Foreground="White"
                     BorderThickness="0"
                     Cursor="Hand">
@@ -118,7 +121,7 @@
                     <Style TargetType="Button">
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#FF3A7BE0"/>
+                                <Setter Property="Opacity" Value="0.9"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Media.Imaging;
 using MiniPhotoshop.Core.Enums;
 using MiniPhotoshop.Core.Models;
@@ -12,7 +13,7 @@ namespace MiniPhotoshop.Services.ImageEditor
         // lalu rebuild bitmap hasil akhir (sudah termasuk efek lain seperti negasi, brightness, dll.).
         public BitmapSource SetActiveFilter(ImageFilterMode mode)
         {
-            if (State.OriginalBitmap == null)
+            if (State.ImageObjects.Count == 0)
             {
                 // Tidak boleh ganti filter kalau belum ada gambar yang dimuat.
                 throw new InvalidOperationException("Tidak ada gambar yang dimuat.");
@@ -61,7 +62,7 @@ namespace MiniPhotoshop.Services.ImageEditor
         public IReadOnlyList<PreviewItem> BuildPreviews()
         {
             State.PreviewItems.Clear();
-            if (State.OriginalBitmap == null)
+            if (State.ImageObjects.Count == 0)
             {
                 // Kalau belum ada gambar, tidak ada preview yang perlu dibuat.
                 return State.PreviewItems;
@@ -102,7 +103,9 @@ namespace MiniPhotoshop.Services.ImageEditor
         // Jika sudah pernah dihitung sebelumnya, gunakan cache di State.FilterCache.
         private BitmapSource GetFilteredBitmap(ImageFilterMode mode)
         {
-            if (State.OriginalBitmap == null)
+            // Use selected image or first image
+            var selectedImage = GetSelectedImage() ?? State.ImageObjects.FirstOrDefault();
+            if (selectedImage == null)
             {
                 throw new InvalidOperationException("Tidak ada gambar yang dimuat.");
             }
@@ -125,7 +128,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                 // Grayscale: gunakan nilai gray (luminance) yang sudah disimpan di PixelCache untuk R,G,B.
                 ImageFilterMode.Grayscale => CreateFilteredBitmap((r, g, b, gray) => (gray, gray, gray)),
                 // Mode Original: pakai bitmap asli tanpa modifikasi.
-                _ => State.OriginalBitmap
+                _ => selectedImage.Bitmap
             };
 
             // Simpan ke cache supaya pemanggilan berikutnya lebih cepat.

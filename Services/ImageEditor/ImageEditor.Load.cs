@@ -36,6 +36,10 @@ namespace MiniPhotoshop.Services.ImageEditor
 
             // Simpan bitmap asli ke state utama.
             State.OriginalBitmap = bitmap;
+
+            // Add to ImageObjects for multi-image support
+            PlaceImageOnCanvas(bitmap);
+
             // Cache versi "Original" di kamus filter, supaya bisa diakses cepat.
             State.FilterCache[ImageFilterMode.Original] = bitmap;
             // Ekstrak semua pixel ke bentuk array 3D agar operasi lanjutan lebih cepat.

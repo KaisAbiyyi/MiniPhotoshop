@@ -143,9 +143,8 @@ namespace MiniPhotoshop.Views.MainWindow
             // Enable toolbar buttons
             ScalarOperationToggle.IsEnabled = true;
             ScalarOperationToggle.IsChecked = false;
-            ConvolutionMenu.IsEnabled = true;
-            MoveImageToggle.IsEnabled = true;
-            MoveImageToggle.IsChecked = false;
+            // MoveImageToggle.IsEnabled = true; // Removed
+            // MoveImageToggle.IsChecked = false; // Removed
             RectangleSelectToggle.IsEnabled = true;
             RectangleSelectToggle.IsChecked = false;
             LassoSelectToggle.IsEnabled = true;
@@ -153,10 +152,8 @@ namespace MiniPhotoshop.Views.MainWindow
             MoveSelectionToggle.IsEnabled = false; // Enabled after selection is made
             ApplySelectionButton.IsEnabled = false;
             ClearSelectionButton.IsEnabled = false;
-            UpdateRotationButtonsState();
-            UpdateDistortionButtonState();
-            // UpdateArithmeticButtonsState();
-            // UpdateBinaryButtonsState();
+            
+            UpdateToolbarState(); // Centralized state update
 
             ShowSidebar();
             RenderHistograms();

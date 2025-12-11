@@ -6,17 +6,19 @@
         Width="350"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
-        Background="#FFF8FAFC"
+        Background="{StaticResource WindowBackgroundBrush}"
         SizeToContent="Height">
     <Border Padding="20">
         <StackPanel>
             <TextBlock Text="Operasi Skalar pada Citra"
                        FontSize="16"
                        FontWeight="Bold"
+                       Foreground="{StaticResource TextBrush}"
                        Margin="0,0,0,20"/>
             
             <TextBlock Text="Pilih Operasi:"
                        FontSize="12"
+                       Foreground="{StaticResource TextBrush}"
                        Margin="0,0,0,8"/>
             
             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
@@ -24,14 +26,17 @@
                              Content="Kali (A × c)"
                              IsChecked="True"
                              Margin="0,0,20,0"
-                             VerticalAlignment="Center"/>
+                             VerticalAlignment="Center"
+                             Foreground="{StaticResource TextBrush}"/>
                 <RadioButton x:Name="DivideRadio"
                              Content="Bagi (A ÷ c)"
-                             VerticalAlignment="Center"/>
+                             VerticalAlignment="Center"
+                             Foreground="{StaticResource TextBrush}"/>
             </StackPanel>
             
             <TextBlock Text="Nilai Skalar (c):"
                        FontSize="12"
+                       Foreground="{StaticResource TextBrush}"
                        Margin="0,0,0,8"/>
             
             <TextBox x:Name="ScalarValueBox"
@@ -45,14 +50,16 @@
                         Click="Cancel_Click"
                         Padding="20,8"
                         Margin="0,0,10,0"
-                        MinWidth="80"/>
+                        MinWidth="80"
+                        Background="{StaticResource SurfaceBrush}"
+                        Foreground="{StaticResource TextBrush}"/>
                 <Button Content="Terapkan"
                         Click="Apply_Click"
                         Padding="20,8"
                         MinWidth="80"
-                        Background="#FF4C8BF5"
+                        Background="{StaticResource AccentBrush}"
                         Foreground="White"
-                        BorderBrush="#FF4C8BF5"/>
+                        BorderBrush="{StaticResource AccentBrush}"/>
             </StackPanel>
         </StackPanel>
     </Border>

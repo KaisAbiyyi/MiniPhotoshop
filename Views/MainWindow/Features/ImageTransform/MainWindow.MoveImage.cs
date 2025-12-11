@@ -24,11 +24,12 @@ namespace MiniPhotoshop.Views.MainWindow
 
         #region Toggle Handlers
 
+        /*
         private void MoveImageToggle_Checked(object sender, RoutedEventArgs e)
         {
-            if (_state.OriginalBitmap == null)
+            if (_state.ImageObjects.Count == 0)
             {
-                MoveImageToggle.IsChecked = false;
+                // MoveImageToggle.IsChecked = false;
                 MessageBox.Show("Silakan muat gambar terlebih dahulu.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -47,6 +48,7 @@ namespace MiniPhotoshop.Views.MainWindow
             // Update status
             ImageInfoText.Text = "Mode Pindah Gambar: Klik dan seret untuk memindahkan gambar di kanvas";
         }
+        */
 
         private void MoveImageToggle_Unchecked(object sender, RoutedEventArgs e)
         {
@@ -63,10 +65,10 @@ namespace MiniPhotoshop.Views.MainWindow
             DisplayImage.MouseLeave -= MoveImage_MouseLeave;
 
             // Update status
-            if (_state.OriginalBitmap != null)
+            var selected = _imageObjectManager.GetSelectedImage();
+            if (selected != null)
             {
-                var (offsetX, offsetY) = _canvasService.GetImageOffset();
-                ImageInfoText.Text = $"Posisi gambar: ({offsetX}, {offsetY})";
+                ImageInfoText.Text = $"Posisi gambar: ({selected.OffsetX}, {selected.OffsetY})";
             }
         }
 
@@ -76,8 +78,17 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void MoveImage_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (!_isMoveImageActive || _state.OriginalBitmap == null)
+            if (!_isMoveImageActive || _state.ImageObjects.Count == 0)
                 return;
+
+            var selected = _imageObjectManager.GetSelectedImage();
+            if (selected == null)
+            {
+                // Try to select image at click point
+                // This logic is similar to Selection Tool but integrated here for convenience
+                // For now, just return if nothing selected
+                return;
+            }
 
             _isDraggingImage = true;
 
@@ -93,9 +104,8 @@ namespace MiniPhotoshop.Views.MainWindow
                 contentPoint.Y / _currentZoom);
             
             // Get current offset
-            var (currentOffsetX, currentOffsetY) = _canvasService.GetImageOffset();
-            _dragStartOffsetX = currentOffsetX;
-            _dragStartOffsetY = currentOffsetY;
+            _dragStartOffsetX = selected.OffsetX;
+            _dragStartOffsetY = selected.OffsetY;
             
             // Capture mouse for tracking outside control
             DisplayImage.CaptureMouse();
@@ -125,15 +135,7 @@ namespace MiniPhotoshop.Views.MainWindow
             int newOffsetY = _dragStartOffsetY + (int)Math.Round(deltaY);
             
             // Update offset and render canvas
-            _canvasService.SetImageOffset(newOffsetX, newOffsetY);
-            
-            // Also update local canvas state
-            if (_currentCanvasState != null)
-            {
-                _currentCanvasState.ImageOffsetX = newOffsetX;
-                _currentCanvasState.ImageOffsetY = newOffsetY;
-            }
-            
+            _imageObjectManager.SetSelectedImagePosition(newOffsetX, newOffsetY);
             UpdateCanvasDisplay();
             
             // Update status with current position
@@ -151,8 +153,11 @@ namespace MiniPhotoshop.Views.MainWindow
             DisplayImage.ReleaseMouseCapture();
             
             // Show final position
-            var (finalOffsetX, finalOffsetY) = _canvasService.GetImageOffset();
-            ImageInfoText.Text = $"Gambar dipindahkan ke posisi ({finalOffsetX}, {finalOffsetY})";
+            var selected = _imageObjectManager.GetSelectedImage();
+            if (selected != null)
+            {
+                ImageInfoText.Text = $"Gambar dipindahkan ke posisi ({selected.OffsetX}, {selected.OffsetY})";
+            }
             
             e.Handled = true;
         }
@@ -172,11 +177,15 @@ namespace MiniPhotoshop.Views.MainWindow
         /// </summary>
         private void CenterImageOnCanvas()
         {
-            if (_state.OriginalBitmap == null || _currentCanvasState == null)
+            if (_state.ImageObjects.Count == 0 || _currentCanvasState == null)
                 return;
 
+            var selected = _imageObjectManager.GetSelectedImage();
+            if (selected == null) return;
+
             var (canvasWidth, canvasHeight) = _canvasService.GetCanvasDimensions();
-            var (imageWidth, imageHeight) = _canvasService.GetOriginalImageDimensions();
+            int imageWidth = selected.Width;
+            int imageHeight = selected.Height;
 
             if (imageWidth == 0 || imageHeight == 0)
                 return;
@@ -186,9 +195,7 @@ namespace MiniPhotoshop.Views.MainWindow
             int centerY = (canvasHeight - imageHeight) / 2;
 
             // Update offset
-            _canvasService.SetImageOffset(centerX, centerY);
-            _currentCanvasState.ImageOffsetX = centerX;
-            _currentCanvasState.ImageOffsetY = centerY;
+            _imageObjectManager.SetSelectedImagePosition(centerX, centerY);
 
             UpdateCanvasDisplay();
         }
@@ -201,9 +208,7 @@ namespace MiniPhotoshop.Views.MainWindow
             if (_currentCanvasState == null)
                 return;
 
-            _canvasService.SetImageOffset(0, 0);
-            _currentCanvasState.ImageOffsetX = 0;
-            _currentCanvasState.ImageOffsetY = 0;
+            _imageObjectManager.SetSelectedImagePosition(0, 0);
 
             UpdateCanvasDisplay();
         }

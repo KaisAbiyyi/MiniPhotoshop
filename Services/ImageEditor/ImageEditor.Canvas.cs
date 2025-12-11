@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -88,12 +89,13 @@ namespace MiniPhotoshop.Services.ImageEditor
             int canvasWidth = _canvasState.Width;
             int canvasHeight = _canvasState.Height;
             Color backgroundColor = _canvasState.BackgroundColor;
-            int offsetX = _canvasState.ImageOffsetX;
-            int offsetY = _canvasState.ImageOffsetY;
 
             // Create canvas buffer
             int stride = canvasWidth * 4;
             byte[] buffer = new byte[stride * canvasHeight];
+            
+            // Initialize MetadataCache
+            State.MetadataCache = new PixelMetadata[canvasWidth, canvasHeight];
 
             byte bgB = backgroundColor.B;
             byte bgG = backgroundColor.G;
@@ -108,28 +110,25 @@ namespace MiniPhotoshop.Services.ImageEditor
                 buffer[i + 2] = bgR;
                 buffer[i + 3] = bgA;
             }
-
-            // If there's an image loaded, place it at offset position
-            if (State.OriginalBitmap != null)
+            
+            // Render images sorted by ZIndex
+            var sortedImages = System.Linq.Enumerable.OrderBy(State.ImageObjects, x => x.ZIndex).ToList();
+            
+            foreach (var imgObj in sortedImages)
             {
-                BitmapSource image = EnsureBgra32(State.OriginalBitmap);
+                if (!imgObj.IsVisible) continue;
+                
+                BitmapSource image = EnsureBgra32(imgObj.Bitmap);
                 int imageWidth = image.PixelWidth;
                 int imageHeight = image.PixelHeight;
-
-                // Store original image pixels for future drag feature
+                int offsetX = imgObj.OffsetX;
+                int offsetY = imgObj.OffsetY;
+                
                 int imageStride = imageWidth * 4;
-                if (_originalImagePixels == null || 
-                    _originalImageWidth != imageWidth || 
-                    _originalImageHeight != imageHeight)
-                {
-                    _originalImagePixels = new byte[imageStride * imageHeight];
-                    image.CopyPixels(_originalImagePixels, imageStride, 0);
-                    _originalImageWidth = imageWidth;
-                    _originalImageHeight = imageHeight;
-                }
-
-                // Calculate visible region of image on canvas
-                // Only copy pixels that fall within canvas bounds
+                byte[] imagePixels = new byte[imageStride * imageHeight];
+                image.CopyPixels(imagePixels, imageStride, 0);
+                
+                // Calculate visible region
                 int srcStartX = Math.Max(0, -offsetX);
                 int srcStartY = Math.Max(0, -offsetY);
                 int dstStartX = Math.Max(0, offsetX);
@@ -150,20 +149,114 @@ namespace MiniPhotoshop.Services.ImageEditor
                             int srcX = srcStartX + x;
                             int dstX = dstStartX + x;
                             
-                            int srcIndex = srcY * imageStride + srcX * 4;
-                            int dstIndex = dstY * stride + dstX * 4;
-
-                            // Copy BGRA values from image to canvas
-                            buffer[dstIndex] = _originalImagePixels[srcIndex];         // B
-                            buffer[dstIndex + 1] = _originalImagePixels[srcIndex + 1]; // G
-                            buffer[dstIndex + 2] = _originalImagePixels[srcIndex + 2]; // R
-                            buffer[dstIndex + 3] = _originalImagePixels[srcIndex + 3]; // A
+                            int srcIndex = (srcY * imageStride) + (srcX * 4);
+                            int dstIndex = (dstY * stride) + (dstX * 4);
+                            
+                            byte srcA = imagePixels[srcIndex + 3];
+                            
+                            if (srcA > 0)
+                            {
+                                float alpha = srcA / 255f;
+                                float invAlpha = 1.0f - alpha;
+                                
+                                buffer[dstIndex] = (byte)((imagePixels[srcIndex] * alpha) + (buffer[dstIndex] * invAlpha));     // B
+                                buffer[dstIndex + 1] = (byte)((imagePixels[srcIndex + 1] * alpha) + (buffer[dstIndex + 1] * invAlpha)); // G
+                                buffer[dstIndex + 2] = (byte)((imagePixels[srcIndex + 2] * alpha) + (buffer[dstIndex + 2] * invAlpha)); // R
+                                buffer[dstIndex + 3] = 255; 
+                                
+                                // Update Metadata
+                                State.MetadataCache[dstX, dstY] = new PixelMetadata
+                                {
+                                    ImageObjectId = imgObj.Id,
+                                    LocalX = srcX,
+                                    LocalY = srcY
+                                };
+                            }
                         }
+                    }
+
+                    // Draw selection border if selected
+                    if (imgObj.IsSelected)
+                    {
+                        DrawSelectionBorder(buffer, canvasWidth, canvasHeight, dstStartX, dstStartY, copyWidth, copyHeight);
                     }
                 }
             }
 
             return CreateBitmapFromBuffer(buffer, canvasWidth, canvasHeight);
+        }
+
+        private void DrawSelectionBorder(byte[] buffer, int canvasWidth, int canvasHeight, int x, int y, int width, int height)
+        {
+            int stride = canvasWidth * 4;
+            int thickness = 2;
+            byte borderR = 0, borderG = 120, borderB = 215; // Windows Blue
+
+            // Top and Bottom
+            for (int i = 0; i < width; i++)
+            {
+                for (int t = 0; t < thickness; t++)
+                {
+                    // Top
+                    int topY = y + t;
+                    if (topY < canvasHeight)
+                    {
+                        int idx = (topY * stride) + ((x + i) * 4);
+                        if (idx >= 0 && idx < buffer.Length - 4)
+                        {
+                            buffer[idx] = borderB;
+                            buffer[idx + 1] = borderG;
+                            buffer[idx + 2] = borderR;
+                        }
+                    }
+
+                    // Bottom
+                    int bottomY = y + height - 1 - t;
+                    if (bottomY >= 0)
+                    {
+                        int idx = (bottomY * stride) + ((x + i) * 4);
+                        if (idx >= 0 && idx < buffer.Length - 4)
+                        {
+                            buffer[idx] = borderB;
+                            buffer[idx + 1] = borderG;
+                            buffer[idx + 2] = borderR;
+                        }
+                    }
+                }
+            }
+
+            // Left and Right
+            for (int i = 0; i < height; i++)
+            {
+                for (int t = 0; t < thickness; t++)
+                {
+                    // Left
+                    int leftX = x + t;
+                    if (leftX < canvasWidth)
+                    {
+                        int idx = ((y + i) * stride) + (leftX * 4);
+                        if (idx >= 0 && idx < buffer.Length - 4)
+                        {
+                            buffer[idx] = borderB;
+                            buffer[idx + 1] = borderG;
+                            buffer[idx + 2] = borderR;
+                        }
+                    }
+
+                    // Right
+                    int rightX = x + width - 1 - t;
+                    if (rightX >= 0)
+                    {
+                        int idx = ((y + i) * stride) + (rightX * 4);
+                        if (idx >= 0 && idx < buffer.Length - 4)
+                        {
+                            buffer[idx] = borderB;
+                            buffer[idx + 1] = borderG;
+                            buffer[idx + 2] = borderR;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -184,8 +277,8 @@ namespace MiniPhotoshop.Services.ImageEditor
                 _canvasState.IsInitialized = true;
             }
 
-            // Store original bitmap in state
-            State.OriginalBitmap = image;
+            // Add image to object manager
+            AddImage(image, "Layer " + (State.ImageObjects.Count + 1));
             
             // Clear cached original pixels to force refresh
             _originalImagePixels = null;

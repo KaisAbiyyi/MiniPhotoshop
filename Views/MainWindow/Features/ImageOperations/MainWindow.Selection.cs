@@ -373,10 +373,10 @@ namespace MiniPhotoshop.Views.MainWindow
             {
                 MoveSelectionToggle.IsChecked = false;
             }
-            if (activeMode != SelectionToolMode.None && MoveImageToggle.IsChecked == true)
-            {
-                MoveImageToggle.IsChecked = false;
-            }
+            // if (activeMode != SelectionToolMode.None && MoveImageToggle.IsChecked == true)
+            // {
+            //     MoveImageToggle.IsChecked = false;
+            // }
             
             _suppressSelectionToggleHandlers = false;
         }

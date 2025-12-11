@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Imaging;
@@ -15,15 +16,22 @@ namespace MiniPhotoshop.Core.Models
         public ImageWorkspaceState()
         {
             PreviewItems = new ObservableCollection<PreviewItem>();
+            ImageObjects = new ObservableCollection<ImageObject>();
         }
 
         public BitmapSource? OriginalBitmap { get; set; }
+
+        public ObservableCollection<ImageObject> ImageObjects { get; }
+
+        public Guid? SelectedImageId { get; set; }
 
         public Dictionary<ImageFilterMode, BitmapSource> FilterCache { get; } = new();
 
         public ObservableCollection<PreviewItem> PreviewItems { get; }
 
         public byte[,,]? PixelCache { get; set; }
+
+        public PixelMetadata[,]? MetadataCache { get; set; }
 
         public int CachedWidth { get; set; }
 
@@ -52,9 +60,12 @@ namespace MiniPhotoshop.Core.Models
         public void Reset()
         {
             OriginalBitmap = null;
+            ImageObjects.Clear();
+            SelectedImageId = null;
             FilterCache.Clear();
             PreviewItems.Clear();
             PixelCache = null;
+            MetadataCache = null;
             CachedWidth = 0;
             CachedHeight = 0;
             CurrentFilePath = null;

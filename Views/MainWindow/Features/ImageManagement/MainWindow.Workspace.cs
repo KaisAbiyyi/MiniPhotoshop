@@ -99,8 +99,8 @@ namespace MiniPhotoshop.Views.MainWindow
 
             ConvolutionMenu.IsEnabled = false;
 
-            MoveImageToggle.IsEnabled = false;
-            MoveImageToggle.IsChecked = false;
+            // MoveImageToggle.IsEnabled = false;
+            // MoveImageToggle.IsChecked = false;
 
             RectangleSelectToggle.IsEnabled = false;
             RectangleSelectToggle.IsChecked = false;
@@ -116,7 +116,7 @@ namespace MiniPhotoshop.Views.MainWindow
 
         private void ShowSidebar()
         {
-            SidebarColumn.Width = new GridLength(280);
+            SidebarColumn.Width = new GridLength(320);
             SidebarPanel.Visibility = Visibility.Visible;
         }
 

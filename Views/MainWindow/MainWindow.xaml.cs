@@ -32,6 +32,7 @@ namespace MiniPhotoshop.Views.MainWindow
         private readonly ICanvasService _canvasService;
         private readonly IConvolutionService _convolutionService;
         private readonly ISelectionService _selectionService;
+        private readonly IImageObjectManager _imageObjectManager;
 
         private BitmapSource? _arithmeticOverlayBitmap;
         private bool _suppressArithmeticToggleHandlers;
@@ -79,6 +80,7 @@ namespace MiniPhotoshop.Views.MainWindow
             _canvasService = _editor;
             _convolutionService = _editor;
             _selectionService = _editor;
+            _imageObjectManager = _editor;
 
             FilterPreviewList.ItemsSource = _state.PreviewItems;
             DisplayImage.RenderTransformOrigin = new Point(0.5, 0.5);

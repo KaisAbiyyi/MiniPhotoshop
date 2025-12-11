@@ -4,7 +4,8 @@
         Title="Histogram Detail"
         Height="450"
         Width="650"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource WindowBackgroundBrush}">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -17,6 +18,7 @@
                    Text="Histogram - Red Channel"
                    FontSize="18"
                    FontWeight="Bold"
+                   Foreground="{StaticResource TextBrush}"
                    Margin="0,0,0,15"/>
         
         <!-- Histogram Area -->
@@ -32,16 +34,16 @@
             
             <!-- Y-Axis Labels -->
             <StackPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" Margin="0,0,8,0">
-                <TextBlock x:Name="MaxLabel" Text="1000" FontSize="9" HorizontalAlignment="Right"/>
-                <TextBlock x:Name="MidLabel" Text="500" FontSize="9" HorizontalAlignment="Right" Margin="0,80,0,0"/>
-                <TextBlock Text="0" FontSize="9" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                <TextBlock x:Name="MaxLabel" Text="1000" FontSize="9" HorizontalAlignment="Right" Foreground="{StaticResource TextBrush}"/>
+                <TextBlock x:Name="MidLabel" Text="500" FontSize="9" HorizontalAlignment="Right" Margin="0,80,0,0" Foreground="{StaticResource TextBrush}"/>
+                <TextBlock Text="0" FontSize="9" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="{StaticResource TextBrush}"/>
             </StackPanel>
             
             <!-- Histogram Canvas -->
             <Border Grid.Row="0" Grid.Column="1" 
-                    BorderBrush="#DDD" 
+                    BorderBrush="{StaticResource BorderBrush}" 
                     BorderThickness="1" 
-                    Background="White">
+                    Background="{StaticResource SurfaceBrush}">
                 <Canvas x:Name="HistogramCanvas"/>
             </Border>
             
@@ -56,11 +58,11 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 
-                <TextBlock Grid.Column="0" Text="0" FontSize="9" HorizontalAlignment="Left"/>
-                <TextBlock Grid.Column="1" Text="64" FontSize="9" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Column="2" Text="128" FontSize="9" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Column="3" Text="192" FontSize="9" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Column="4" Text="255" FontSize="9" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="0" Text="0" FontSize="9" HorizontalAlignment="Left" Foreground="{StaticResource TextBrush}"/>
+                <TextBlock Grid.Column="1" Text="64" FontSize="9" HorizontalAlignment="Center" Foreground="{StaticResource TextBrush}"/>
+                <TextBlock Grid.Column="2" Text="128" FontSize="9" HorizontalAlignment="Center" Foreground="{StaticResource TextBrush}"/>
+                <TextBlock Grid.Column="3" Text="192" FontSize="9" HorizontalAlignment="Center" Foreground="{StaticResource TextBrush}"/>
+                <TextBlock Grid.Column="4" Text="255" FontSize="9" HorizontalAlignment="Right" Foreground="{StaticResource TextBrush}"/>
             </Grid>
             
             <!-- Axis Title -->
@@ -68,7 +70,8 @@
                        Text="Intensitas (0-255)"
                        FontSize="10"
                        HorizontalAlignment="Center"
-                       Margin="0,20,0,0"/>
+                       Margin="0,20,0,0"
+                       Foreground="{StaticResource TextBrush}"/>
         </Grid>
         
         <!-- Info -->
@@ -76,7 +79,8 @@
                    Grid.Row="2"
                    Text="Total pixels: 0"
                    FontSize="11"
-                   Foreground="Gray"
+                   Foreground="{StaticResource TextBrush}"
+                   Opacity="0.7"
                    Margin="0,15,0,0"
                    HorizontalAlignment="Center"/>
     </Grid>
