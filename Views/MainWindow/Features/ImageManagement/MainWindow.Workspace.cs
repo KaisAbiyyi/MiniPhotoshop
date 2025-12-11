@@ -98,6 +98,7 @@ namespace MiniPhotoshop.Views.MainWindow
             _distortionService.ClearDistortionSnapshot();
 
             ConvolutionMenu.IsEnabled = false;
+            EdgeDetectionMenu.IsEnabled = false;
 
             // MoveImageToggle.IsEnabled = false;
             // MoveImageToggle.IsChecked = false;

@@ -26,7 +26,8 @@ namespace MiniPhotoshop.Services.ImageEditor
         ICanvasService,
         IConvolutionService,
         ISelectionService,
-        IImageObjectManager
+        IImageObjectManager,
+        IEdgeDetectionService
     {
         private const int PreviewThumbnailSize = 160;
 

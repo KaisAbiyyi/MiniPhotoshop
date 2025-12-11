@@ -275,15 +275,30 @@
                                 <MenuItem Header="7x7" Tag="7" Click="ConvolutionGaussianBlur_Click"/>
                             </MenuItem>
                             <Separator/>
-                            <MenuItem Header="Edge Detection">
-                                <MenuItem Header="Sobel Horizontal" Click="ConvolutionSobelH_Click"/>
-                                <MenuItem Header="Sobel Vertical" Click="ConvolutionSobelV_Click"/>
-                                <MenuItem Header="Laplacian" Click="ConvolutionLaplacian_Click"/>
-                            </MenuItem>
-                            <Separator/>
                             <MenuItem Header="Emboss" Click="ConvolutionEmboss_Click"/>
                             <Separator/>
                             <MenuItem Header="Custom Kernel..." Click="ConvolutionCustom_Click"/>
+                        </MenuItem>
+                    </Menu>
+                    
+                    <!-- Edge Detection Menu (separate from Convolution) -->
+                    <Menu Background="Transparent"
+                          BorderThickness="0"
+                          Margin="4,0,0,0"
+                          VerticalAlignment="Center"
+                          FontSize="14"
+                          x:Name="EdgeDetectionMenu"
+                          IsEnabled="False">
+                        <MenuItem Header="Deteksi Tepi"
+                                  Padding="16,6">
+                            <MenuItem Header="Sobel">
+                                <MenuItem Header="Horizontal (Gy)" Click="EdgeDetectionSobelH_Click"/>
+                                <MenuItem Header="Vertikal (Gx)" Click="EdgeDetectionSobelV_Click"/>
+                                <MenuItem Header="Magnitudo (G)" Click="EdgeDetectionSobelMagnitude_Click"/>
+                            </MenuItem>
+                            <MenuItem Header="Prewitt" Click="EdgeDetectionPrewitt_Click"/>
+                            <MenuItem Header="Robert Cross" Click="EdgeDetectionRobert_Click"/>
+                            <MenuItem Header="Canny" Click="EdgeDetectionCanny_Click"/>
                         </MenuItem>
                     </Menu>
                     

@@ -33,6 +33,7 @@ namespace MiniPhotoshop.Views.MainWindow
             DistortionButton.IsEnabled = hasSelection;
             // Convolution operates on the global OriginalBitmap, not the specific selection
             ConvolutionMenu.IsEnabled = _state.OriginalBitmap != null;
+            EdgeDetectionMenu.IsEnabled = _state.OriginalBitmap != null;
             NegationButton.IsEnabled = hasSelection;
             
             // Reset Image menu item
