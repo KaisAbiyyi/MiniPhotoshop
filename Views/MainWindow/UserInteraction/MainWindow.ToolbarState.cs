@@ -31,7 +31,8 @@ namespace MiniPhotoshop.Views.MainWindow
             ColorSelectionToggle.IsEnabled = hasSelection;
             RotateButton.IsEnabled = hasSelection;
             DistortionButton.IsEnabled = hasSelection;
-            ConvolutionMenu.IsEnabled = hasSelection;
+            // Convolution operates on the global OriginalBitmap, not the specific selection
+            ConvolutionMenu.IsEnabled = _state.OriginalBitmap != null;
             NegationButton.IsEnabled = hasSelection;
             
             // Reset Image menu item

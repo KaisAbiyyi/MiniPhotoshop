@@ -34,7 +34,30 @@ namespace MiniPhotoshop.Views.MainWindow
             if (result == null) return;
 
             // Update the original bitmap with the processing result
+            var oldBitmap = _state.OriginalBitmap;
             _state.OriginalBitmap = result;
+
+            // Sync with ImageObjects (Canvas Rendering)
+            // We need to update the ImageObject that corresponds to the processed bitmap
+            // so that the canvas renderer (which uses ImageObjects) shows the change.
+            var imageObj = System.Linq.Enumerable.FirstOrDefault(_state.ImageObjects, x => x.Bitmap == oldBitmap);
+            if (imageObj != null)
+            {
+                imageObj.Bitmap = result;
+            }
+            else
+            {
+                // Fallback: Update selected or first if exact match not found
+                var selected = _imageObjectManager.GetSelectedImage();
+                if (selected != null)
+                {
+                    selected.Bitmap = result;
+                }
+                else if (_state.ImageObjects.Count > 0)
+                {
+                    _state.ImageObjects[0].Bitmap = result;
+                }
+            }
             
             // Clear cached pixels so canvas re-reads the updated bitmap
             _canvasService.RefreshImagePixels();

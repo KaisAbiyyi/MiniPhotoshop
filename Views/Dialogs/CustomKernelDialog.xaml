@@ -62,8 +62,12 @@
 
         <!-- Preset Buttons -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,16,0,0" HorizontalAlignment="Center">
-            <Button Content="Reset (0)"
+            <Button Content="Clear (0)"
                     Click="ResetKernel_Click"
+                    Padding="12,6"
+                    Margin="4,0"/>
+            <Button Content="Reset"
+                    Click="IdentityKernel_Click"
                     Padding="12,6"
                     Margin="4,0"/>
             <Button Content="Identity"
