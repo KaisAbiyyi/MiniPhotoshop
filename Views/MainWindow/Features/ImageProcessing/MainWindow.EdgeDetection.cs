@@ -93,9 +93,21 @@ namespace MiniPhotoshop.Views.MainWindow
         {
             try
             {
-                // Default thresholds: low=50, high=150
-                var result = _edgeDetectionService.ApplyCanny(50, 150);
-                ApplyEdgeDetectionResult(result, "Canny");
+                // Show dialog for Canny parameters
+                var dialog = new Dialogs.CannyEdgeDetectionDialog
+                {
+                    Owner = this
+                };
+                
+                if (dialog.ShowDialog() == true)
+                {
+                    var result = _edgeDetectionService.ApplyCanny(
+                        dialog.LowThreshold,
+                        dialog.HighThreshold,
+                        dialog.GaussianKernelSize,
+                        dialog.Sigma);
+                    ApplyEdgeDetectionResult(result, "Canny");
+                }
             }
             catch (Exception ex)
             {

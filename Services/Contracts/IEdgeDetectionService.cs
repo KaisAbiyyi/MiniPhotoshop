@@ -54,6 +54,8 @@ namespace MiniPhotoshop.Services.Contracts
         /// </summary>
         /// <param name="lowThreshold">Low threshold for weak edges (default: 50)</param>
         /// <param name="highThreshold">High threshold for strong edges (default: 150)</param>
-        BitmapSource ApplyCanny(double lowThreshold = 50, double highThreshold = 150);
+        /// <param name="gaussianKernelSize">Gaussian kernel size - must be odd (default: 5)</param>
+        /// <param name="sigma">Gaussian sigma value (default: 1.4)</param>
+        BitmapSource ApplyCanny(double lowThreshold = 50, double highThreshold = 150, int gaussianKernelSize = 5, double sigma = 1.4);
     }
 }

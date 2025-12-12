@@ -356,7 +356,7 @@ namespace MiniPhotoshop.Services.ImageEditor
         /// 4. Double Thresholding (strong/weak edges)
         /// 5. Edge Tracking by Hysteresis
         /// </summary>
-        public BitmapSource ApplyCanny(double lowThreshold = 50, double highThreshold = 150)
+        public BitmapSource ApplyCanny(double lowThreshold = 50, double highThreshold = 150, int gaussianKernelSize = 5, double sigma = 1.4)
         {
             if (State.OriginalBitmap == null)
             {
@@ -385,8 +385,8 @@ namespace MiniPhotoshop.Services.ImageEditor
                 }
             }
 
-            // Stage 1: Gaussian Blur (5x5 kernel, sigma ~1.4)
-            double[,] blurred = ApplyGaussianBlur(grayscale, width, height);
+            // Stage 1: Gaussian Blur with configurable kernel size and sigma
+            double[,] blurred = ApplyGaussianBlurWithSigma(grayscale, width, height, gaussianKernelSize, sigma);
 
             // Stage 2: Gradient Calculation using Sobel
             double[,] magnitude = new double[height, width];
@@ -421,55 +421,81 @@ namespace MiniPhotoshop.Services.ImageEditor
         }
 
         /// <summary>
-        /// Stage 1: Apply Gaussian Blur with 5x5 kernel.
+        /// Stage 1: Apply Gaussian Blur with configurable kernel size and sigma.
         /// </summary>
-        private double[,] ApplyGaussianBlur(double[,] image, int width, int height)
+        private double[,] ApplyGaussianBlurWithSigma(double[,] image, int width, int height, int kernelSize, double sigma)
         {
-            // Gaussian kernel 5x5, sigma ~1.4
-            double[,] kernel = new double[,]
+            // Ensure kernel size is odd
+            if (kernelSize % 2 == 0) kernelSize++;
+            
+            int halfSize = kernelSize / 2;
+            
+            // Generate Gaussian kernel
+            double[,] kernel = new double[kernelSize, kernelSize];
+            double kernelSum = 0;
+            
+            for (int y = -halfSize; y <= halfSize; y++)
             {
-                { 2,  4,  5,  4, 2 },
-                { 4,  9, 12,  9, 4 },
-                { 5, 12, 15, 12, 5 },
-                { 4,  9, 12,  9, 4 },
-                { 2,  4,  5,  4, 2 }
-            };
-            double kernelSum = 159.0;
+                for (int x = -halfSize; x <= halfSize; x++)
+                {
+                    // Gaussian formula: G(x,y) = (1/(2*pi*sigma^2)) * e^(-(x^2+y^2)/(2*sigma^2))
+                    double value = Math.Exp(-(x * x + y * y) / (2 * sigma * sigma));
+                    kernel[y + halfSize, x + halfSize] = value;
+                    kernelSum += value;
+                }
+            }
+            
+            // Normalize kernel
+            for (int y = 0; y < kernelSize; y++)
+            {
+                for (int x = 0; x < kernelSize; x++)
+                {
+                    kernel[y, x] /= kernelSum;
+                }
+            }
 
             double[,] result = new double[height, width];
 
-            for (int y = 2; y < height - 2; y++)
+            for (int y = halfSize; y < height - halfSize; y++)
             {
-                for (int x = 2; x < width - 2; x++)
+                for (int x = halfSize; x < width - halfSize; x++)
                 {
                     double sum = 0;
-                    for (int ky = -2; ky <= 2; ky++)
+                    for (int ky = -halfSize; ky <= halfSize; ky++)
                     {
-                        for (int kx = -2; kx <= 2; kx++)
+                        for (int kx = -halfSize; kx <= halfSize; kx++)
                         {
-                            sum += image[y + ky, x + kx] * kernel[ky + 2, kx + 2];
+                            sum += image[y + ky, x + kx] * kernel[ky + halfSize, kx + halfSize];
                         }
                     }
-                    result[y, x] = sum / kernelSum;
+                    result[y, x] = sum;
                 }
             }
 
             // Copy border pixels
-            for (int y = 0; y < 2; y++)
+            for (int y = 0; y < halfSize; y++)
                 for (int x = 0; x < width; x++)
                     result[y, x] = image[y, x];
-            for (int y = height - 2; y < height; y++)
+            for (int y = height - halfSize; y < height; y++)
                 for (int x = 0; x < width; x++)
                     result[y, x] = image[y, x];
             for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < 2; x++)
+                for (int x = 0; x < halfSize; x++)
                     result[y, x] = image[y, x];
-                for (int x = width - 2; x < width; x++)
+                for (int x = width - halfSize; x < width; x++)
                     result[y, x] = image[y, x];
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Stage 1: Apply Gaussian Blur with 5x5 kernel (legacy method).
+        /// </summary>
+        private double[,] ApplyGaussianBlur(double[,] image, int width, int height)
+        {
+            return ApplyGaussianBlurWithSigma(image, width, height, 5, 1.4);
         }
 
         /// <summary>
