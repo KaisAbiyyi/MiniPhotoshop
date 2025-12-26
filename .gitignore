@@ -13,6 +13,10 @@ obj/
 *.suo
 *.sln.docstates
 
+.github/
+.idea/
+
+
 ##############################
 # Transient artifacts
 ##############################
