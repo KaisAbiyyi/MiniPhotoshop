@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
 C:\projects\MiniPhotoshop\App.xaml
-11407045341
+10947402920
 
-4-1041777327
+94-1316552097
 198338916705
-MainWindow.xaml;
+Views\Dialogs\BinaryOperationDialog.xaml;Views\Dialogs\CannyEdgeDetectionDialog.xaml;Views\Dialogs\CanvasSettingsDialog.xaml;Views\Dialogs\CustomKernelDialog.xaml;Views\Dialogs\ImageSelectionDialog.xaml;Views\Dialogs\OffsetDialog.xaml;Views\Dialogs\ScalarOperationDialog.xaml;Views\MainWindow\MainWindow.xaml;Views\Windows\GrayscaleComparisonWindow.xaml;Views\Windows\HistogramWindow.xaml;
 
 False
 

@@ -1,0 +1,725 @@
+<Window x:Class="MiniPhotoshop.Views.MainWindow.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Mini Photoshop"
+        Height="600"
+        Width="900"
+        MinHeight="450"
+        MinWidth="700"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        DragEnter="Window_DragEnter"
+        DragOver="Window_DragOver"
+        DragLeave="Window_DragLeave"
+        Background="#1E1E1E">
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar Utama -->
+        <DockPanel Grid.Row="0"
+                   Background="{StaticResource SurfaceBrush}"
+                   LastChildFill="False">
+            <Border BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="0,0,0,1"
+                    Padding="8,4"
+                    HorizontalAlignment="Stretch"
+                    Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}, Path=ActualWidth}">
+                <StackPanel Orientation="Horizontal">
+                    <!-- File Menu -->
+                    <Menu Background="Transparent"
+                          BorderThickness="0"
+                          Margin="0"
+                          VerticalAlignment="Center"
+                          FontSize="14">
+                        <MenuItem Header="_File"
+                                  Padding="16,6">
+                            <MenuItem Header="Buka Gambar..."
+                                      Click="SelectImageButton_Click"/>
+                            <MenuItem Header="Tambah Gambar B..."
+                                      Click="AddImageB_Click"
+                                      x:Name="AddImageBMenuItem"/>
+                            <Separator/>
+                            <MenuItem Header="Pengaturan Kanvas..."
+                                      Click="OpenCanvasSettingsDialog_Click"/>
+                            <Separator/>
+                            <MenuItem x:Name="ResetImageMenuItem"
+                                      Header="Reset Gambar"
+                                      Click="ResetImage_Click"
+                                      IsEnabled="False"/>
+                            <Separator/>
+                            <MenuItem x:Name="SavePixelsMenuItem"
+                                      Header="Simpan Pixel"
+                                      Click="SavePixelsButton_Click"
+                                      IsEnabled="False"/>
+                        </MenuItem>
+                    </Menu>
+                    
+                    <!-- Selection Tool -->
+                    <ToggleButton x:Name="SelectionToolToggle"
+                                  Content="Select"
+                                  Checked="SelectionToolToggle_Checked"
+                                  Unchecked="SelectionToolToggle_Unchecked"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Toggle Brightness -->
+                    <ToggleButton x:Name="BrightnessToggle"
+                                  Content="Brightness"
+                                  Checked="BrightnessToggle_Checked"
+                                  Unchecked="BrightnessToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Toggle Binary Threshold -->
+                    <ToggleButton x:Name="BinaryThresholdToggle"
+                                  Content="Binary Threshold"
+                                  Checked="BinaryThresholdToggle_Checked"
+                                  Unchecked="BinaryThresholdToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Grayscale Comparison -->
+                    <Button x:Name="GrayscaleCompareButton"
+                            Content="Grayscale Comparison"
+                            Click="ShowGrayscaleComparison_Click"
+                            IsEnabled="False"
+                            Padding="16,6"
+                            Margin="4,0,0,0"
+                            FontSize="14"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Foreground" Value="#FF35424E"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFE8F0FE"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Foreground" Value="#FFAAAAAA"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <!-- Operasi Aritmatika -->
+                    <ToggleButton x:Name="ArithmeticAddToggle"
+                                  Content="A + B"
+                                  Checked="ArithmeticAddToggle_Checked"
+                                  Unchecked="ArithmeticAddToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="ArithmeticToggle_RightClick"/>
+                    
+                    <ToggleButton x:Name="ArithmeticSubtractToggle"
+                                  Content="A - B"
+                                  Checked="ArithmeticSubtractToggle_Checked"
+                                  Unchecked="ArithmeticSubtractToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="ArithmeticToggle_RightClick"/>
+                    
+                    <ToggleButton x:Name="ArithmeticMultiplyToggle"
+                                  Content="A × B"
+                                  Checked="ArithmeticMultiplyToggle_Checked"
+                                  Unchecked="ArithmeticMultiplyToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="ArithmeticToggle_RightClick"/>
+                    
+                    <ToggleButton x:Name="ArithmeticDivideToggle"
+                                  Content="A ÷ B"
+                                  Checked="ArithmeticDivideToggle_Checked"
+                                  Unchecked="ArithmeticDivideToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="ArithmeticToggle_RightClick"/>
+                    
+                    <!-- Operasi Skalar -->
+                    <ToggleButton x:Name="ScalarOperationToggle"
+                                  Content="Operasi Skalar"
+                                  Checked="ScalarOperationToggle_Checked"
+                                  Unchecked="ScalarOperationToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Operasi Biner - 4 Toggle Terpisah -->
+                    <ToggleButton x:Name="BinaryAndToggle"
+                                  Content="AND"
+                                  Checked="BinaryAndToggle_Checked"
+                                  Unchecked="BinaryAndToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="BinaryToggle_RightClick"/>
+                    
+                    <ToggleButton x:Name="BinaryOrToggle"
+                                  Content="OR"
+                                  Checked="BinaryOrToggle_Checked"
+                                  Unchecked="BinaryOrToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="BinaryToggle_RightClick"/>
+                    
+                    <ToggleButton x:Name="BinaryNotToggle"
+                                  Content="NOT"
+                                  Checked="BinaryNotToggle_Checked"
+                                  Unchecked="BinaryNotToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <ToggleButton x:Name="BinaryXorToggle"
+                                  Content="XOR"
+                                  Checked="BinaryXorToggle_Checked"
+                                  Unchecked="BinaryXorToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"
+                                  MouseRightButtonDown="BinaryToggle_RightClick"/>
+                    
+                    <!-- Color Selection Toggle -->
+                    <ToggleButton x:Name="ColorSelectionToggle"
+                                  Content="Seleksi Warna"
+                                  Checked="ColorSelectionToggle_Checked"
+                                  Unchecked="ColorSelectionToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Button Rotasi -->
+                    <Button x:Name="RotateButton"
+                            Content="Rotasi"
+                            Click="RotateButton_Click"
+                            IsEnabled="False"
+                            Padding="16,6"
+                            Margin="4,0,0,0"
+                            FontSize="14"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Foreground" Value="#FF35424E"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFE8F0FE"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Foreground" Value="#FFAAAAAA"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <!-- Button Distorsi -->
+                    <Button x:Name="DistortionButton"
+                            Content="Distorsi"
+                            Click="DistortionButton_Click"
+                            IsEnabled="False"
+                            Padding="16,6"
+                            Margin="4,0,0,0"
+                            FontSize="14"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Foreground" Value="#FF35424E"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFE8F0FE"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Foreground" Value="#FFAAAAAA"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <!-- Convolution Menu -->
+                    <Menu Background="Transparent"
+                          BorderThickness="0"
+                          Margin="4,0,0,0"
+                          VerticalAlignment="Center"
+                          FontSize="14"
+                          x:Name="ConvolutionMenu"
+                          IsEnabled="False">
+                        <MenuItem Header="Konvolusi"
+                                  Padding="16,6">
+                            <MenuItem Header="Low Pass Filter">
+                                <MenuItem Header="3x3" Tag="3" Click="ConvolutionLowPass_Click"/>
+                                <MenuItem Header="5x5" Tag="5" Click="ConvolutionLowPass_Click"/>
+                                <MenuItem Header="7x7" Tag="7" Click="ConvolutionLowPass_Click"/>
+                            </MenuItem>
+                            <MenuItem Header="High Pass Filter" Click="ConvolutionHighPass_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Gaussian Blur">
+                                <MenuItem Header="3x3" Tag="3" Click="ConvolutionGaussianBlur_Click"/>
+                                <MenuItem Header="5x5" Tag="5" Click="ConvolutionGaussianBlur_Click"/>
+                                <MenuItem Header="7x7" Tag="7" Click="ConvolutionGaussianBlur_Click"/>
+                            </MenuItem>
+                            <Separator/>
+                            <MenuItem Header="Emboss" Click="ConvolutionEmboss_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Custom Kernel..." Click="ConvolutionCustom_Click"/>
+                        </MenuItem>
+                    </Menu>
+                    
+                    <!-- Edge Detection Menu (separate from Convolution) -->
+                    <Menu Background="Transparent"
+                          BorderThickness="0"
+                          Margin="4,0,0,0"
+                          VerticalAlignment="Center"
+                          FontSize="14"
+                          x:Name="EdgeDetectionMenu"
+                          IsEnabled="False">
+                        <MenuItem Header="Deteksi Tepi"
+                                  Padding="16,6">
+                            <MenuItem Header="Sobel">
+                                <MenuItem Header="Horizontal (Gy)" Click="EdgeDetectionSobelH_Click"/>
+                                <MenuItem Header="Vertikal (Gx)" Click="EdgeDetectionSobelV_Click"/>
+                                <MenuItem Header="Magnitudo (G)" Click="EdgeDetectionSobelMagnitude_Click"/>
+                            </MenuItem>
+                            <MenuItem Header="Prewitt" Click="EdgeDetectionPrewitt_Click"/>
+                            <MenuItem Header="Robert Cross" Click="EdgeDetectionRobert_Click"/>
+                            <MenuItem Header="Canny" Click="EdgeDetectionCanny_Click"/>
+                        </MenuItem>
+                    </Menu>
+
+                    <!-- Histogram Menu -->
+                    <Menu Background="Transparent"
+                          BorderThickness="0"
+                          Margin="4,0,0,0"
+                          VerticalAlignment="Center"
+                          FontSize="14"
+                          x:Name="HistogramMenu"
+                          IsEnabled="True">
+                        <MenuItem Header="Histogram Citra"
+                                  Padding="16,6">
+                            <MenuItem Header="Histogram Equalization" Click="HistogramEqualization_Click"/>
+                            <MenuItem Header="Linear Stretch Equalization" Click="HistogramLinearStretch_Click"/>
+                            <MenuItem Header="Adaptive Histogram Equalization" Click="HistogramAdaptiveEqualization_Click"/>
+                        </MenuItem>
+                    </Menu>
+                    
+                    <!-- Move Image Toggle (Removed) -->
+                    <!-- <ToggleButton x:Name="MoveImageToggle" ... /> -->
+                    
+                    <!-- Selection Tools Separator (Hidden temporarily) -->
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="8,4" Visibility="Collapsed"/>
+                    
+                    <!-- Rectangle Selection Toggle (Hidden temporarily) -->
+                    <ToggleButton x:Name="RectangleSelectToggle"
+                                  Content="Seleksi Kotak"
+                                  Checked="RectangleSelectToggle_Checked"
+                                  Unchecked="RectangleSelectToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Visibility="Collapsed"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Lasso Selection Toggle (Hidden temporarily) -->
+                    <ToggleButton x:Name="LassoSelectToggle"
+                                  Content="Seleksi Bebas"
+                                  Checked="LassoSelectToggle_Checked"
+                                  Unchecked="LassoSelectToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Visibility="Collapsed"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Move Selection Toggle (Hidden temporarily) -->
+                    <ToggleButton x:Name="MoveSelectionToggle"
+                                  Content="Pindah Seleksi"
+                                  Checked="MoveSelectionToggle_Checked"
+                                  Unchecked="MoveSelectionToggle_Unchecked"
+                                  IsEnabled="False"
+                                  Visibility="Collapsed"
+                                  Margin="4,0,0,0"
+                                  Style="{StaticResource ToolbarToggleStyle}"/>
+                    
+                    <!-- Apply Selection Button (Hidden temporarily) -->
+                    <Button x:Name="ApplySelectionButton"
+                            Content="Terapkan"
+                            Click="ApplySelectionMove_Click"
+                            IsEnabled="False"
+                            Visibility="Collapsed"
+                            Padding="12,6"
+                            Margin="4,0,0,0"
+                            FontSize="14"
+                            Background="#FF4CAF50"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.5"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <!-- Clear Selection Button (Hidden temporarily) -->
+                    <Button x:Name="ClearSelectionButton"
+                            Content="Hapus Seleksi"
+                            Click="ClearSelection_Click"
+                            IsEnabled="False"
+                            Visibility="Collapsed"
+                            Padding="12,6"
+                            Margin="4,0,0,0"
+                            FontSize="14"
+                            Background="#FFF44336"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.5"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </DockPanel>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="SidebarColumn" Width="320"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Main Display Area -->
+            <Border x:Name="DisplayImageBorder"
+                    Grid.Column="0"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Background="{StaticResource SurfaceBrush}"
+                    Padding="12"
+                    SnapsToDevicePixels="True"
+                    MouseLeftButtonDown="WorkspaceGrid_MouseLeftButtonDown">
+                <Grid>
+                    <ScrollViewer x:Name="WorkspaceScrollViewer"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto"
+                                  PanningMode="Both"
+                                  Focusable="True"
+                                  PreviewMouseWheel="WorkspaceScrollViewer_PreviewMouseWheel">
+                        <Grid x:Name="WorkspaceGrid"
+                              Background="Transparent">
+                            <Image Name="DisplayImage"
+                                   Stretch="None"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   RenderOptions.BitmapScalingMode="HighQuality"
+                                   IsManipulationEnabled="True"
+                                   ManipulationStarting="DisplayImage_ManipulationStarting"
+                                   ManipulationDelta="DisplayImage_ManipulationDelta">
+                                <Image.RenderTransform>
+                                    <ScaleTransform x:Name="ImageScaleTransform"
+                                                    ScaleX="1"
+                                                    ScaleY="1"/>
+                                </Image.RenderTransform>
+                            </Image>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- Hidden Negation Toggle for programmatic control -->
+            <ToggleButton x:Name="NegationToggle"
+                          Visibility="Collapsed"
+                          Checked="NegationToggle_Checked"
+                          Unchecked="NegationToggle_Unchecked"
+                          IsEnabled="False"/>
+
+            <!-- Sidebar Kanan - Properties Panel -->
+            <Border x:Name="SidebarPanel"
+                    Grid.Column="1"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1,0,0,0"
+                    Background="{StaticResource SurfaceBrush}"
+                    Margin="0"
+                    Visibility="Visible">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
+                    <StackPanel>
+                        <!-- Information Section -->
+                        <Expander Header="Information" IsExpanded="True" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                            <StackPanel Margin="16,8">
+                                <TextBlock Name="FileNameText"
+                                           Text="Belum ada gambar dipilih"
+                                           FontSize="13"
+                                           FontStyle="Italic"
+                                           TextWrapping="Wrap"
+                                           Foreground="{StaticResource TextBrush}"/>
+                                <TextBlock Name="ImageInfoText"
+                                           Text="Pilih gambar untuk melihat detail."
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextBrush}"
+                                           Opacity="0.7"
+                                           TextWrapping="Wrap"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Adjustments Section -->
+                        <Expander Header="Adjustments" IsExpanded="True" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                            <StackPanel Margin="16,8">
+                                <!-- Brightness Slider -->
+                                <StackPanel x:Name="BrightnessPanel" Orientation="Vertical" Margin="0,0,0,12" Visibility="Collapsed">
+                                    <TextBlock Text="Brightness" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Slider x:Name="BrightnessSlider" 
+                                                Grid.Column="0"
+                                                Minimum="-255" 
+                                                Maximum="255" 
+                                                Value="0" 
+                                                TickFrequency="10"
+                                                IsSnapToTickEnabled="True"
+                                                ValueChanged="BrightnessSlider_ValueChanged"
+                                                Margin="0,0,8,0"/>
+                                        <TextBlock Grid.Column="1" 
+                                                   Text="{Binding ElementName=BrightnessSlider, Path=Value, StringFormat='{}{0:0}'}" 
+                                                   FontSize="11" 
+                                                   VerticalAlignment="Center"
+                                                   MinWidth="30"
+                                                   TextAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Binary Threshold Slider -->
+                                <StackPanel x:Name="BinaryThresholdPanel" Orientation="Vertical" Margin="0,0,0,12" Visibility="Collapsed">
+                                    <TextBlock Text="Binary Threshold" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Slider x:Name="BinaryThresholdSlider"
+                                                Grid.Column="0"
+                                                Minimum="0"
+                                                Maximum="255"
+                                                Value="128"
+                                                TickFrequency="1"
+                                                IsSnapToTickEnabled="True"
+                                                ValueChanged="BinaryThresholdSlider_ValueChanged"
+                                                Margin="0,0,8,0"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding ElementName=BinaryThresholdSlider, Path=Value, StringFormat='{}{0:0}'}"
+                                                   FontSize="11"
+                                                   VerticalAlignment="Center"
+                                                   MinWidth="30"
+                                                   TextAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Color Selection Panel -->
+                                <StackPanel x:Name="ColorSelectionPanel" Orientation="Vertical" Margin="0,0,0,12" Visibility="Collapsed">
+                                    <TextBlock Text="Color Selection" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="SelectedColorText" 
+                                               Text="Klik gambar untuk pilih warna" 
+                                               FontSize="11" 
+                                               Foreground="{StaticResource TextBrush}"
+                                               Opacity="0.7"
+                                               VerticalAlignment="Center"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
+
+                                <!-- Negation Button -->
+                                <Button x:Name="NegationButton"
+                                        Content="Negasi Citra"
+                                        Click="NegationButton_Click"
+                                        IsEnabled="False"
+                                        Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Transform Section -->
+                        <Expander Header="Transform" IsExpanded="True" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                            <StackPanel Margin="16,8">
+                                <!-- Rotation Panel -->
+                                <StackPanel x:Name="RotationPanel" Orientation="Vertical" Margin="0,0,0,12" Visibility="Collapsed">
+                                    <TextBlock Text="Rotasi" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                    
+                                    <!-- Preset Rotations -->
+                                    <WrapPanel Margin="0,0,0,8">
+                                        <Button x:Name="Rotate45Button" Content="45°" Click="Rotate45Button_Click" Padding="8,4" MinWidth="50" Margin="0,0,4,4"/>
+                                        <Button x:Name="Rotate90Button" Content="90°" Click="Rotate90Button_Click" Padding="8,4" MinWidth="50" Margin="0,0,4,4"/>
+                                        <Button x:Name="Rotate180Button" Content="180°" Click="Rotate180Button_Click" Padding="8,4" MinWidth="50" Margin="0,0,4,4"/>
+                                        <Button x:Name="Rotate270Button" Content="270°" Click="Rotate270Button_Click" Padding="8,4" MinWidth="50" Margin="0,0,0,4"/>
+                                    </WrapPanel>
+                                    
+                                    <!-- Fine Control -->
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Fine:" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                            <Button x:Name="RotateLeft1Button" Content="-1°" Click="RotateLeft1Button_Click" Padding="8,4" Margin="0,0,4,0"/>
+                                            <Button x:Name="RotateRight1Button" Content="+1°" Click="RotateRight1Button_Click" Padding="8,4"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    
+                                    <!-- Custom Input -->
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Custom:" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBox x:Name="CustomRotationInput" Grid.Column="1" Text="0" PreviewTextInput="CustomRotationInput_PreviewTextInput" Margin="0,0,4,0"/>
+                                        <Button x:Name="ApplyCustomRotationButton" Grid.Column="2" Content="Apply" Click="ApplyCustomRotationButton_Click" Padding="8,4"/>
+                                    </Grid>
+                                    
+                                    <Button x:Name="RestoreRotationButton" Content="Reset Rotasi" Click="RestoreRotationButton_Click"/>
+                                </StackPanel>
+
+                                <!-- Distortion Panel -->
+                                <StackPanel x:Name="DistortionPanel" Orientation="Vertical" Margin="0,0,0,0" Visibility="Collapsed">
+                                    <TextBlock Text="Distorsi" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                    
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Level:" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <Slider x:Name="DistortionSlider" Grid.Column="1" Minimum="1" Maximum="50" Value="5" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="DistortionSlider_ValueChanged"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding ElementName=DistortionSlider, Path=Value, StringFormat='{}{0:0}'}" FontSize="11" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                    </Grid>
+                                    
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0" x:Name="ApplyDistortionButton" Content="Apply" Click="ApplyDistortionButton_Click" Margin="0,0,2,0"/>
+                                        <Button Grid.Column="1" x:Name="RestoreDistortionButton" Content="Reset" Click="RestoreDistortionButton_Click" Margin="2,0,0,0"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Histogram Section -->
+                        <Expander Header="Histogram" IsExpanded="False" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                            <StackPanel Margin="16,8">
+                                <!-- Preview Gambar B -->
+                                <Border x:Name="ImageBPreviewBorder"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="4"
+                                        Margin="0,0,0,12"
+                                        Visibility="Collapsed">
+                                    <StackPanel>
+                                        <TextBlock Text="Gambar B" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                        <Image x:Name="ImageBPreview" MaxHeight="100" Stretch="Uniform" HorizontalAlignment="Center"/>
+                                        <TextBlock x:Name="ImageBInfoText" Text="" FontSize="10" Foreground="{StaticResource TextBrush}" TextAlignment="Center" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <TextBlock Text="Red" FontSize="10" Foreground="#E74C3C" Margin="0,0,0,2"/>
+                                <Canvas x:Name="HistogramRed" Height="60" Background="{StaticResource SurfaceBrush}" Margin="0,0,0,8" Cursor="Hand" MouseLeftButtonDown="HistogramRed_Click"/>
+                                
+                                <TextBlock Text="Green" FontSize="10" Foreground="#27AE60" Margin="0,0,0,2"/>
+                                <Canvas x:Name="HistogramGreen" Height="60" Background="{StaticResource SurfaceBrush}" Margin="0,0,0,8" Cursor="Hand" MouseLeftButtonDown="HistogramGreen_Click"/>
+                                
+                                <TextBlock Text="Blue" FontSize="10" Foreground="#3498DB" Margin="0,0,0,2"/>
+                                <Canvas x:Name="HistogramBlue" Height="60" Background="{StaticResource SurfaceBrush}" Margin="0,0,0,8" Cursor="Hand" MouseLeftButtonDown="HistogramBlue_Click"/>
+                                
+                                <TextBlock Text="Grayscale" FontSize="10" Foreground="#95A5A6" Margin="0,0,0,2"/>
+                                <Canvas x:Name="HistogramGray" Height="60" Background="{StaticResource SurfaceBrush}" Margin="0,0,0,0" Cursor="Hand" MouseLeftButtonDown="HistogramGray_Click"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Filters Section -->
+                        <Expander Header="Filters" IsExpanded="False" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                            <StackPanel Margin="16,8">
+                                <ItemsControl x:Name="FilterPreviewList">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="4"
+                                                    BorderThickness="2"
+                                                    Padding="2"
+                                                    Margin="2">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="BorderBrush" Value="Transparent"/>
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <Button Click="FilterPreview_Click"
+                                                        CommandParameter="{Binding Mode}"
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Padding="2"
+                                                        Cursor="Hand">
+                                                    <StackPanel Width="80">
+                                                        <Image Source="{Binding PreviewSource}"
+                                                               Width="80"
+                                                               Height="50"
+                                                               Stretch="UniformToFill"
+                                                               SnapsToDevicePixels="True"
+                                                               Margin="0,0,0,2"/>
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontSize="10"
+                                                                   Foreground="{StaticResource TextBrush}"
+                                                                   HorizontalAlignment="Center"
+                                                                   TextWrapping="Wrap"
+                                                                   TextAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

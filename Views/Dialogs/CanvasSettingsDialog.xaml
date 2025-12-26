@@ -1,0 +1,124 @@
+<Window x:Class="MiniPhotoshop.Views.Dialogs.CanvasSettingsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Pengaturan Kanvas"
+        Height="520"
+        Width="540"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{StaticResource WindowBackgroundBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0" 
+                   Text="Pengaturan Kanvas Baru"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   Foreground="{StaticResource TextBrush}"
+                   Margin="0,0,0,20"/>
+
+        <!-- Preset Dropdown -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,16">
+            <TextBlock Text="Preset Resolusi:" FontSize="13" Margin="0,0,0,4" FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
+            <ComboBox x:Name="PresetComboBox"
+                      FontSize="13"
+                      Padding="8,6"
+                      SelectionChanged="PresetComboBox_SelectionChanged">
+                <ComboBoxItem Content="-- Custom Size --" IsSelected="True" Tag=""/>
+                <Separator/>
+                <!-- Categories will be populated in code-behind -->
+            </ComboBox>
+        </StackPanel>
+
+        <!-- Width Input -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,12">
+            <TextBlock Text="Lebar (px):" FontSize="13" Margin="0,0,0,4" Foreground="{StaticResource TextBrush}"/>
+            <TextBox x:Name="WidthInput"
+                     Text="800"
+                     FontSize="14"
+                     Padding="8,6"
+                     PreviewTextInput="NumberOnly_PreviewTextInput"/>
+        </StackPanel>
+
+        <!-- Height Input -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,12">
+            <TextBlock Text="Tinggi (px):" FontSize="13" Margin="0,0,0,4" Foreground="{StaticResource TextBrush}"/>
+            <TextBox x:Name="HeightInput"
+                     Text="600"
+                     FontSize="14"
+                     Padding="8,6"
+                     PreviewTextInput="NumberOnly_PreviewTextInput"/>
+        </StackPanel>
+
+        <!-- Color Picker -->
+        <StackPanel Grid.Row="4" Margin="0,0,0,12">
+            <TextBlock Text="Warna Latar Belakang:" FontSize="13" Margin="0,0,0,4" Foreground="{StaticResource TextBrush}"/>
+            <StackPanel Orientation="Horizontal">
+                <Border x:Name="ColorPreview"
+                        Width="40"
+                        Height="30"
+                        Background="White"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Margin="0,0,10,0"/>
+                <ComboBox x:Name="ColorComboBox"
+                          Width="200"
+                          FontSize="13"
+                          Padding="8,6"
+                          SelectionChanged="ColorComboBox_SelectionChanged">
+                    <ComboBoxItem Content="Putih" Tag="#FFFFFFFF" IsSelected="True"/>
+                    <ComboBoxItem Content="Hitam" Tag="#FF000000"/>
+                    <ComboBoxItem Content="Abu-abu Muda" Tag="#FFE0E0E0"/>
+                    <ComboBoxItem Content="Abu-abu" Tag="#FF808080"/>
+                    <ComboBoxItem Content="Merah" Tag="#FFFF0000"/>
+                    <ComboBoxItem Content="Hijau" Tag="#FF00FF00"/>
+                    <ComboBoxItem Content="Biru" Tag="#FF0000FF"/>
+                    <ComboBoxItem Content="Kuning" Tag="#FFFFFF00"/>
+                    <ComboBoxItem Content="Transparan" Tag="#00FFFFFF"/>
+                </ComboBox>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Quick Presets (Legacy buttons for quick access) -->
+        <StackPanel Grid.Row="5" Margin="0,8,0,0">
+            <TextBlock Text="Quick Select:" FontSize="13" Margin="0,0,0,8" Foreground="{StaticResource TextBrush}"/>
+            <WrapPanel>
+                <Button Content="HD 720p" Click="QuickPreset_Click" Tag="1280,720" Margin="0,0,8,8" Padding="10,5" FontSize="12"/>
+                <Button Content="Full HD" Click="QuickPreset_Click" Tag="1920,1080" Margin="0,0,8,8" Padding="10,5" FontSize="12"/>
+                <Button Content="Instagram" Click="QuickPreset_Click" Tag="1080,1080" Margin="0,0,8,8" Padding="10,5" FontSize="12"/>
+                <Button Content="A4" Click="QuickPreset_Click" Tag="2480,3508" Margin="0,0,0,8" Padding="10,5" FontSize="12"/>
+            </WrapPanel>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="6" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right"
+                    Margin="0,16,0,0">
+            <Button x:Name="SkipButton"
+                    Content="Lewati"
+                    Click="SkipButton_Click"
+                    Padding="20,8"
+                    Margin="0,0,10,0"
+                    Background="{StaticResource SurfaceBrush}"
+                    Foreground="{StaticResource TextBrush}"/>
+            <Button x:Name="CreateButton"
+                    Content="Buat Kanvas"
+                    Click="CreateButton_Click"
+                    Padding="20,8"
+                    Background="{StaticResource AccentBrush}"
+                    Foreground="White"/>
+        </StackPanel>
+    </Grid>
+</Window>

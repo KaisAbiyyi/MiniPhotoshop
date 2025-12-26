@@ -1,1 +1,35 @@
-/obj
+##############################
+# Build output
+##############################
+bin/
+obj/
+
+##############################
+# IDE cache & user state
+##############################
+.vs/
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+##############################
+# Transient artifacts
+##############################
+*.pch
+*.pdb
+*.opendb
+*.cache
+*.log
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+
+##############################
+# Test & tooling outputs
+##############################
+TestResult*/
+*.coverage
+*.coveragexml
+*.ncb
