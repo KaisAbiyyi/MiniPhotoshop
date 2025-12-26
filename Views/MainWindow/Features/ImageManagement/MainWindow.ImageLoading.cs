@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using MiniPhotoshop.Core.Enums;
 using MiniPhotoshop.Core.Models;
@@ -94,6 +95,59 @@ namespace MiniPhotoshop.Views.MainWindow
             }
         }
 
+        private void SaveImageAs_Click(object sender, RoutedEventArgs e)
+        {
+            if (_state.OriginalBitmap == null)
+            {
+                MessageBox.Show("Tidak ada gambar untuk disimpan.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            SaveFileDialog saveFileDialog = new()
+            {
+                Title = "Simpan Gambar Sebagai",
+                Filter = "PNG Files|*.png|JPEG Files|*.jpg;*.jpeg|Bitmap Files|*.bmp|GIF Files|*.gif|TIFF Files|*.tiff|All Files|*.*",
+                FilterIndex = 1,
+                FileName = Path.GetFileNameWithoutExtension(_state.CurrentFilePath ?? "image") + "_edited.png"
+            };
+
+            if (saveFileDialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            try
+            {
+                string filePath = EnsureExtension(saveFileDialog.FileName);
+                string extension = Path.GetExtension(filePath).ToLowerInvariant();
+
+                if (extension == ".jpg" || extension == ".jpeg")
+                {
+                    var result = MessageBox.Show(
+                        "Format JPEG bersifat lossy dan dapat merusak pesan steganografi (LSB). Lanjutkan?",
+                        "Peringatan JPEG",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning);
+
+                    if (result != MessageBoxResult.Yes)
+                    {
+                        return;
+                    }
+                }
+
+                BitmapSource bitmap = _imageProvider.GetCurrentImage();
+                SaveBitmapToFile(bitmap, filePath);
+
+                _state.CurrentFilePath = filePath;
+                FileNameText.Text = Path.GetFileName(filePath);
+                MessageBox.Show("Gambar berhasil disimpan.", "Sukses", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Gagal menyimpan gambar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void ApplyLoadedImage(ImageLoadResult result)
         {
             // Apply filter first to update state
@@ -113,6 +167,7 @@ namespace MiniPhotoshop.Views.MainWindow
             ImageInfoText.Text = $"Resolusi: {result.Width} x {result.Height} | Format: {result.PixelFormatDescription}";
 
             SavePixelsMenuItem.IsEnabled = true;
+            SaveImageAsMenuItem.IsEnabled = true;
             ResetImageMenuItem.IsEnabled = true;
             NegationToggle.IsEnabled = true;
             NegationToggle.IsChecked = false;
@@ -139,6 +194,9 @@ namespace MiniPhotoshop.Views.MainWindow
             SelectedColorText.Text = "Klik pada gambar untuk memilih warna";
             SelectedColorText.Foreground = System.Windows.Media.Brushes.Gray;
             DisplayImage.MouseLeftButtonDown -= DisplayImage_ColorSelection_Click;
+            _suppressColorToleranceHandler = true;
+            ColorToleranceSlider.Value = ColorSelectionState.DefaultTolerancePercent;
+            _suppressColorToleranceHandler = false;
 
             // Enable toolbar buttons
             ScalarOperationToggle.IsEnabled = true;
@@ -161,6 +219,38 @@ namespace MiniPhotoshop.Views.MainWindow
             _state.CurrentZoom = 1.0;
             _currentZoom = 1.0;
             QueueAutoFit();
+        }
+
+        private static string EnsureExtension(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(Path.GetExtension(filePath)))
+            {
+                return filePath + ".png";
+            }
+
+            return filePath;
+        }
+
+        private static void SaveBitmapToFile(BitmapSource bitmap, string filePath)
+        {
+            BitmapEncoder encoder = CreateEncoderForPath(filePath);
+            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+
+            using var stream = File.Create(filePath);
+            encoder.Save(stream);
+        }
+
+        private static BitmapEncoder CreateEncoderForPath(string filePath)
+        {
+            string extension = Path.GetExtension(filePath).ToLowerInvariant();
+            return extension switch
+            {
+                ".jpg" or ".jpeg" => new JpegBitmapEncoder { QualityLevel = 95 },
+                ".bmp" => new BmpBitmapEncoder(),
+                ".gif" => new GifBitmapEncoder(),
+                ".tiff" => new TiffBitmapEncoder(),
+                _ => new PngBitmapEncoder()
+            };
         }
     }
 }

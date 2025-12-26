@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using MiniPhotoshop.Core.Models;
 
 namespace MiniPhotoshop.Views.MainWindow
 {
@@ -23,6 +24,9 @@ namespace MiniPhotoshop.Views.MainWindow
                 ColorSelectionPanel.Visibility = Visibility.Visible;
                 // Aktifkan mode seleksi warna di service dan tampilkan gambar referensi.
                 DisplayImage.Source = _colorSelectionService.SetColorSelectionActive(true);
+                _suppressColorToleranceHandler = true;
+                ColorToleranceSlider.Value = _state.ColorSelection.TolerancePercent;
+                _suppressColorToleranceHandler = false;
                 // Daftarkan handler klik di gambar untuk menangkap pixel yang dipilih.
                 DisplayImage.MouseLeftButtonDown += DisplayImage_ColorSelection_Click;
                 SelectedColorText.Text = "Klik pada gambar untuk memilih warna";
@@ -50,6 +54,9 @@ namespace MiniPhotoshop.Views.MainWindow
                 MessageBox.Show($"Gagal menonaktifkan seleksi warna: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
+            _suppressColorToleranceHandler = true;
+            ColorToleranceSlider.Value = ColorSelectionState.DefaultTolerancePercent;
+            _suppressColorToleranceHandler = false;
             SelectedColorText.Text = "Klik pada gambar untuk memilih warna";
             SelectedColorText.Foreground = Brushes.Gray;
         }
@@ -124,6 +131,23 @@ namespace MiniPhotoshop.Views.MainWindow
             catch (Exception ex)
             {
                 MessageBox.Show($"Gagal memilih warna: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ColorToleranceSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_suppressColorToleranceHandler || _state.PixelCache == null)
+            {
+                return;
+            }
+
+            try
+            {
+                DisplayImage.Source = _colorSelectionService.UpdateTolerance(e.NewValue);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Gagal memperbarui toleransi warna: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

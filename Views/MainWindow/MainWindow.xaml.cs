@@ -34,6 +34,9 @@ namespace MiniPhotoshop.Views.MainWindow
         private readonly ISelectionService _selectionService;
         private readonly IImageObjectManager _imageObjectManager;
         private readonly IEdgeDetectionService _edgeDetectionService;
+        private readonly IContrastEnhancementService _contrastService;
+        private readonly ISteganographyService _steganographyService;
+        private readonly IWatermarkService _watermarkService;
 
         private BitmapSource? _arithmeticOverlayBitmap;
         private bool _suppressArithmeticToggleHandlers;
@@ -52,6 +55,7 @@ namespace MiniPhotoshop.Views.MainWindow
         private HwndSource? _hwndSource;
         private double _currentZoom = 1.0;
         private bool _suppressBrightnessHandler;
+        private bool _suppressColorToleranceHandler;
 
         private const double MinZoom = 0.1;
         private const double MaxZoom = 50.0;
@@ -83,6 +87,9 @@ namespace MiniPhotoshop.Views.MainWindow
             _selectionService = _editor;
             _imageObjectManager = _editor;
             _edgeDetectionService = _editor;
+            _contrastService = _editor;
+            _steganographyService = _editor;
+            _watermarkService = _editor;
 
             FilterPreviewList.ItemsSource = _state.PreviewItems;
             DisplayImage.RenderTransformOrigin = new Point(0.5, 0.5);

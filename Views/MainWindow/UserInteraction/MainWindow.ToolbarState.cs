@@ -34,11 +34,14 @@ namespace MiniPhotoshop.Views.MainWindow
             // Convolution operates on the global OriginalBitmap, not the specific selection
             ConvolutionMenu.IsEnabled = _state.OriginalBitmap != null;
             EdgeDetectionMenu.IsEnabled = _state.OriginalBitmap != null;
+            ContrastMenu.IsEnabled = _state.OriginalBitmap != null;
+            SecurityMenu.IsEnabled = _state.OriginalBitmap != null;
             NegationButton.IsEnabled = hasSelection;
             
             // Reset Image menu item
             ResetImageMenuItem.IsEnabled = hasSelection;
             SavePixelsMenuItem.IsEnabled = hasSelection;
+            SaveImageAsMenuItem.IsEnabled = hasSelection;
 
             // Update status text
             if (hasSelection)

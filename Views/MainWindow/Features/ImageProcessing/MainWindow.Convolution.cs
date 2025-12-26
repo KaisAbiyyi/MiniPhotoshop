@@ -41,6 +41,19 @@ namespace MiniPhotoshop.Views.MainWindow
             }
         }
 
+        private void ConvolutionLaplacianSharpen_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var result = _convolutionService.ApplyLaplacianSharpen();
+                ApplyConvolutionResult(result, "Sharpen_Laplacian");
+            }
+            catch (Exception ex)
+            {
+                ShowConvolutionError("Sharpen Laplacian", ex);
+            }
+        }
+
         private void ConvolutionGaussianBlur_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -52,6 +65,20 @@ namespace MiniPhotoshop.Views.MainWindow
             catch (Exception ex)
             {
                 ShowConvolutionError("Gaussian Blur", ex);
+            }
+        }
+
+        private void ConvolutionMedian_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                int kernelSize = GetKernelSizeFromMenuItem(sender);
+                var result = _convolutionService.ApplyMedianFilter(kernelSize);
+                ApplyConvolutionResult(result, $"Median_{kernelSize}x{kernelSize}");
+            }
+            catch (Exception ex)
+            {
+                ShowConvolutionError("Median Filter", ex);
             }
         }
 

@@ -240,6 +240,79 @@ namespace MiniPhotoshop.Services.ImageEditor
         }
 
         /// <summary>
+        /// Applies Median Filter (non-linear) for noise reduction.
+        /// Input: kernel size (odd). Output: new bitmap with median per channel.
+        /// Algorithm: collect neighborhood values, sort, and take median.
+        /// </summary>
+        public BitmapSource ApplyMedianFilter(int kernelSize = 3)
+        {
+            if (State.OriginalBitmap == null)
+            {
+                throw new InvalidOperationException("No image loaded.");
+            }
+
+            if (kernelSize % 2 == 0 || kernelSize < 3)
+            {
+                throw new ArgumentException("Kernel size must be odd and >= 3.");
+            }
+
+            BitmapSource source = EnsureBgra32(State.OriginalBitmap);
+            int width = source.PixelWidth;
+            int height = source.PixelHeight;
+            int stride = width * 4;
+
+            byte[] sourcePixels = new byte[stride * height];
+            source.CopyPixels(sourcePixels, stride, 0);
+
+            int padding = kernelSize / 2;
+            byte[] paddedPixels = CreatePaddedImage(sourcePixels, width, height, padding);
+            int paddedWidth = width + 2 * padding;
+            int paddedStride = paddedWidth * 4;
+
+            int windowSize = kernelSize * kernelSize;
+            byte[] windowB = new byte[windowSize];
+            byte[] windowG = new byte[windowSize];
+            byte[] windowR = new byte[windowSize];
+
+            byte[] resultPixels = new byte[stride * height];
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int idx = 0;
+                    for (int ky = -padding; ky <= padding; ky++)
+                    {
+                        for (int kx = -padding; kx <= padding; kx++)
+                        {
+                            int px = x + padding + kx;
+                            int py = y + padding + ky;
+                            int paddedIndex = py * paddedStride + px * 4;
+
+                            windowB[idx] = paddedPixels[paddedIndex];
+                            windowG[idx] = paddedPixels[paddedIndex + 1];
+                            windowR[idx] = paddedPixels[paddedIndex + 2];
+                            idx++;
+                        }
+                    }
+
+                    Array.Sort(windowB);
+                    Array.Sort(windowG);
+                    Array.Sort(windowR);
+
+                    int medianIndex = windowSize / 2;
+                    int resultIndex = y * stride + x * 4;
+                    resultPixels[resultIndex] = windowB[medianIndex];
+                    resultPixels[resultIndex + 1] = windowG[medianIndex];
+                    resultPixels[resultIndex + 2] = windowR[medianIndex];
+                    resultPixels[resultIndex + 3] = sourcePixels[resultIndex + 3];
+                }
+            }
+
+            return CreateBitmapFromBuffer(resultPixels, width, height);
+        }
+
+        /// <summary>
         /// Generates Gaussian kernel matrix.
         /// Formula: G(x,y) = (1/(2πσ²)) × e^(-(x²+y²)/(2σ²))
         /// </summary>
@@ -306,6 +379,81 @@ namespace MiniPhotoshop.Services.ImageEditor
             };
 
             return ApplyConvolution(kernel, 1.0);
+        }
+
+        /// <summary>
+        /// Applies Laplacian sharpening by adding the Laplacian response to the original image.
+        /// Input: strength multiplier. Output: sharpened bitmap.
+        /// Algorithm: Laplacian convolution + original, with clamping.
+        /// </summary>
+        public BitmapSource ApplyLaplacianSharpen(double strength = 1.0)
+        {
+            if (State.OriginalBitmap == null)
+            {
+                throw new InvalidOperationException("No image loaded.");
+            }
+
+            if (double.IsNaN(strength) || double.IsInfinity(strength) || strength <= 0)
+            {
+                throw new ArgumentException("Strength must be a positive number.", nameof(strength));
+            }
+
+            BitmapSource source = EnsureBgra32(State.OriginalBitmap);
+            int width = source.PixelWidth;
+            int height = source.PixelHeight;
+            int stride = width * 4;
+
+            byte[] sourcePixels = new byte[stride * height];
+            source.CopyPixels(sourcePixels, stride, 0);
+
+            int padding = 1;
+            byte[] paddedPixels = CreatePaddedImage(sourcePixels, width, height, padding);
+            int paddedWidth = width + 2 * padding;
+            int paddedStride = paddedWidth * 4;
+
+            double[,] kernel = new double[3, 3]
+            {
+                {  0, -1,  0 },
+                { -1,  4, -1 },
+                {  0, -1,  0 }
+            };
+
+            byte[] resultPixels = new byte[stride * height];
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    double sumB = 0, sumG = 0, sumR = 0;
+
+                    for (int ky = -padding; ky <= padding; ky++)
+                    {
+                        for (int kx = -padding; kx <= padding; kx++)
+                        {
+                            int px = x + padding + kx;
+                            int py = y + padding + ky;
+                            int paddedIndex = py * paddedStride + px * 4;
+
+                            double kValue = kernel[ky + padding, kx + padding];
+                            sumB += kValue * paddedPixels[paddedIndex];
+                            sumG += kValue * paddedPixels[paddedIndex + 1];
+                            sumR += kValue * paddedPixels[paddedIndex + 2];
+                        }
+                    }
+
+                    int resultIndex = y * stride + x * 4;
+                    int outB = (int)Math.Round(sourcePixels[resultIndex] + (sumB * strength));
+                    int outG = (int)Math.Round(sourcePixels[resultIndex + 1] + (sumG * strength));
+                    int outR = (int)Math.Round(sourcePixels[resultIndex + 2] + (sumR * strength));
+
+                    resultPixels[resultIndex] = ClampToByte(outB);
+                    resultPixels[resultIndex + 1] = ClampToByte(outG);
+                    resultPixels[resultIndex + 2] = ClampToByte(outR);
+                    resultPixels[resultIndex + 3] = sourcePixels[resultIndex + 3];
+                }
+            }
+
+            return CreateBitmapFromBuffer(resultPixels, width, height);
         }
 
         /// <summary>

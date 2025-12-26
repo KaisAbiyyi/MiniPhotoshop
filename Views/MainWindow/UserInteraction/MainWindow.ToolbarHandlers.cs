@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using MiniPhotoshop.Core.Enums;
+using MiniPhotoshop.Core.Models;
 using MiniPhotoshop.Views.Dialogs;
 
 namespace MiniPhotoshop.Views.MainWindow
@@ -406,6 +407,9 @@ namespace MiniPhotoshop.Views.MainWindow
             {
                 ColorSelectionToggle.IsChecked = false;
             }
+            _suppressColorToleranceHandler = true;
+            ColorToleranceSlider.Value = ColorSelectionState.DefaultTolerancePercent;
+            _suppressColorToleranceHandler = false;
         }
 
         #endregion

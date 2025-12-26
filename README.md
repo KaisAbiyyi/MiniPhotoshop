@@ -8,6 +8,11 @@ A simple image editing application built with WPF and C#.
 - **Pixel Data Export**: Save pixel data in 3D array format
 - **Color Filters**: Red only, Green only, Blue only, Grayscale
 - **Histogram Visualization**: View RGB and Grayscale histograms
+- **Contrast Enhancement**: Linear contrast, gamma correction, adaptive contrast, and global contrast stretching
+- **Image Smoothing**: Mean, Gaussian, and Median filters
+- **Image Sharpening**: Laplacian sharpening
+- **Color Spotlight**: Interactive color selection with tolerance slider
+- **Image Security**: LSB steganography (embed/extract) and watermarking (text/logo)
 
 ### Advanced Image Processing (5 Tugas)
 

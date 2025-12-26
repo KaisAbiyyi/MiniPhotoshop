@@ -36,6 +36,12 @@ namespace MiniPhotoshop.Services.Contracts
         BitmapSource ApplyGaussianBlur(int kernelSize = 3, double sigma = 1.0);
 
         /// <summary>
+        /// Applies Median Filter (non-linear smoothing).
+        /// Removes salt and pepper noise by taking the median of the neighborhood.
+        /// </summary>
+        BitmapSource ApplyMedianFilter(int kernelSize = 3);
+
+        /// <summary>
         /// Applies Sobel edge detection (horizontal).
         /// </summary>
         BitmapSource ApplySobelHorizontal();
@@ -49,6 +55,11 @@ namespace MiniPhotoshop.Services.Contracts
         /// Applies Laplacian edge detection.
         /// </summary>
         BitmapSource ApplyLaplacian();
+
+        /// <summary>
+        /// Applies Laplacian sharpening by adding the Laplacian response to the original image.
+        /// </summary>
+        BitmapSource ApplyLaplacianSharpen(double strength = 1.0);
 
         /// <summary>
         /// Applies emboss effect.
