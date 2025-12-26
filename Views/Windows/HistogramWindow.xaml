@@ -43,8 +43,9 @@
             <Border Grid.Row="0" Grid.Column="1" 
                     BorderBrush="{StaticResource BorderBrush}" 
                     BorderThickness="1" 
-                    Background="{StaticResource SurfaceBrush}">
-                <Canvas x:Name="HistogramCanvas"/>
+                    Background="{StaticResource SurfaceBrush}"
+                    ClipToBounds="True">
+                <Canvas x:Name="HistogramCanvas" ClipToBounds="True"/>
             </Border>
             
             <!-- X-Axis Labels -->

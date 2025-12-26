@@ -47,8 +47,8 @@ namespace MiniPhotoshop.Views.Windows
             // Gambar histogram - 255 di ujung kanan
             double width = HistogramCanvas.ActualWidth;
             double height = HistogramCanvas.ActualHeight;
-            // Bagi dengan 255 agar bar 255 tepat di ujung (0 di awal, 255 di akhir)
-            double barWidth = width / 255.0;
+            // Bagi ke 256 segmen agar nilai 0..255 muat penuh tanpa melampaui batas
+            double barWidth = width / 256.0;
             
             for (int i = 0; i < 256; i++)
             {
