@@ -7,6 +7,8 @@ namespace MiniPhotoshop.Services.Contracts
         BitmapSource SetColorSelectionActive(bool isActive);
 
         BitmapSource ApplySelection(int pixelX, int pixelY);
+
+        BitmapSource UpdateTolerance(double tolerancePercent);
     }
 }
 

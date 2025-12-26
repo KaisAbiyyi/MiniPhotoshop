@@ -57,6 +57,8 @@ namespace MiniPhotoshop.Core.Models
 
         public bool PendingAutoFit { get; set; }
 
+        public WatermarkInfo? LastWatermark { get; set; }
+
         public void Reset()
         {
             OriginalBitmap = null;
@@ -78,6 +80,7 @@ namespace MiniPhotoshop.Core.Models
             ActiveFilter = ImageFilterMode.Original;
             CurrentZoom = 1.0;
             PendingAutoFit = false;
+            LastWatermark = null;
         }
     }
 }

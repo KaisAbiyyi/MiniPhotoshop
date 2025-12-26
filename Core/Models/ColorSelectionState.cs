@@ -7,6 +7,8 @@ namespace MiniPhotoshop.Core.Models
     /// </summary>
     public sealed class ColorSelectionState
     {
+        public const double DefaultTolerancePercent = 10.0;
+
         public bool IsActive { get; set; }
 
         public byte TargetR { get; set; }
@@ -19,12 +21,15 @@ namespace MiniPhotoshop.Core.Models
 
         public bool HasTarget { get; set; }
 
+        public double TolerancePercent { get; set; } = DefaultTolerancePercent;
+
         public void Reset()
         {
             IsActive = false;
             TargetR = TargetG = TargetB = 0;
             OriginalBeforeSelection = null;
             HasTarget = false;
+            TolerancePercent = DefaultTolerancePercent;
         }
     }
 }

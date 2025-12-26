@@ -50,6 +50,10 @@
                                       Click="ResetImage_Click"
                                       IsEnabled="False"/>
                             <Separator/>
+                            <MenuItem x:Name="SaveImageAsMenuItem"
+                                      Header="Simpan Gambar Sebagai..."
+                                      Click="SaveImageAs_Click"
+                                      IsEnabled="False"/>
                             <MenuItem x:Name="SavePixelsMenuItem"
                                       Header="Simpan Pixel"
                                       Click="SavePixelsButton_Click"
@@ -262,17 +266,23 @@
                           IsEnabled="False">
                         <MenuItem Header="Konvolusi"
                                   Padding="16,6">
-                            <MenuItem Header="Low Pass Filter">
+                            <MenuItem Header="Mean Filter (Box Blur)">
                                 <MenuItem Header="3x3" Tag="3" Click="ConvolutionLowPass_Click"/>
                                 <MenuItem Header="5x5" Tag="5" Click="ConvolutionLowPass_Click"/>
                                 <MenuItem Header="7x7" Tag="7" Click="ConvolutionLowPass_Click"/>
                             </MenuItem>
                             <MenuItem Header="High Pass Filter" Click="ConvolutionHighPass_Click"/>
+                            <MenuItem Header="Sharpen (Laplacian)" Click="ConvolutionLaplacianSharpen_Click"/>
                             <Separator/>
                             <MenuItem Header="Gaussian Blur">
                                 <MenuItem Header="3x3" Tag="3" Click="ConvolutionGaussianBlur_Click"/>
                                 <MenuItem Header="5x5" Tag="5" Click="ConvolutionGaussianBlur_Click"/>
                                 <MenuItem Header="7x7" Tag="7" Click="ConvolutionGaussianBlur_Click"/>
+                            </MenuItem>
+                            <MenuItem Header="Median Filter">
+                                <MenuItem Header="3x3" Tag="3" Click="ConvolutionMedian_Click"/>
+                                <MenuItem Header="5x5" Tag="5" Click="ConvolutionMedian_Click"/>
+                                <MenuItem Header="7x7" Tag="7" Click="ConvolutionMedian_Click"/>
                             </MenuItem>
                             <Separator/>
                             <MenuItem Header="Emboss" Click="ConvolutionEmboss_Click"/>
@@ -315,6 +325,47 @@
                             <MenuItem Header="Histogram Equalization" Click="HistogramEqualization_Click"/>
                             <MenuItem Header="Linear Stretch Equalization" Click="HistogramLinearStretch_Click"/>
                             <MenuItem Header="Adaptive Histogram Equalization" Click="HistogramAdaptiveEqualization_Click"/>
+                        </MenuItem>
+                    </Menu>
+
+                    <!-- Contrast Enhancement Menu -->
+                    <Menu Background="Transparent"
+                          BorderThickness="0"
+                          Margin="4,0,0,0"
+                          VerticalAlignment="Center"
+                          FontSize="14"
+                          x:Name="ContrastMenu"
+                          IsEnabled="False">
+                        <MenuItem Header="Kontras"
+                                  Padding="16,6">
+                            <MenuItem Header="Linear Contrast..." Click="ContrastLinear_Click"/>
+                            <MenuItem Header="Gamma Correction..." Click="ContrastGamma_Click"/>
+                            <MenuItem Header="Adaptive Contrast (3x3)..." Click="ContrastAdaptive_Click"/>
+                            <MenuItem Header="Contrast Stretching (Global)" Click="ContrastStretch_Click"/>
+                        </MenuItem>
+                    </Menu>
+
+                    <!-- Security Menu -->
+                    <Menu Background="Transparent"
+                          BorderThickness="0"
+                          Margin="4,0,0,0"
+                          VerticalAlignment="Center"
+                          FontSize="14"
+                          x:Name="SecurityMenu"
+                          IsEnabled="False">
+                        <MenuItem Header="Keamanan Citra"
+                                  Padding="16,6">
+                            <MenuItem Header="Steganografi (LSB)">
+                                <MenuItem Header="Sisipkan Pesan..." Click="SteganographyEmbed_Click"/>
+                                <MenuItem Header="Ekstrak Pesan..." Click="SteganographyExtract_Click"/>
+                            </MenuItem>
+                            <Separator/>
+                            <MenuItem Header="Watermark">
+                                <MenuItem Header="Watermark Teks..." Click="WatermarkText_Click"/>
+                                <MenuItem Header="Watermark Logo..." Click="WatermarkLogo_Click"/>
+                                <Separator/>
+                                <MenuItem Header="Ekstrak Watermark..." Click="WatermarkExtract_Click"/>
+                            </MenuItem>
                         </MenuItem>
                     </Menu>
                     
@@ -551,6 +602,27 @@
                                                Opacity="0.7"
                                                VerticalAlignment="Center"
                                                Margin="0,4,0,0"/>
+                                    <TextBlock Text="Tolerance" FontSize="11" Margin="0,8,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Slider x:Name="ColorToleranceSlider"
+                                                Grid.Column="0"
+                                                Minimum="0"
+                                                Maximum="100"
+                                                Value="10"
+                                                TickFrequency="5"
+                                                ValueChanged="ColorToleranceSlider_ValueChanged"
+                                                Margin="0,0,8,0"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding ElementName=ColorToleranceSlider, Path=Value, StringFormat='{}{0:0}%'}"
+                                                   FontSize="11"
+                                                   VerticalAlignment="Center"
+                                                   MinWidth="40"
+                                                   TextAlignment="Right"/>
+                                    </Grid>
                                 </StackPanel>
 
                                 <!-- Negation Button -->

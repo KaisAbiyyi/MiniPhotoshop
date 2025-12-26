@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
 C:\projects\MiniPhotoshop\App.xaml
-10947402920
+181736450612
 
-94-1316552097
+114-436449730
 198338916705
-Views\Dialogs\BinaryOperationDialog.xaml;Views\Dialogs\CannyEdgeDetectionDialog.xaml;Views\Dialogs\CanvasSettingsDialog.xaml;Views\Dialogs\CustomKernelDialog.xaml;Views\Dialogs\ImageSelectionDialog.xaml;Views\Dialogs\OffsetDialog.xaml;Views\Dialogs\ScalarOperationDialog.xaml;Views\MainWindow\MainWindow.xaml;Views\Windows\GrayscaleComparisonWindow.xaml;Views\Windows\HistogramWindow.xaml;
+Views\Dialogs\AdaptiveContrastDialog.xaml;Views\Dialogs\BinaryOperationDialog.xaml;Views\Dialogs\CannyEdgeDetectionDialog.xaml;Views\Dialogs\CanvasSettingsDialog.xaml;Views\Dialogs\CustomKernelDialog.xaml;Views\Dialogs\GammaCorrectionDialog.xaml;Views\Dialogs\ImageSelectionDialog.xaml;Views\Dialogs\LinearContrastDialog.xaml;Views\Dialogs\OffsetDialog.xaml;Views\Dialogs\ScalarOperationDialog.xaml;Views\Dialogs\SteganographyEmbedDialog.xaml;Views\Dialogs\SteganographyExtractDialog.xaml;Views\Dialogs\WatermarkExtractDialog.xaml;Views\Dialogs\WatermarkLogoDialog.xaml;Views\Dialogs\WatermarkTextDialog.xaml;Views\MainWindow\MainWindow.xaml;Views\Windows\GrayscaleComparisonWindow.xaml;Views\Windows\HistogramWindow.xaml;
 
 False
 

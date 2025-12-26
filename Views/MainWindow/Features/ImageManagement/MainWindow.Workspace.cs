@@ -38,6 +38,7 @@ namespace MiniPhotoshop.Views.MainWindow
             ImageInfoText.Text = "Silakan pilih gambar untuk mulai bekerja.";
 
             SavePixelsMenuItem.IsEnabled = false;
+            SaveImageAsMenuItem.IsEnabled = false;
             ResetImageMenuItem.IsEnabled = false;
             NegationToggle.IsEnabled = false;
             NegationToggle.IsChecked = false;
@@ -60,6 +61,9 @@ namespace MiniPhotoshop.Views.MainWindow
             SelectedColorText.Text = "Klik pada gambar untuk memilih warna";
             SelectedColorText.Foreground = Brushes.Gray;
             DisplayImage.MouseLeftButtonDown -= DisplayImage_ColorSelection_Click;
+            _suppressColorToleranceHandler = true;
+            ColorToleranceSlider.Value = ColorSelectionState.DefaultTolerancePercent;
+            _suppressColorToleranceHandler = false;
 
             // ArithmeticPanel.Visibility = Visibility.Collapsed;
             // ArithmeticOffsetXTextBox.Text = "0";
@@ -99,6 +103,8 @@ namespace MiniPhotoshop.Views.MainWindow
 
             ConvolutionMenu.IsEnabled = false;
             EdgeDetectionMenu.IsEnabled = false;
+            ContrastMenu.IsEnabled = false;
+            SecurityMenu.IsEnabled = false;
 
             // MoveImageToggle.IsEnabled = false;
             // MoveImageToggle.IsChecked = false;

@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Media.Imaging;
+using MiniPhotoshop.Core.Models;
 
 namespace MiniPhotoshop.Services.ImageEditor
 {
@@ -21,6 +22,7 @@ namespace MiniPhotoshop.Services.ImageEditor
                 // Simpan bitmap saat ini sebagai referensi sebelum seleksi.
                 State.ColorSelection.OriginalBeforeSelection = GetProcessedBitmap();
                 State.ColorSelection.HasTarget = false;
+                State.ColorSelection.TolerancePercent = ColorSelectionState.DefaultTolerancePercent;
                 return State.ColorSelection.OriginalBeforeSelection;
             }
 
@@ -50,11 +52,11 @@ namespace MiniPhotoshop.Services.ImageEditor
             State.ColorSelection.TargetB = State.PixelCache[pixelX, pixelY, 2];
             State.ColorSelection.HasTarget = true;
 
-            return ApplyColorSelection(GetProcessedBitmap());
+            return GetProcessedBitmap();
         }
 
-        // Melakukan masking: pixel yang warnanya sama dengan target akan ditampilkan,
-        // sisanya dibuat hitam (0,0,0) dengan alpha dipertahankan.
+        // Melakukan masking: pixel yang warnanya dekat dengan target (sesuai toleransi)
+        // ditampilkan, sisanya diubah menjadi grayscale yang digelapkan (spotlight).
         private BitmapSource ApplyColorSelection(BitmapSource source)
         {
             if (!State.ColorSelection.IsActive || State.PixelCache == null)
@@ -70,6 +72,11 @@ namespace MiniPhotoshop.Services.ImageEditor
             {
                 return source;
             }
+
+            double tolerance = Math.Clamp(State.ColorSelection.TolerancePercent, 0, 100);
+            double maxDistanceSquared = 255.0 * 255.0 * 3.0;
+            double thresholdSquared = maxDistanceSquared * (tolerance / 100.0) * (tolerance / 100.0);
+            const double dimFactor = 0.4;
 
             int width = State.CachedWidth;
             int height = State.CachedHeight;
@@ -89,8 +96,13 @@ namespace MiniPhotoshop.Services.ImageEditor
                     byte b = cache[x, y, 2];
                     byte a = cache[x, y, 4];
 
-                    // Jika sama dengan warna target → tampilkan warna asli.
-                    if (r == targetR && g == targetG && b == targetB)
+                    int dr = r - targetR;
+                    int dg = g - targetG;
+                    int db = b - targetB;
+                    double distSquared = (dr * dr) + (dg * dg) + (db * db);
+
+                    // Jika berada dalam toleransi → tampilkan warna asli.
+                    if (distSquared <= thresholdSquared)
                     {
                         buffer[offset] = b;
                         buffer[offset + 1] = g;
@@ -99,16 +111,31 @@ namespace MiniPhotoshop.Services.ImageEditor
                     }
                     else
                     {
-                        // Jika berbeda → jadikan hitam (mask).
-                        buffer[offset] = 0;
-                        buffer[offset + 1] = 0;
-                        buffer[offset + 2] = 0;
+                        // Jika di luar toleransi → ubah ke grayscale dan gelapkan.
+                        byte gray = cache[x, y, 3];
+                        byte dimmed = (byte)Math.Clamp((int)Math.Round(gray * dimFactor), 0, 255);
+                        buffer[offset] = dimmed;
+                        buffer[offset + 1] = dimmed;
+                        buffer[offset + 2] = dimmed;
                         buffer[offset + 3] = a;
                     }
                 }
             }
 
             return CreateBitmapFromBuffer(buffer, width, height);
+        }
+
+        // Mengubah nilai toleransi seleksi warna (0-100%) dan menghitung ulang hasil seleksi.
+        public BitmapSource UpdateTolerance(double tolerancePercent)
+        {
+            State.ColorSelection.TolerancePercent = Math.Clamp(tolerancePercent, 0, 100);
+
+            if (!State.ColorSelection.IsActive)
+            {
+                return GetProcessedBitmap();
+            }
+
+            return GetProcessedBitmap();
         }
     }
 }

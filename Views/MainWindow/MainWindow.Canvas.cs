@@ -33,9 +33,10 @@ namespace MiniPhotoshop.Views.MainWindow
         {
             if (result == null) return;
 
-            // Update the original bitmap with the processing result
+            // Update the original bitmap and refresh caches with the processing result
             var oldBitmap = _state.OriginalBitmap;
-            _state.OriginalBitmap = result;
+            _editor.RefreshWorkspaceCaches(result);
+            var updatedBitmap = _state.OriginalBitmap;
 
             // Sync with ImageObjects (Canvas Rendering)
             // We need to update the ImageObject that corresponds to the processed bitmap
@@ -43,7 +44,7 @@ namespace MiniPhotoshop.Views.MainWindow
             var imageObj = System.Linq.Enumerable.FirstOrDefault(_state.ImageObjects, x => x.Bitmap == oldBitmap);
             if (imageObj != null)
             {
-                imageObj.Bitmap = result;
+                imageObj.Bitmap = updatedBitmap!;
             }
             else
             {
@@ -51,11 +52,11 @@ namespace MiniPhotoshop.Views.MainWindow
                 var selected = _imageObjectManager.GetSelectedImage();
                 if (selected != null)
                 {
-                    selected.Bitmap = result;
+                    selected.Bitmap = updatedBitmap!;
                 }
                 else if (_state.ImageObjects.Count > 0)
                 {
-                    _state.ImageObjects[0].Bitmap = result;
+                    _state.ImageObjects[0].Bitmap = updatedBitmap!;
                 }
             }
             
@@ -72,7 +73,7 @@ namespace MiniPhotoshop.Views.MainWindow
             UpdateCanvasDisplay();
             
             // Update info
-            ImageInfoText.Text = $"{operationName} diterapkan | Resolusi: {result.PixelWidth} x {result.PixelHeight}";
+            ImageInfoText.Text = $"{operationName} diterapkan | Resolusi: {updatedBitmap!.PixelWidth} x {updatedBitmap!.PixelHeight}";
         }
 
         #endregion
